@@ -15,6 +15,8 @@ test("a signed-out visit to any other page also lands on the sign-in page", asyn
 
 test("the sign-in page explains a refused account in plain English", async ({ page }) => {
   await page.goto("/login?error=wrong-domain");
-  await expect(page.getByRole("alert")).toHaveText("Please sign in with your CDS Google account.");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Please sign in with your CDS Google account." }),
+  ).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign in with Google" })).toBeEnabled();
 });
