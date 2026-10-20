@@ -1,0 +1,46 @@
+---
+description: Rules for Next.js pages, server actions, Supabase clients and login checks
+globs: src/app/**, src/lib/**, src/proxy.ts
+alwaysApply: false
+---
+
+# Next.js and auth rules
+
+## Supabase clients (follow the current Supabase Next.js guide)
+- `src/lib/supabase/client.ts` — browser client via `createBrowserClient` with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+- `src/lib/supabase/server.ts` — server client via `createServerClient` using Next.js `cookies()`.
+- `src/lib/supabase/admin.ts` — secret-key client, **server only**, starts with `import "server-only"`. Use only for admin jobs that must bypass RLS, and say why in a comment.
+- `src/proxy.ts` (Next.js 16 name; not `middleware.ts`) refreshes the session on every request and redirects signed-out users to `/login`. Public paths: `/login`, `/auth/callback`, static assets.
+- Authorisation checks use `supabase.auth.getClaims()`. Never trust `getSession()` for authorisation.
+
+## Pages and data
+- Server Components by default. Add `"use client"` only for interactivity (forms with live state, filters, editors).
+- Read data in Server Components through the server client, so RLS applies with the user's identity.
+- Writes go through Server Actions in `actions.ts` files next to the page.
+
+## Every Server Action and Route Handler
+1. Get the current user with `getCurrentUser()` from `src/lib/auth`. If none, return an error.
+2. Check role with `requireRole([...])` where the action is restricted.
+3. Validate input with Zod. Reject unknown fields.
+4. Perform the write through the server client (RLS still applies).
+5. Return `{ ok: true, data }` or `{ ok: false, error: "plain English message" }`. Never throw raw database errors to the screen.
+6. Call `revalidatePath` for pages that show the changed data.
+
+## Route protection
+- `src/app/(app)/layout.tsx` loads the profile; if `department_id` is empty and role is learner, redirect to `/setup-pending`.
+- `src/app/(app)/trainer/layout.tsx` allows trainer and admin (champion only for `/trainer/marking`).
+- `src/app/(app)/admin/layout.tsx` allows admin only.
+- Hiding a menu item is not protection. The layout check and RLS are the protection.
+
+## Files (Supabase Storage)
+- Bucket `submissions` is private. Path: `{user_id}/{assignment_id}/{timestamp}-{safe_filename}`.
+- Allowed types: pdf, docx, png, jpg, jpeg, txt, md. Max 10 MB. Check type and size on the server.
+- Show files through short-lived signed URLs (10 minutes), never public URLs.
+
+## Markdown
+- Render with `react-markdown` + `remark-gfm` + `rehype-sanitize`. No raw HTML.
+- Video embeds only from `drive.google.com`, `www.youtube.com`, `youtube.com`, `youtu.be`. Anything else shows as a plain link.
+
+## Environment variables
+- `.env.example` lists every variable with a comment, no values. `.env.local` is git-ignored.
+- Validate env vars at startup with Zod in `src/lib/env.ts`; fail with a clear message naming the missing variable.

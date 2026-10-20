@@ -1,0 +1,957 @@
+{
+  "_source": "CURRICULUM_MASTER.md v1.1 (18 Oct 2026, DRAFT pending approval). Do not change codes, weeks or hours without a logged decision.",
+  "stages": [
+    {
+      "code": "assessment",
+      "name": "Week 0 assessment",
+      "week_start": 0,
+      "week_end": 0,
+      "hours_per_week": 2,
+      "sort_order": 1
+    },
+    {
+      "code": "foundation",
+      "name": "Foundation",
+      "week_start": 1,
+      "week_end": 4,
+      "hours_per_week": 3,
+      "sort_order": 2
+    },
+    {
+      "code": "practitioner",
+      "name": "Practitioner",
+      "week_start": 5,
+      "week_end": 10,
+      "hours_per_week": 4,
+      "sort_order": 3
+    },
+    {
+      "code": "apply_certify",
+      "name": "Apply and certify",
+      "week_start": 11,
+      "week_end": 12,
+      "hours_per_week": 5,
+      "sort_order": 4
+    },
+    {
+      "code": "specialist",
+      "name": "Specialist track",
+      "week_start": 13,
+      "week_end": 20,
+      "hours_per_week": 6,
+      "sort_order": 5
+    },
+    {
+      "code": "leadership",
+      "name": "Leadership briefings",
+      "week_start": 3,
+      "week_end": 10,
+      "hours_per_week": null,
+      "sort_order": 6
+    }
+  ],
+  "competency_domains": [
+    {
+      "code": "C1",
+      "name": "AI and LLM literacy"
+    },
+    {
+      "code": "C2",
+      "name": "Prompting and context"
+    },
+    {
+      "code": "C3",
+      "name": "Output evaluation and verification"
+    },
+    {
+      "code": "C4",
+      "name": "Responsible use and data protection"
+    },
+    {
+      "code": "C5",
+      "name": "Reusable systems (templates, Projects, Skills)"
+    },
+    {
+      "code": "C6",
+      "name": "Knowledge and grounding"
+    },
+    {
+      "code": "C7",
+      "name": "Automation and integration"
+    },
+    {
+      "code": "C8",
+      "name": "Agentic design and oversight"
+    },
+    {
+      "code": "C9",
+      "name": "Workflow redesign and value"
+    }
+  ],
+  "departments": [
+    {
+      "code": "content",
+      "name": "Content",
+      "parent": null,
+      "is_active": true
+    },
+    {
+      "code": "creative",
+      "name": "Creative",
+      "parent": null,
+      "is_active": true
+    },
+    {
+      "code": "performance",
+      "name": "Performance",
+      "parent": null,
+      "is_active": true
+    },
+    {
+      "code": "performance-seo",
+      "name": "Performance: SEO",
+      "parent": "performance",
+      "is_active": true
+    },
+    {
+      "code": "performance-paid",
+      "name": "Performance: Paid",
+      "parent": "performance",
+      "is_active": true
+    },
+    {
+      "code": "performance-analytics",
+      "name": "Performance: Analytics",
+      "parent": "performance",
+      "is_active": true
+    },
+    {
+      "code": "account-management",
+      "name": "Account Management",
+      "parent": null,
+      "is_active": true
+    },
+    {
+      "code": "senior-management",
+      "name": "Senior Management",
+      "parent": null,
+      "is_active": true
+    },
+    {
+      "code": "finance-ops",
+      "name": "Finance and Operations",
+      "parent": null,
+      "is_active": false,
+      "note": "Pending scope decision D3"
+    },
+    {
+      "code": "tech-delivery",
+      "name": "Tech delivery",
+      "parent": null,
+      "is_active": false,
+      "note": "Pending scope decision D3"
+    }
+  ],
+  "department_domain_requirements": [
+    {
+      "department": "content",
+      "domain": "C1",
+      "required": true
+    },
+    {
+      "department": "content",
+      "domain": "C2",
+      "required": true
+    },
+    {
+      "department": "content",
+      "domain": "C3",
+      "required": true
+    },
+    {
+      "department": "content",
+      "domain": "C4",
+      "required": true
+    },
+    {
+      "department": "content",
+      "domain": "C5",
+      "required": true
+    },
+    {
+      "department": "content",
+      "domain": "C6",
+      "required": true
+    },
+    {
+      "department": "creative",
+      "domain": "C1",
+      "required": true
+    },
+    {
+      "department": "creative",
+      "domain": "C2",
+      "required": true
+    },
+    {
+      "department": "creative",
+      "domain": "C3",
+      "required": true
+    },
+    {
+      "department": "creative",
+      "domain": "C4",
+      "required": true
+    },
+    {
+      "department": "creative",
+      "domain": "C5",
+      "required": true
+    },
+    {
+      "department": "performance",
+      "domain": "C1",
+      "required": true
+    },
+    {
+      "department": "performance",
+      "domain": "C2",
+      "required": true
+    },
+    {
+      "department": "performance",
+      "domain": "C3",
+      "required": true
+    },
+    {
+      "department": "performance",
+      "domain": "C4",
+      "required": true
+    },
+    {
+      "department": "performance",
+      "domain": "C5",
+      "required": true
+    },
+    {
+      "department": "performance",
+      "domain": "C6",
+      "required": true
+    },
+    {
+      "department": "performance",
+      "domain": "C7",
+      "required": true
+    },
+    {
+      "department": "performance",
+      "domain": "C9",
+      "required": true
+    },
+    {
+      "department": "account-management",
+      "domain": "C1",
+      "required": true
+    },
+    {
+      "department": "account-management",
+      "domain": "C2",
+      "required": true
+    },
+    {
+      "department": "account-management",
+      "domain": "C3",
+      "required": true
+    },
+    {
+      "department": "account-management",
+      "domain": "C4",
+      "required": true
+    },
+    {
+      "department": "account-management",
+      "domain": "C5",
+      "required": true
+    },
+    {
+      "department": "account-management",
+      "domain": "C6",
+      "required": true
+    },
+    {
+      "department": "senior-management",
+      "domain": "C1",
+      "required": true
+    },
+    {
+      "department": "senior-management",
+      "domain": "C2",
+      "required": true
+    },
+    {
+      "department": "senior-management",
+      "domain": "C3",
+      "required": true
+    },
+    {
+      "department": "senior-management",
+      "domain": "C4",
+      "required": true
+    },
+    {
+      "department": "senior-management",
+      "domain": "C5",
+      "required": true
+    },
+    {
+      "department": "senior-management",
+      "domain": "C6",
+      "required": true
+    },
+    {
+      "department": "senior-management",
+      "domain": "C8",
+      "required": true
+    },
+    {
+      "department": "senior-management",
+      "domain": "C9",
+      "required": true
+    }
+  ],
+  "modules": [
+    {
+      "code": "F1",
+      "title": "AI and LLMs in plain language",
+      "stage": "foundation",
+      "week_start": 1,
+      "week_end": 1,
+      "live_hours": 1.0,
+      "async_hours": 0,
+      "domains": [
+        "C1"
+      ],
+      "assessed_by": "5-question check",
+      "is_leadership": false,
+      "sort_order": 1
+    },
+    {
+      "code": "F2",
+      "title": "Claude at CDS, and where ChatGPT, Perplexity, Jira and Confluence fit",
+      "stage": "foundation",
+      "week_start": 1,
+      "week_end": 1,
+      "live_hours": 1.0,
+      "async_hours": 0,
+      "domains": [
+        "C1",
+        "C5"
+      ],
+      "assessed_by": "Guided task",
+      "is_leadership": false,
+      "sort_order": 2
+    },
+    {
+      "code": "F3",
+      "title": "Limits, hallucination, verification, CDS data rules for every AI tool",
+      "stage": "foundation",
+      "week_start": 2,
+      "week_end": 2,
+      "live_hours": 1.0,
+      "async_hours": 0,
+      "domains": [
+        "C3",
+        "C4"
+      ],
+      "assessed_by": "Safety quiz, 80% pass required",
+      "is_leadership": false,
+      "sort_order": 3
+    },
+    {
+      "code": "F4",
+      "title": "Anatomy of a prompt",
+      "stage": "foundation",
+      "week_start": 2,
+      "week_end": 2,
+      "live_hours": 1.0,
+      "async_hours": 0,
+      "domains": [
+        "C2"
+      ],
+      "assessed_by": "Rubric-marked prompt",
+      "is_leadership": false,
+      "sort_order": 4
+    },
+    {
+      "code": "F5",
+      "title": "Improving prompts",
+      "stage": "foundation",
+      "week_start": 3,
+      "week_end": 3,
+      "live_hours": 1.0,
+      "async_hours": 0,
+      "domains": [
+        "C2",
+        "C3"
+      ],
+      "assessed_by": "Before/after prompt pair",
+      "is_leadership": false,
+      "sort_order": 5
+    },
+    {
+      "code": "F6",
+      "title": "Department prompting lab",
+      "stage": "foundation",
+      "week_start": 3,
+      "week_end": 3,
+      "live_hours": 1.0,
+      "async_hours": 0,
+      "domains": [
+        "C2"
+      ],
+      "assessed_by": "Department output",
+      "is_leadership": false,
+      "sort_order": 6
+    },
+    {
+      "code": "F7",
+      "title": "Everyday productivity across the stack: Perplexity research, Claude drafting, Jira follow-up",
+      "stage": "foundation",
+      "week_start": 4,
+      "week_end": 4,
+      "live_hours": 1.0,
+      "async_hours": 0,
+      "domains": [
+        "C2",
+        "C9"
+      ],
+      "assessed_by": "Time log on 2 tasks",
+      "is_leadership": false,
+      "sort_order": 7
+    },
+    {
+      "code": "F8",
+      "title": "Using Skills and saved prompts",
+      "stage": "foundation",
+      "week_start": 4,
+      "week_end": 4,
+      "live_hours": 1.0,
+      "async_hours": 0,
+      "domains": [
+        "C5"
+      ],
+      "assessed_by": "Correct Skill in 3 scenarios",
+      "is_leadership": false,
+      "sort_order": 8
+    },
+    {
+      "code": "F9",
+      "title": "Foundation capstone",
+      "stage": "foundation",
+      "week_start": 4,
+      "week_end": 4,
+      "live_hours": 0,
+      "async_hours": 2,
+      "domains": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "C9"
+      ],
+      "assessed_by": "Capstone rubric",
+      "is_leadership": false,
+      "sort_order": 9
+    },
+    {
+      "code": "P1",
+      "title": "Advanced prompting: decomposition, chaining, self-critique",
+      "stage": "practitioner",
+      "week_start": 5,
+      "week_end": 5,
+      "live_hours": 1.25,
+      "async_hours": 0,
+      "domains": [
+        "C2"
+      ],
+      "assessed_by": "Multi-step workflow",
+      "is_leadership": false,
+      "sort_order": 10
+    },
+    {
+      "code": "P2",
+      "title": "Structured outputs and QA checklists",
+      "stage": "practitioner",
+      "week_start": 5,
+      "week_end": 5,
+      "live_hours": 1.25,
+      "async_hours": 0,
+      "domains": [
+        "C3"
+      ],
+      "assessed_by": "Checklist on 3 outputs",
+      "is_leadership": false,
+      "sort_order": 11
+    },
+    {
+      "code": "P3",
+      "title": "Templates, Project instructions, context management",
+      "stage": "practitioner",
+      "week_start": 6,
+      "week_end": 6,
+      "live_hours": 1.25,
+      "async_hours": 0,
+      "domains": [
+        "C2",
+        "C5"
+      ],
+      "assessed_by": "Library template",
+      "is_leadership": false,
+      "sort_order": 12
+    },
+    {
+      "code": "P4",
+      "title": "Skills architecture",
+      "stage": "practitioner",
+      "week_start": 6,
+      "week_end": 6,
+      "live_hours": 1.25,
+      "async_hours": 0,
+      "domains": [
+        "C5"
+      ],
+      "assessed_by": "Skill specification",
+      "is_leadership": false,
+      "sort_order": 13
+    },
+    {
+      "code": "P5",
+      "title": "Skill build lab",
+      "stage": "practitioner",
+      "week_start": 7,
+      "week_end": 7,
+      "live_hours": 2.5,
+      "async_hours": 0,
+      "domains": [
+        "C5"
+      ],
+      "assessed_by": "Working Skill draft",
+      "is_leadership": false,
+      "sort_order": 14
+    },
+    {
+      "code": "P6",
+      "title": "Testing, versioning, governing Skills",
+      "stage": "practitioner",
+      "week_start": 8,
+      "week_end": 8,
+      "live_hours": 2.5,
+      "async_hours": 0,
+      "domains": [
+        "C3",
+        "C4",
+        "C5"
+      ],
+      "assessed_by": "Test set of 8+ cases",
+      "is_leadership": false,
+      "sort_order": 15
+    },
+    {
+      "code": "P7",
+      "title": "Knowledge management for AI",
+      "stage": "practitioner",
+      "week_start": 9,
+      "week_end": 9,
+      "live_hours": 1.0,
+      "async_hours": 0,
+      "domains": [
+        "C6"
+      ],
+      "assessed_by": "Project audit",
+      "is_leadership": false,
+      "sort_order": 16
+    },
+    {
+      "code": "P8",
+      "title": "Grounding and RAG concepts",
+      "stage": "practitioner",
+      "week_start": 9,
+      "week_end": 9,
+      "live_hours": 1.5,
+      "async_hours": 0,
+      "domains": [
+        "C6"
+      ],
+      "assessed_by": "Grounded answer test",
+      "is_leadership": false,
+      "sort_order": 17
+    },
+    {
+      "code": "P9",
+      "title": "Connectors and automation with Jira, Confluence, Drive; when not to use an agent",
+      "stage": "practitioner",
+      "week_start": 10,
+      "week_end": 10,
+      "live_hours": 1.5,
+      "async_hours": 0,
+      "domains": [
+        "C7",
+        "C8"
+      ],
+      "assessed_by": "Workflow map",
+      "is_leadership": false,
+      "sort_order": 18
+    },
+    {
+      "code": "P10",
+      "title": "Practitioner capstone: Skill in live use",
+      "stage": "apply_certify",
+      "week_start": 10,
+      "week_end": 12,
+      "live_hours": 4.0,
+      "async_hours": 0,
+      "domains": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "C9"
+      ],
+      "assessed_by": "Live-use evidence + demo",
+      "is_leadership": false,
+      "sort_order": 19
+    },
+    {
+      "code": "L1",
+      "title": "AI strategy and economics",
+      "stage": "leadership",
+      "week_start": 3,
+      "week_end": 3,
+      "live_hours": 1.5,
+      "async_hours": 0,
+      "domains": [
+        "C9"
+      ],
+      "assessed_by": "Priorities agreed",
+      "is_leadership": true,
+      "sort_order": 20
+    },
+    {
+      "code": "L2",
+      "title": "Governance sign-off: AUP and risk tiers",
+      "stage": "leadership",
+      "week_start": 6,
+      "week_end": 6,
+      "live_hours": 1.5,
+      "async_hours": 0,
+      "domains": [
+        "C4"
+      ],
+      "assessed_by": "Policy approved",
+      "is_leadership": true,
+      "sort_order": 21
+    },
+    {
+      "code": "L3",
+      "title": "Portfolio review: Specialist projects",
+      "stage": "leadership",
+      "week_start": 10,
+      "week_end": 10,
+      "live_hours": 1.5,
+      "async_hours": 0,
+      "domains": [
+        "C8",
+        "C9"
+      ],
+      "assessed_by": "Projects selected",
+      "is_leadership": true,
+      "sort_order": 22
+    },
+    {
+      "code": "S1",
+      "title": "Workflow architecture, enterprise prompt systems",
+      "stage": "specialist",
+      "week_start": 13,
+      "week_end": 13,
+      "live_hours": 3,
+      "async_hours": 0,
+      "domains": [
+        "C2",
+        "C9"
+      ],
+      "assessed_by": "Blueprint",
+      "is_leadership": false,
+      "sort_order": 23
+    },
+    {
+      "code": "S2",
+      "title": "Advanced Skills: suites, references, scripts",
+      "stage": "specialist",
+      "week_start": 14,
+      "week_end": 14,
+      "live_hours": 3,
+      "async_hours": 0,
+      "domains": [
+        "C5"
+      ],
+      "assessed_by": "Skill suite",
+      "is_leadership": false,
+      "sort_order": 24
+    },
+    {
+      "code": "S3",
+      "title": "Knowledge architecture and RAG design",
+      "stage": "specialist",
+      "week_start": 15,
+      "week_end": 15,
+      "live_hours": 3,
+      "async_hours": 0,
+      "domains": [
+        "C6"
+      ],
+      "assessed_by": "RAG spec",
+      "is_leadership": false,
+      "sort_order": 25
+    },
+    {
+      "code": "S4",
+      "title": "RAG build and evaluation",
+      "stage": "specialist",
+      "week_start": 16,
+      "week_end": 16,
+      "live_hours": 3,
+      "async_hours": 0,
+      "domains": [
+        "C6",
+        "C3"
+      ],
+      "assessed_by": "Prototype + eval set (Technical)",
+      "is_leadership": false,
+      "sort_order": 26
+    },
+    {
+      "code": "S5",
+      "title": "APIs, MCP connectors, automation",
+      "stage": "specialist",
+      "week_start": 17,
+      "week_end": 17,
+      "live_hours": 3,
+      "async_hours": 0,
+      "domains": [
+        "C7"
+      ],
+      "assessed_by": "Working integration",
+      "is_leadership": false,
+      "sort_order": 27
+    },
+    {
+      "code": "S6",
+      "title": "Agents: patterns, tools, human-in-the-loop, multi-agent limits",
+      "stage": "specialist",
+      "week_start": 18,
+      "week_end": 18,
+      "live_hours": 3,
+      "async_hours": 0,
+      "domains": [
+        "C8"
+      ],
+      "assessed_by": "Agent design worksheet",
+      "is_leadership": false,
+      "sort_order": 28
+    },
+    {
+      "code": "S7",
+      "title": "Security, governance, AI risk",
+      "stage": "specialist",
+      "week_start": 19,
+      "week_end": 19,
+      "live_hours": 3,
+      "async_hours": 0,
+      "domains": [
+        "C4"
+      ],
+      "assessed_by": "Governance pack",
+      "is_leadership": false,
+      "sort_order": 29
+    },
+    {
+      "code": "S8",
+      "title": "Transformation project, ROI, capstone",
+      "stage": "specialist",
+      "week_start": 20,
+      "week_end": 20,
+      "live_hours": 3,
+      "async_hours": 0,
+      "domains": [
+        "C9"
+      ],
+      "assessed_by": "Capstone panel",
+      "is_leadership": false,
+      "sort_order": 30
+    }
+  ],
+  "certification_skills": [
+    {
+      "department": "content",
+      "name": "brand-content-production"
+    },
+    {
+      "department": "creative",
+      "name": "creative-brief-builder"
+    },
+    {
+      "department": "performance-seo",
+      "name": "seo-aeo-monthly-insight"
+    },
+    {
+      "department": "performance-paid",
+      "name": "campaign-performance-insight"
+    },
+    {
+      "department": "performance-analytics",
+      "name": "lead-funnel-analysis",
+      "note": "Calculations in code, raw numbers, no AI scores"
+    },
+    {
+      "department": "account-management",
+      "name": "client-meeting-intelligence",
+      "note": "Named owner + date on every action"
+    },
+    {
+      "department": "senior-management",
+      "name": "strategic-decision-brief",
+      "note": "Options, evidence, risks, owner, fallback"
+    }
+  ],
+  "department_boundaries": {
+    "content": "Nothing publishes without editor + client approval; health/education claims verified.",
+    "creative": "Claude does not produce final visuals.",
+    "performance-seo": "No figure not traceable to an export.",
+    "performance-paid": "No AI account changes.",
+    "performance-analytics": "Maths in code, no health ratings.",
+    "account-management": "AI never sends to clients; no confidential data outside approved tools.",
+    "senior-management": "Decisions stay with named people."
+  },
+  "app_settings": {
+    "placement.week0_sections": {
+      "note": "PROPOSED (DL-002 to DL-004). Edit here, not in code.",
+      "sections": [
+        {
+          "code": "knowledge",
+          "name": "Knowledge",
+          "max": 25,
+          "counts_in_total": true,
+          "parts": "MCQ 15 + scenarios 10"
+        },
+        {
+          "code": "prompting",
+          "name": "Prompting",
+          "max": 25,
+          "counts_in_total": true
+        },
+        {
+          "code": "department",
+          "name": "Department task",
+          "max": 25,
+          "counts_in_total": true
+        },
+        {
+          "code": "safety",
+          "name": "Safety and judgement",
+          "max": 15,
+          "counts_in_total": true
+        },
+        {
+          "code": "workflow",
+          "name": "Workflow",
+          "max": 10,
+          "counts_in_total": true
+        },
+        {
+          "code": "technical",
+          "name": "Technical supplement (optional)",
+          "max": null,
+          "counts_in_total": false
+        }
+      ]
+    },
+    "placement.gates": {
+      "note": "PROPOSED DL-002",
+      "safety_min_else_foundation": 9,
+      "prompting_min_for_practitioner": 15
+    },
+    "placement.bands": {
+      "note": "PROPOSED DL-003",
+      "bands": [
+        {
+          "min": 0,
+          "max": 44,
+          "stream": "foundation"
+        },
+        {
+          "min": 45,
+          "max": 69,
+          "stream": "practitioner",
+          "bridges_for_domains_below_pct": 60
+        },
+        {
+          "min": 70,
+          "max": 84,
+          "stream": "practitioner_fast_track"
+        },
+        {
+          "min": 85,
+          "max": 100,
+          "stream": "champion",
+          "requires": "portfolio review confirmed by trainer"
+        }
+      ]
+    },
+    "certification.foundation": {
+      "note": "From CURRICULUM_MASTER G2",
+      "overall_min_pct": 70,
+      "safety_quiz_must_pass": true,
+      "safety_quiz_pass_pct": 80
+    },
+    "certification.department": {
+      "note": "From CURRICULUM_MASTER §5",
+      "live_use_weeks_required": 2
+    }
+  },
+  "help_pages": [
+    {
+      "slug": "data-rules",
+      "title": "Data rules",
+      "status": "draft",
+      "note": "Interim one-page rules come from Deliverable 16 (Batch 2)"
+    },
+    {
+      "slug": "risk-tiers",
+      "title": "Risk tiers",
+      "status": "draft"
+    },
+    {
+      "slug": "glossary",
+      "title": "Glossary",
+      "status": "draft"
+    },
+    {
+      "slug": "faq",
+      "title": "FAQ",
+      "status": "draft"
+    },
+    {
+      "slug": "who-to-ask",
+      "title": "Who to ask",
+      "status": "draft"
+    }
+  ]
+}
