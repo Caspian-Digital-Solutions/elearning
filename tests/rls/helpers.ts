@@ -135,6 +135,19 @@ export type Query = <T extends QueryResultRow = QueryResultRow>(
   values?: unknown[],
 ) => Promise<{ rows: T[]; rowCount: number | null }>;
 
+/** The database error code and message, or null when the statement succeeded. */
+export async function failure(promise: Promise<unknown>): Promise<{ code: string; message: string } | null> {
+  try {
+    await promise;
+    return null;
+  } catch (error) {
+    if (error instanceof DatabaseError) {
+      return { code: error.code ?? "", message: error.message };
+    }
+    throw error;
+  }
+}
+
 /** True when the database refused the statement for lack of rights (RLS, grants or the privilege trigger). */
 export async function isRefused(promise: Promise<unknown>): Promise<{ refused: boolean; message: string }> {
   try {

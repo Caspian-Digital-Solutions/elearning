@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,6 +18,9 @@ export function ConfirmDialog({
   description,
   confirmLabel,
   onConfirm,
+  children,
+  pending = false,
+  closeOnConfirm = true,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -24,6 +28,11 @@ export function ConfirmDialog({
   description: string;
   confirmLabel: string;
   onConfirm: () => void;
+  /** Extra detail, such as the names affected or an error. */
+  children?: ReactNode;
+  pending?: boolean;
+  /** Keep the dialog open so the caller can show the result or an error. */
+  closeOnConfirm?: boolean;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -32,18 +41,22 @@ export function ConfirmDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+        {children}
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
           </Button>
           <Button
             type="button"
+            disabled={pending}
             onClick={() => {
               onConfirm();
-              onOpenChange(false);
+              if (closeOnConfirm) {
+                onOpenChange(false);
+              }
             }}
           >
-            {confirmLabel}
+            {pending ? "Saving…" : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

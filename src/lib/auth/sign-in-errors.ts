@@ -6,7 +6,7 @@
 export const signInErrorMessages = {
   "wrong-domain": "Please sign in with your CDS Google account.",
   "not-completed": "Google did not finish signing you in. Try again with your CDS Google account.",
-  "no-access": "Your account is not active. Contact Mahgol if you think this is wrong.",
+  "no-access": "Your account could not be found. Try signing in again. If it keeps happening, contact Mahgol.",
   failed: "Sign-in did not work. Try again. If it keeps happening, contact Mahgol.",
 } as const;
 

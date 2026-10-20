@@ -2,10 +2,13 @@ import "server-only";
 
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import type { AppRole } from "@/config/navigation";
 import { readDevPreviewRole } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import type { CurrentUser } from "@/lib/auth/types";
+
+const lastSeenInterval = 60 * 60 * 1000;
 
 /**
  * The signed-in person and their profile, or null when signed out, when the
@@ -25,7 +28,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const { data: profile, error } = await supabase
     .from("profiles")
     .select(
-      "id, email, full_name, role, progress_scope, department_id, stream, is_active, departments ( name )",
+      "id, email, full_name, role, progress_scope, department_id, stream, is_active, last_seen_at, departments ( name )",
     )
     .eq("id", userId)
     .maybeSingle();
@@ -48,6 +51,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     departmentId: profile.department_id,
     departmentName: profile.departments?.name ?? null,
     stream: profile.stream,
+    lastSeenAt: profile.last_seen_at,
   };
 });
 
@@ -63,13 +67,17 @@ function previewRole(actualRole: AppRole): AppRole {
   return readDevPreviewRole() ?? actualRole;
 }
 
-/** Signed-in, active person, or a redirect to /login. */
+/** Signed-in, active person; otherwise a redirect to /login or, for a paused account, /access-paused. */
 export async function requireUser(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (!user) {
     const supabase = await createClient();
     const { data } = await supabase.auth.getClaims();
-    redirect(data?.claims?.sub ? "/login?error=no-access" : "/login");
+    if (!data?.claims?.sub) {
+      redirect("/login");
+    }
+    const { data: status } = await supabase.rpc("my_access_status");
+    redirect(status === "paused" ? "/access-paused" : "/login?error=no-access");
   }
   return user;
 }
@@ -81,4 +89,26 @@ export async function requireRole(allowed: readonly AppRole[]): Promise<CurrentU
     redirect("/my-path");
   }
   return user;
+}
+
+/**
+ * For Server Actions and Route Handlers: the signed-in, active person if their
+ * real role (never a preview role) is allowed, otherwise null. The database
+ * checks again with row-level security.
+ */
+export async function authorise(allowed: readonly AppRole[]): Promise<CurrentUser | null> {
+  const user = await getCurrentUser();
+  return user && allowed.includes(user.actualRole) ? user : null;
+}
+
+/** Records the page visit after the response is sent, at most once an hour. */
+export async function noteLastSeen(user: CurrentUser): Promise<void> {
+  const last = user.lastSeenAt ? Date.parse(user.lastSeenAt) : 0;
+  if (Date.now() - last < lastSeenInterval) {
+    return;
+  }
+  const supabase = await createClient();
+  after(async () => {
+    await supabase.rpc("record_last_seen");
+  });
 }

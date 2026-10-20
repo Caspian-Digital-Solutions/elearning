@@ -27,28 +27,28 @@ isOneToOne: false
                   ]
                 },"audit_log": {
                   Row: {
-                    "action": string,"actor_id": string | null,"after": Json | null,"at": string,"before": Json | null,"created_at": string,"id": string,"row_id": string | null,"table_name": string,"updated_at": string
+                    "action": string,"actor_id": string | null,"after": Json | null,"at": string,"before": Json | null,"created_at": string,"id": string,"reason": string | null,"row_id": string | null,"table_name": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "action": string,"actor_id"?: string | null,"after"?: Json | null,"at"?: string,"before"?: Json | null,"created_at"?: string,"id"?: string,"row_id"?: string | null,"table_name": string,"updated_at"?: string
+                    "action": string,"actor_id"?: string | null,"after"?: Json | null,"at"?: string,"before"?: Json | null,"created_at"?: string,"id"?: string,"reason"?: string | null,"row_id"?: string | null,"table_name": string,"updated_at"?: string
                   }
                   Update: {
-                    "action"?: string,"actor_id"?: string | null,"after"?: Json | null,"at"?: string,"before"?: Json | null,"created_at"?: string,"id"?: string,"row_id"?: string | null,"table_name"?: string,"updated_at"?: string
+                    "action"?: string,"actor_id"?: string | null,"after"?: Json | null,"at"?: string,"before"?: Json | null,"created_at"?: string,"id"?: string,"reason"?: string | null,"row_id"?: string | null,"table_name"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
                   ]
                 },"cohorts": {
                   Row: {
-                    "created_at": string,"id": string,"name": string,"slot": string | null,"start_date": string | null,"updated_at": string
+                    "created_at": string,"id": string,"is_archived": boolean,"name": string,"notes": string | null,"slot": string | null,"start_date": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"name": string,"slot"?: string | null,"start_date"?: string | null,"updated_at"?: string
+                    "created_at"?: string,"id"?: string,"is_archived"?: boolean,"name": string,"notes"?: string | null,"slot"?: string | null,"start_date"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"name"?: string,"slot"?: string | null,"start_date"?: string | null,"updated_at"?: string
+                    "created_at"?: string,"id"?: string,"is_archived"?: boolean,"name"?: string,"notes"?: string | null,"slot"?: string | null,"start_date"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -259,14 +259,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "cohort_id": string | null,"created_at": string,"department_id": string | null,"email": string,"full_name": string | null,"id": string,"is_active": boolean,"progress_scope": Database["public"]['Enums']["progress_scope_type"],"role": Database["public"]['Enums']["app_role"],"specialist_pathway": Database["public"]['Enums']["specialist_pathway_type"] | null,"stream": Database["public"]['Enums']["stream_type"] | null,"updated_at": string
+                    "cohort_id": string | null,"created_at": string,"department_id": string | null,"email": string,"full_name": string | null,"id": string,"is_active": boolean,"last_seen_at": string | null,"progress_scope": Database["public"]['Enums']["progress_scope_type"],"role": Database["public"]['Enums']["app_role"],"specialist_pathway": Database["public"]['Enums']["specialist_pathway_type"] | null,"stream": Database["public"]['Enums']["stream_type"] | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email": string,"full_name"?: string | null,"id": string,"is_active"?: boolean,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string
+                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email": string,"full_name"?: string | null,"id": string,"is_active"?: boolean,"last_seen_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string
                   }
                   Update: {
-                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email"?: string,"full_name"?: string | null,"id"?: string,"is_active"?: boolean,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string
+                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email"?: string,"full_name"?: string | null,"id"?: string,"is_active"?: boolean,"last_seen_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -317,7 +317,13 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "can_view_user":
+            "admin_set_role":
+{ Args: { "new_role": Database["public"]['Enums']["app_role"],"new_scope": Database["public"]['Enums']["progress_scope_type"],"reason": string,"user_id": string }; Returns: undefined
+                           },
+"admin_update_setting":
+{ Args: { "key": string,"new_value": Json,"reason": string }; Returns: undefined
+                           },
+"can_view_user":
 { Args: { "target": string }; Returns: boolean
                            },
 "current_app_role":
@@ -331,6 +337,15 @@ isOneToOne: false
                            },
 "is_allowed_sign_in_email":
 { Args: { "email": string }; Returns: boolean
+                           },
+"my_access_status":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"record_last_seen":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"trainer_update_profiles":
+{ Args: { "clear_fields"?: (string)[],"cohort_id"?: string,"department_id"?: string,"is_active"?: boolean,"reason"?: string,"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"],"stream"?: Database["public"]['Enums']["stream_type"],"user_ids": (string)[] }; Returns: number
                            }
           }
           Enums: {
