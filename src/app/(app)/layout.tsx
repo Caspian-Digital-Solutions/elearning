@@ -1,7 +1,10 @@
 import { Suspense, type ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
+import { AcknowledgementBanner } from "@/components/layout/acknowledgement-banner";
+import { HideOnHelp } from "@/components/layout/hide-on-help";
 import { noteLastSeen, requireUser } from "@/lib/auth";
+import { countUnreadUpdates } from "@/lib/content/queries";
 import { countSetupPending } from "@/lib/people/queries";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -18,10 +21,24 @@ async function SignedInShell({ children }: { children: ReactNode }) {
     redirect("/setup-pending");
   }
   await noteLastSeen(user);
-  const pendingCount =
-    user.role === "trainer" || user.role === "admin" ? await countSetupPending() : undefined;
+  const badges: Record<string, number> = {};
+  if (user.role === "trainer" || user.role === "admin") {
+    const pendingCount = await countSetupPending();
+    if (pendingCount) {
+      badges["/trainer/users"] = pendingCount;
+    }
+  }
+  const unread = await countUnreadUpdates(user.id, user.updatesSeenAt);
+  if (unread > 0) {
+    badges["/what-changed"] = unread;
+  }
   return (
-    <AppShell user={user} badges={pendingCount ? { "/trainer/users": pendingCount } : undefined}>
+    <AppShell user={user} badges={Object.keys(badges).length ? badges : undefined}>
+      <HideOnHelp>
+        <Suspense fallback={null}>
+          <AcknowledgementBanner />
+        </Suspense>
+      </HideOnHelp>
       {children}
     </AppShell>
   );

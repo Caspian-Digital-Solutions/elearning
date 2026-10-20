@@ -1,53 +1,21 @@
-import type { Components } from "react-markdown";
-import ReactMarkdown from "react-markdown";
-import rehypeSanitize from "rehype-sanitize";
-import remarkGfm from "remark-gfm";
-import { videoEmbedUrl } from "@/lib/markdown/video-embed";
+import { CalloutBox } from "@/components/content/callout-box";
+import { MarkdownChunk } from "@/components/shared/markdown-chunk";
+import { splitCallouts } from "@/lib/content/callouts";
 
-const components: Components = {
-  a: ({ href, children }) => {
-    const embed = href ? videoEmbedUrl(href) : null;
-    if (embed) {
-      return (
-        <span className="my-3 block max-w-full">
-          <iframe
-            src={embed}
-            title="Video"
-            className="aspect-video w-full max-w-full rounded-lg border border-border"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </span>
-      );
-    }
-    return (
-      <a
-        href={href}
-        className="text-accent-strong underline underline-offset-2"
-        rel="noreferrer"
-      >
-        {children}
-      </a>
-    );
-  },
-  p: ({ children }) => <p className="mb-3 leading-6">{children}</p>,
-  ul: ({ children }) => <ul className="mb-3 list-disc pl-5">{children}</ul>,
-  ol: ({ children }) => <ol className="mb-3 list-decimal pl-5">{children}</ol>,
-  h1: ({ children }) => <h2 className="mt-4 mb-2 text-2xl">{children}</h2>,
-  h2: ({ children }) => <h2 className="mt-4 mb-2 text-xl">{children}</h2>,
-  h3: ({ children }) => <h3 className="mt-3 mb-2 text-lg">{children}</h3>,
-};
-
-export function MarkdownView({ markdown }: { markdown: string }) {
+export function MarkdownView({ markdown, nested }: { markdown: string; nested?: boolean }) {
+  const segments = splitCallouts(markdown);
+  if (segments.length === 1 && segments[0].type === "md") {
+    return <MarkdownChunk markdown={markdown} className={nested ? "text-sm" : undefined} />;
+  }
   return (
-    <div className="max-w-3xl text-sm text-foreground">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeSanitize]}
-        components={components}
-      >
-        {markdown}
-      </ReactMarkdown>
+    <div className={nested ? undefined : "max-w-3xl text-sm text-foreground"}>
+      {segments.map((segment, index) =>
+        segment.type === "callout" ? (
+          <CalloutBox key={index} kind={segment.callout.kind} body={segment.callout.body} />
+        ) : (
+          <MarkdownChunk key={index} markdown={segment.text} className={nested ? "text-sm" : undefined} />
+        ),
+      )}
     </div>
   );
 }

@@ -13,7 +13,16 @@ test("a signed-out visit to any other page also lands on the sign-in page", asyn
   }
 });
 
-for (const path of ["/trainer/users", "/admin/roles", "/admin/settings", "/admin/audit"]) {
+for (const path of [
+  "/help",
+  "/help/data-rules",
+  "/what-changed",
+  "/trainer/content",
+  "/trainer/users",
+  "/admin/roles",
+  "/admin/settings",
+  "/admin/audit",
+]) {
   test(`a signed-out visit to ${path} lands on the sign-in page`, async ({ page }) => {
     await page.goto(path);
     await expect(page).toHaveURL(/\/login$/);

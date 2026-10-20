@@ -67,6 +67,46 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"content_drafts": {
+                  Row: {
+                    "body_md": string,"content_id": string,"content_type": Database["public"]['Enums']["content_type"],"created_at": string,"id": string,"metadata": NonNullable<Json>,"title": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body_md"?: string,"content_id": string,"content_type": Database["public"]['Enums']["content_type"],"created_at"?: string,"id"?: string,"metadata"?: NonNullable<Json>,"title": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "body_md"?: string,"content_id"?: string,"content_type"?: Database["public"]['Enums']["content_type"],"created_at"?: string,"id"?: string,"metadata"?: NonNullable<Json>,"title"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "content_drafts_updated_by_fkey"
+      columns: ["updated_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"content_revisions": {
+                  Row: {
+                    "body_md": string,"change_note": string,"content_id": string,"content_type": Database["public"]['Enums']["content_type"],"created_at": string,"id": string,"metadata": NonNullable<Json>,"published_at": string,"published_by": string | null,"revision_no": number,"title": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body_md"?: string,"change_note": string,"content_id": string,"content_type": Database["public"]['Enums']["content_type"],"created_at"?: string,"id"?: string,"metadata"?: NonNullable<Json>,"published_at"?: string,"published_by"?: string | null,"revision_no": number,"title": string
+                  }
+                  Update: {
+                    "body_md"?: string,"change_note"?: string,"content_id"?: string,"content_type"?: Database["public"]['Enums']["content_type"],"created_at"?: string,"id"?: string,"metadata"?: NonNullable<Json>,"published_at"?: string,"published_by"?: string | null,"revision_no"?: number,"title"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "content_revisions_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"department_domain_requirements": {
                   Row: {
                     "created_at": string,"department_id": string,"domain_id": string,"id": string,"required": boolean,"updated_at": string
@@ -237,16 +277,42 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"pages": {
+                },"page_acknowledgements": {
                   Row: {
-                    "body_md": string,"created_at": string,"id": string,"owner_id": string | null,"slug": string,"status": Database["public"]['Enums']["content_status"],"title": string,"updated_at": string,"version": number
+                    "acknowledged_at": string,"created_at": string,"id": string,"page_id": string,"user_id": string,"version": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"slug": string,"status"?: Database["public"]['Enums']["content_status"],"title": string,"updated_at"?: string,"version"?: number
+                    "acknowledged_at"?: string,"created_at"?: string,"id"?: string,"page_id": string,"user_id": string,"version": number
                   }
                   Update: {
-                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"slug"?: string,"status"?: Database["public"]['Enums']["content_status"],"title"?: string,"updated_at"?: string,"version"?: number
+                    "acknowledged_at"?: string,"created_at"?: string,"id"?: string,"page_id"?: string,"user_id"?: string,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "page_acknowledgements_page_id_fkey"
+      columns: ["page_id"]
+isOneToOne: false
+      referencedRelation: "pages"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "page_acknowledgements_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"pages": {
+                  Row: {
+                    "body_md": string,"created_at": string,"id": string,"owner_id": string | null,"published_at": string | null,"published_by": string | null,"requires_acknowledgement": boolean,"review_by": string | null,"slug": string,"sort_order": number,"status": Database["public"]['Enums']["content_status"],"title": string,"updated_at": string,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug": string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title": string,"updated_at"?: string,"version"?: number
+                  }
+                  Update: {
+                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug"?: string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title"?: string,"updated_at"?: string,"version"?: number
                   }
                   Relationships: [
                     {
@@ -255,18 +321,24 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pages_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
     }
                   ]
                 },"profiles": {
                   Row: {
-                    "cohort_id": string | null,"created_at": string,"department_id": string | null,"email": string,"full_name": string | null,"id": string,"is_active": boolean,"last_seen_at": string | null,"progress_scope": Database["public"]['Enums']["progress_scope_type"],"role": Database["public"]['Enums']["app_role"],"specialist_pathway": Database["public"]['Enums']["specialist_pathway_type"] | null,"stream": Database["public"]['Enums']["stream_type"] | null,"updated_at": string
+                    "cohort_id": string | null,"created_at": string,"department_id": string | null,"email": string,"full_name": string | null,"id": string,"is_active": boolean,"last_seen_at": string | null,"progress_scope": Database["public"]['Enums']["progress_scope_type"],"role": Database["public"]['Enums']["app_role"],"specialist_pathway": Database["public"]['Enums']["specialist_pathway_type"] | null,"stream": Database["public"]['Enums']["stream_type"] | null,"updated_at": string,"updates_seen_at": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email": string,"full_name"?: string | null,"id": string,"is_active"?: boolean,"last_seen_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string
+                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email": string,"full_name"?: string | null,"id": string,"is_active"?: boolean,"last_seen_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string,"updates_seen_at"?: string | null
                   }
                   Update: {
-                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email"?: string,"full_name"?: string | null,"id"?: string,"is_active"?: boolean,"last_seen_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string
+                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email"?: string,"full_name"?: string | null,"id"?: string,"is_active"?: boolean,"last_seen_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string,"updates_seen_at"?: string | null
                   }
                   Relationships: [
                     {
@@ -299,17 +371,23 @@ isOneToOne: false
                   ]
                 },"updates": {
                   Row: {
-                    "action_required": boolean,"body_md": string,"created_at": string,"id": string,"published_at": string | null,"title": string,"tools": (string)[],"updated_at": string
+                    "action_due": string | null,"action_required": boolean,"action_text": string | null,"body_md": string,"created_at": string,"id": string,"published_at": string | null,"published_by": string | null,"slug": string | null,"status": Database["public"]['Enums']["content_status"],"title": string,"tools": (string)[],"updated_at": string,"version": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "action_required"?: boolean,"body_md"?: string,"created_at"?: string,"id"?: string,"published_at"?: string | null,"title": string,"tools"?: (string)[],"updated_at"?: string
+                    "action_due"?: string | null,"action_required"?: boolean,"action_text"?: string | null,"body_md"?: string,"created_at"?: string,"id"?: string,"published_at"?: string | null,"published_by"?: string | null,"slug"?: string | null,"status"?: Database["public"]['Enums']["content_status"],"title": string,"tools"?: (string)[],"updated_at"?: string,"version"?: number
                   }
                   Update: {
-                    "action_required"?: boolean,"body_md"?: string,"created_at"?: string,"id"?: string,"published_at"?: string | null,"title"?: string,"tools"?: (string)[],"updated_at"?: string
+                    "action_due"?: string | null,"action_required"?: boolean,"action_text"?: string | null,"body_md"?: string,"created_at"?: string,"id"?: string,"published_at"?: string | null,"published_by"?: string | null,"slug"?: string | null,"status"?: Database["public"]['Enums']["content_status"],"title"?: string,"tools"?: (string)[],"updated_at"?: string,"version"?: number
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "updates_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 }
           }
@@ -338,18 +416,59 @@ isOneToOne: false
 "is_allowed_sign_in_email":
 { Args: { "email": string }; Returns: boolean
                            },
+"is_valid_content_slug":
+{ Args: { "candidate": string }; Returns: boolean
+                           },
+"mark_updates_seen":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "my_access_status":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"publish_content":
+{ Args: { "p_change_note": string,"p_id": string,"p_type": Database["public"]['Enums']["content_type"] }; Returns: number
                            },
 "record_last_seen":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
+"require_trainer_or_admin":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"restore_revision":
+{ Args: { "p_id": string,"p_revision_no": number,"p_type": Database["public"]['Enums']["content_type"] }; Returns: undefined
+                           },
+"search_help_pages":
+{ Args: { "p_query": string }; Returns: {
+              "body_md": string,
+"created_at": string,
+"id": string,
+"owner_id": string | null,
+"published_at": string | null,
+"published_by": string | null,
+"requires_acknowledgement": boolean,
+"review_by": string | null,
+"slug": string,
+"sort_order": number,
+"status": Database["public"]['Enums']["content_status"],
+"title": string,
+"updated_at": string,
+"version": number
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "pages"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
 "trainer_update_profiles":
 { Args: { "clear_fields"?: (string)[],"cohort_id"?: string,"department_id"?: string,"is_active"?: boolean,"reason"?: string,"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"],"stream"?: Database["public"]['Enums']["stream_type"],"user_ids": (string)[] }; Returns: number
+                           },
+"unpublish_content":
+{ Args: { "p_id": string,"p_reason": string,"p_type": Database["public"]['Enums']["content_type"] }; Returns: undefined
                            }
           }
           Enums: {
-            "app_role": "learner"|"champion"|"manager"|"trainer"|"admin","content_status": "draft"|"published"|"archived","plan_status": "required"|"optional"|"tested_out"|"bridge"|"not_applicable","progress_scope_type": "self"|"department"|"all","specialist_pathway_type": "business"|"builder"|"technical","stream_type": "foundation"|"practitioner"|"practitioner_fast_track"|"champion"
+            "app_role": "learner"|"champion"|"manager"|"trainer"|"admin","content_status": "draft"|"published"|"archived","content_type": "page"|"update"|"lesson","plan_status": "required"|"optional"|"tested_out"|"bridge"|"not_applicable","progress_scope_type": "self"|"department"|"all","specialist_pathway_type": "business"|"builder"|"technical","stream_type": "foundation"|"practitioner"|"practitioner_fast_track"|"champion"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -465,7 +584,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "app_role": ["learner", "champion", "manager", "trainer", "admin"],"content_status": ["draft", "published", "archived"],"plan_status": ["required", "optional", "tested_out", "bridge", "not_applicable"],"progress_scope_type": ["self", "department", "all"],"specialist_pathway_type": ["business", "builder", "technical"],"stream_type": ["foundation", "practitioner", "practitioner_fast_track", "champion"]
+            "app_role": ["learner", "champion", "manager", "trainer", "admin"],"content_status": ["draft", "published", "archived"],"content_type": ["page", "update", "lesson"],"plan_status": ["required", "optional", "tested_out", "bridge", "not_applicable"],"progress_scope_type": ["self", "department", "all"],"specialist_pathway_type": ["business", "builder", "technical"],"stream_type": ["foundation", "practitioner", "practitioner_fast_track", "champion"]
           }
         }
 } as const

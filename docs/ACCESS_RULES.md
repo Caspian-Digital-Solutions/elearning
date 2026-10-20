@@ -2,7 +2,7 @@
 
 Plain-English version of the row-level security (RLS) rules in `supabase/migrations/20261020090006_row_level_security.sql` and `supabase/migrations/20261020130001_users_roles_settings.sql`. RLS is a rule inside the database that decides, row by row, who can read or change data. It applies even if a page has a bug. Every table has RLS switched on.
 
-Last updated: Prompt 04, 20 Oct 2026 (functions the app calls, paused accounts, last active admin, reasons).
+Last updated: Prompt 05, 20 Oct 2026 (help content drafts, publish functions, acknowledgements).
 
 ## Words used below
 
@@ -31,8 +31,11 @@ Last updated: Prompt 04, 20 Oct 2026 (functions the app calls, paused accounts, 
 | `lessons` | Published lessons: staff. Draft and archived lessons: trainer, admin. | Trainer, admin |
 | `lesson_progress` | Your own rows. Managers see people within their scope. Trainers and admins see everyone. | An active person adds their own row for a published lesson ("mark as complete") and removes it ("un-mark"). Nobody changes or removes another person's rows. |
 | `learner_plan` | Your own plan. Managers see people within their scope. Trainers and admins see everyone. | Trainer, admin. The database records who set each row. |
-| `pages` | Published pages: staff. Draft and archived pages: trainer, admin. | Trainer, admin |
-| `updates` | Published notes (publish date has passed): staff. Unpublished notes: trainer, admin. | Trainer, admin |
+| `pages` | Published pages: staff (live title and body only). Draft and archived pages: trainer, admin. Unpublished draft text lives in `content_drafts`, not on this row. | Trainer, admin |
+| `updates` | Published notes (`status` published and publish date has passed): staff. Draft and archived notes: trainer, admin. Draft text is in `content_drafts`. | Trainer, admin |
+| `content_drafts` | Trainer, admin | Trainer, admin |
+| `content_revisions` | Trainer, admin (read only) | Nobody through the app; rows are added only inside `publish_content` |
+| `page_acknowledgements` | Your own rows. Trainers and admins see all. Managers see people within their scope. | You insert your own confirmation for the current page version. No updates or deletes. |
 | `audit_log` | Admin only | Nobody directly. Only the automatic recorder writes rows, with the reason given for the change when there is one. Nobody can change or remove a row: not admins, and not the server's secret key. |
 
 Champions have learner rights in these tables. Their marking rights arrive with the assignment tables in Prompt 09.
@@ -68,7 +71,7 @@ Rules from `supabase/migrations/20261020100001_sign_in.sql` and the app code in 
 
 ## Functions the app calls
 
-The three change functions run as the signed-in person (`security invoker`), so the row-level security rules and guards above still apply on top of each function's own checks. Each one records the reason for the audit log in the same database transaction. `my_access_status` and `record_last_seen` run with the database owner's rights so they work for a paused person, and touch only the caller's own row. Signed-out visitors cannot call any of them.
+Most change functions run as the signed-in person (`security invoker`), so the row-level security rules and guards above still apply on top of each function's own checks. Content publish functions run as the database owner but check trainer or admin first. `my_access_status`, `record_last_seen` and `mark_updates_seen` run with the database owner's rights and touch only the caller's own row. Signed-out visitors cannot call any of them.
 
 | Function | Who may call it | What it does | Refuses |
 |---|---|---|---|
@@ -77,9 +80,17 @@ The three change functions run as the signed-in person (`security invoker`), so 
 | `admin_update_setting(key, new_value, reason)` | Active admin | Replaces a setting's value. The app checks the shape of known settings first (for example, placement bands must cover 0 to 100 with no gaps or overlaps). | A reason under 10 characters; an empty value; a setting that does not exist. |
 | `my_access_status()` | Any signed-in person | Says whether *your own* account is active, paused or missing. | Tells nothing about anyone else. |
 | `record_last_seen()` | Any active signed-in person | Updates *your own* "last seen" time, at most once an hour. Not recorded in the audit log. | Paused people (nothing happens). |
+| `publish_content(type, id, change_note)` | Active trainer or admin | Copies a draft to the live page or update, bumps the version, stores a revision and deletes the draft. | No draft; change note under five characters; lesson type (not built yet). |
+| `unpublish_content(type, id, reason)` | Active trainer or admin | Archives a page or update so learners no longer see it. | Reason under five characters. |
+| `restore_revision(type, id, revision_no)` | Active trainer or admin | Copies an old revision into the draft table without publishing. | Revision not found. |
+| `mark_updates_seen()` | Any active signed-in person | Sets *your own* `updates_seen_at` when you open What changed. | Paused people (nothing happens). |
+| `search_help_pages(query)` | Any active signed-in person | Full-text search over published help pages. | — |
 
 ## Screens and who can use them
 
+- **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*` and `/trainer/content/updates/*`): trainers and admins. Help pages and What changed lists, Markdown editor, history, acknowledgements panel.
+- **Rules and help** (`/help`, `/help/[slug]`): all signed-in staff with access. Published pages only; search uses published text.
+- **What changed** (`/what-changed`, `/what-changed/[slug]`): all signed-in staff. Opening the feed clears the sidebar unread badge for that person.
 - **Trainer › Users** (`/trainer/users`): trainers and admins. Counts, the people table, the edit panel, bulk changes and the Cohorts tab. Role and scope are shown read-only.
 - **Admin › Roles** (`/admin/roles`), **Admin › Settings** (`/admin/settings`), **Admin › Audit log** (`/admin/audit`, and its CSV export at `/admin/audit/export`): admins only.
 - Each page checks the role on the server, each server action checks the real role again before calling the database (a preview role never counts), and the database checks a third time.
@@ -94,4 +105,4 @@ The three change functions run as the signed-in person (`security invoker`), so 
 
 ## Automated proof
 
-`npm run test:rls` signs in as synthetic people ("Test Learner Content", "Test Manager Creative" and so on) inside one database transaction per test, checks these rules, and rolls everything back. 49 cases: the Prompt 03 rules plus, in `tests/rls/users-roles-settings.test.ts`, the functions, paused accounts, the last-admin guard, cohorts, settings and who can read the audit log. It needs `SUPABASE_DB_URL` (the dev database) in `.env.local`.
+`npm run test:rls` signs in as synthetic people ("Test Learner Content", "Test Manager Creative" and so on) inside one database transaction per test, checks these rules, and rolls everything back. 54 cases: Prompt 03 and 04 rules plus, in `tests/rls/content-editor.test.ts`, drafts, publish functions, archived content and page acknowledgements. It needs `SUPABASE_DB_URL` (the dev database) in `.env.local`.
