@@ -1,0 +1,14 @@
+---
+description: Rules for automated tests
+globs: tests/**, **/*.test.ts, **/*.test.tsx, **/*.spec.ts
+alwaysApply: false
+---
+
+# Testing rules
+
+- Business rules that decide something about a person (placement band, gates, bridges, learner plan generation, certification eligibility) are pure functions in `src/lib/` with Vitest tests covering every boundary (e.g. safety 8 vs 9, total 44 vs 45, 69 vs 70, 84 vs 85).
+- Tests read thresholds from a settings object passed in, never from hard-coded numbers, so they keep working when management changes a threshold.
+- Access rules get tests: a learner cannot read another learner's submission; a manager with department scope cannot see another department; only admin can change a role. Use a test helper that signs in as seeded test users against the dev database.
+- Playwright smoke tests for: sign-in page loads, signed-out redirect, sidebar navigation, setup-pending redirect.
+- Test data is synthetic. Never use real staff or client names in fixtures; use names like "Test Learner Content".
+- A failing test is reported to Bharg in plain English with the likely cause. Never delete or skip a test to make the suite pass.

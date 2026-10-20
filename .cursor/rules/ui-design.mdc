@@ -1,0 +1,43 @@
+---
+description: Rules for the look, layout, accessibility and wording of the interface
+globs: src/components/**, src/app/**/*.tsx
+alwaysApply: false
+---
+
+# Interface rules
+
+## Look (matches the CDS AI Academy materials; confirm against CDS brand)
+- Design tokens as CSS variables in `src/app/globals.css`, mapped into Tailwind and shadcn/ui:
+  - background `#F6F3EC`, surface `#FFFDF8`, border `#E2DCCF`
+  - heading text `#14213D`, body text `#1F2A3A`, muted text `#5B6573`
+  - accent `#E07A2F` (fills, icons), accent-strong `#B4501F` (text and links on light backgrounds)
+  - success `#2F7A4A`, warning `#B7791F`, danger `#B42318`
+- Fonts via `next/font/google`: DM Sans (body), Domine (headings).
+- Radius 12px on cards, 8px on inputs and buttons. Soft borders rather than heavy shadows.
+- Light mode only for Phase 1.
+- CDS logo from `/public/cds-logo.svg` (placeholder until Bharg adds the real file) in the sidebar header.
+
+## Layout
+- Signed-in shell: left sidebar on desktop (collapsible), bottom sheet menu on phones; top bar with page title, user menu and sign out.
+- Sidebar order: My path, Lessons, Assessments, Assignments, Prompt library, Skills catalogue, What changed, Progress, Rules and help. Then, by role: Trainer area, Admin.
+- Sections not built yet show a "Coming in Phase N" empty state, not a broken page.
+- Works at 360px width. No horizontal page scroll; wide tables scroll inside their own container.
+
+## Components
+- Use shadcn/ui components first. Shared pieces live in `src/components/shared/`: `PageHeader`, `EmptyState`, `DataTable` (sortable, filterable, CSV export), `MarkdownView`, `StatusBadge`, `ConfirmDialog`.
+- Every list has an empty state that says what goes there and who adds it.
+- Every form shows field errors next to the field and a plain summary at the top.
+- Destructive or irreversible actions (release marks, confirm placement, change role, issue certificate) use `ConfirmDialog` that names the person and the action.
+
+## Data display
+- Raw counts and dates. No percentages without the count beside them ("12 of 15").
+- No red/amber/green health ratings or AI scores.
+- Dates as `20 Oct 2026`; times in Asia/Kuala_Lumpur.
+
+## Accessibility
+- WCAG 2.1 AA: 4.5:1 text contrast, visible focus rings, labels on every input, keyboard-usable menus and dialogs, alt text on images.
+- Status is never shown by colour alone; always with a word.
+
+## Wording
+- British English. Short and direct. Button labels say the action ("Mark as complete", "Submit assignment").
+- No exclamation marks, emoji or hype. Error messages say what happened and what to do next.
