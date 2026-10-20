@@ -1,7 +1,8 @@
 import { Suspense, type ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
-import { requireUser } from "@/lib/auth";
+import { noteLastSeen, requireUser } from "@/lib/auth";
+import { countSetupPending } from "@/lib/people/queries";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
@@ -16,5 +17,12 @@ async function SignedInShell({ children }: { children: ReactNode }) {
   if (user.actualRole === "learner" && !user.departmentId) {
     redirect("/setup-pending");
   }
-  return <AppShell user={user}>{children}</AppShell>;
+  await noteLastSeen(user);
+  const pendingCount =
+    user.role === "trainer" || user.role === "admin" ? await countSetupPending() : undefined;
+  return (
+    <AppShell user={user} badges={pendingCount ? { "/trainer/users": pendingCount } : undefined}>
+      {children}
+    </AppShell>
+  );
 }

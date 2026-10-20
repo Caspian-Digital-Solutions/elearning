@@ -20,15 +20,21 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+const badgeDescriptions: Record<string, string> = {
+  "/trainer/users": "set-up pending",
+};
+
 export function NavList({
   items,
   pathname,
   collapsed = false,
+  badges,
   onNavigate,
 }: {
   items: readonly NavItem[];
   pathname: string;
   collapsed?: boolean;
+  badges?: Readonly<Record<string, number>>;
   onNavigate?: () => void;
 }) {
   const groups = ["main", "trainer", "admin"] as const;
@@ -59,6 +65,8 @@ export function NavList({
                 const icon = (
                   <Icon aria-hidden="true" className="size-4 shrink-0 text-accent" />
                 );
+                const count = badges?.[item.href] ?? 0;
+                const badgeText = count > 0 ? `${count} ${badgeDescriptions[item.href] ?? "waiting"}` : null;
                 if (collapsed) {
                   return (
                     <li key={item.href}>
@@ -68,15 +76,27 @@ export function NavList({
                             <Link
                               href={item.href}
                               aria-current={active ? "page" : undefined}
-                              aria-label={item.label}
+                              aria-label={badgeText ? `${item.label}, ${badgeText}` : item.label}
                               className={className}
                               onClick={onNavigate}
                             />
                           }
                         >
-                          {icon}
+                          <span className="relative">
+                            {icon}
+                            {badgeText ? (
+                              <span
+                                aria-hidden="true"
+                                className="absolute -top-2 -right-2.5 min-w-4 rounded-full bg-accent-strong px-1 text-center text-[10px] leading-4 text-white"
+                              >
+                                {count}
+                              </span>
+                            ) : null}
+                          </span>
                         </TooltipTrigger>
-                        <TooltipContent side="right">{item.label}</TooltipContent>
+                        <TooltipContent side="right">
+                          {badgeText ? `${item.label} (${badgeText})` : item.label}
+                        </TooltipContent>
                       </Tooltip>
                     </li>
                   );
@@ -91,6 +111,12 @@ export function NavList({
                     >
                       {icon}
                       <span>{item.label}</span>
+                      {badgeText ? (
+                        <span className="ml-auto rounded-full bg-accent-strong px-2 text-xs leading-5 font-medium text-white">
+                          {count}
+                          <span className="sr-only"> {badgeDescriptions[item.href] ?? "waiting"}</span>
+                        </span>
+                      ) : null}
                     </Link>
                   </li>
                 );

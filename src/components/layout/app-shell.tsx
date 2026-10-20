@@ -20,11 +20,15 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
+export type NavBadges = Readonly<Record<string, number>>;
+
 export function AppShell({
   user,
+  badges,
   children,
 }: {
   user: CurrentUser;
+  badges?: NavBadges;
   children: ReactNode;
 }) {
   return (
@@ -32,11 +36,11 @@ export function AppShell({
       <Suspense
         fallback={<div className="hidden w-64 shrink-0 border-r border-border bg-surface md:block" />}
       >
-        <Sidebar user={user} />
+        <Sidebar user={user} badges={badges} />
       </Suspense>
       <div className="flex min-w-0 flex-1 flex-col">
         <Suspense fallback={<div className="h-14 shrink-0 border-b border-border bg-surface" />}>
-          <TopBar user={user} />
+          <TopBar user={user} badges={badges} />
         </Suspense>
         <main id="main" className="min-w-0 flex-1 px-4 py-6 md:px-8">
           {children}
@@ -46,7 +50,7 @@ export function AppShell({
   );
 }
 
-function Sidebar({ user }: { user: CurrentUser }) {
+function Sidebar({ user, badges }: { user: CurrentUser; badges?: NavBadges }) {
   const pathname = usePathname();
   const items = filterNavigation(navigation, user.role);
   const [collapsed, setCollapsed] = useState(false);
@@ -66,7 +70,7 @@ function Sidebar({ user }: { user: CurrentUser }) {
         )}
       </Link>
       <nav id="sidebar-nav" aria-label="Main" className="flex-1 overflow-y-auto px-2 pb-4">
-        <NavList items={items} pathname={pathname} collapsed={collapsed} />
+        <NavList items={items} pathname={pathname} collapsed={collapsed} badges={badges} />
       </nav>
       <div className="border-t border-border p-2">
         <Button
@@ -87,7 +91,7 @@ function Sidebar({ user }: { user: CurrentUser }) {
   );
 }
 
-function TopBar({ user }: { user: CurrentUser }) {
+function TopBar({ user, badges }: { user: CurrentUser; badges?: NavBadges }) {
   const pathname = usePathname();
   const items = filterNavigation(navigation, user.role);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -115,7 +119,12 @@ function TopBar({ user }: { user: CurrentUser }) {
             <SheetDescription className="sr-only">Site sections</SheetDescription>
           </SheetHeader>
           <nav aria-label="Menu" className="overflow-y-auto px-2 py-3">
-            <NavList items={items} pathname={pathname} onNavigate={() => setMenuOpen(false)} />
+            <NavList
+              items={items}
+              pathname={pathname}
+              badges={badges}
+              onNavigate={() => setMenuOpen(false)}
+            />
           </nav>
         </SheetContent>
       </Sheet>

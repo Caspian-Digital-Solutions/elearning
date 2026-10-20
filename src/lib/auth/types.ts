@@ -16,4 +16,5 @@ export type CurrentUser = {
   departmentId: string | null;
   departmentName: string | null;
   stream: Enums["stream_type"] | null;
+  lastSeenAt: string | null;
 };
