@@ -8,6 +8,9 @@
 
 Read `AGENTS.md`, `docs/ARCHITECTURE.md` (sections 4, 6.1–6.3, 6.6, 6.8 audit_log, 9) and `.cursor/rules/database-supabase.mdc` and `.cursor/rules/nextjs-auth.mdc`. Follow them exactly.
 
+## First, a check
+Open `docs/BUILD_PLAN.md`. If Prompt 01 is not marked Done, or any of its "Done when" items failed, list them for me before starting. Prompt 01 is deployed at https://elearning-five-kappa.vercel.app.
+
 ## Goal
 Connect the app to the Supabase dev project and create the foundation of the database: reference data, people, content, progress and the audit log, all with row-level security, plus the curriculum loaded from `docs/seed/curriculum_v1_1.json`. Assessment, assignment, library and certificate tables are **not** part of this prompt; they arrive with their features.
 
@@ -20,7 +23,8 @@ Show me a plan: each migration file and what it creates, the RLS policy list per
 1. Install `@supabase/supabase-js`, `@supabase/ssr`, `server-only`, `zod`, and the Supabase CLI as a dev dependency (`supabase`).
 2. Run `npx supabase init`. Then tell me the exact `npx supabase link --project-ref <ref>` command to run myself in Cursor's terminal (it will ask for the database password; I type it there, not in chat).
 3. Add to `.env.example` (names and comments only): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (server only), `SUPABASE_DB_URL` (tests only, dev database), `DEV_PREVIEW_ROLE`. Tell me to fill `.env.local`.
-4. Create `src/lib/env.ts` (Zod validation, clear error naming any missing variable; secret values never logged) and the three clients `src/lib/supabase/client.ts`, `server.ts`, `admin.ts` exactly as the rules describe. Use the publishable key, not the anon key.
+4. **Before pushing any code that needs these variables**, give me click-steps to add `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` to the Vercel project (Production, Preview and Development; dev Supabase values for now; the secret key without a `NEXT_PUBLIC_` prefix). Otherwise the next Vercel deployment fails. `SUPABASE_DB_URL` stays on my laptop only.
+5. Create `src/lib/env.ts` (Zod validation, clear error naming any missing variable; secret values never logged) and the three clients `src/lib/supabase/client.ts`, `server.ts`, `admin.ts` exactly as the rules describe. Use the publishable key, not the anon key.
 
 ### B. Migrations (in this order, one file each)
 1. **Shared foundation**: `set_updated_at()` trigger function; enums `app_role` (learner, champion, manager, trainer, admin), `progress_scope_type` (self, department, all), `stream_type` (foundation, practitioner, practitioner_fast_track, champion), `specialist_pathway_type` (business, builder, technical), `content_status` (draft, published, archived), `plan_status` (required, optional, tested_out, bridge, not_applicable).
@@ -56,6 +60,7 @@ Login, assessment and assignment tables, editing screens, any change to module c
 - [ ] Advisors show no security warnings
 - [ ] `npm run lint`, `typecheck`, `test`, `build` pass
 - [ ] `.env.local` is not in Git (`git status` does not list it)
+- [ ] The Vercel link still loads after the push (no build failure)
 - [ ] The plain-English RLS table from the plan is saved as `docs/ACCESS_RULES.md`
 - [ ] BUILD_PLAN.md and CHANGELOG.md updated
 
