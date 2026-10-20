@@ -7,7 +7,7 @@ Cursor updates the Status, Date and Notes columns at the end of every prompt. Fu
 | # | Prompt | Delivers | Depends on | Status | Date | Notes |
 |---|---|---|---|---|---|---|
 | 00 | Setup checklist | Laptop, GitHub, Vercel, Supabase dev, Google OAuth | — | Not started | | Bharg + Workspace admin |
-| 01 | Scaffold and shell | Next.js app, design system, every page as a stub, role-filtered menus, first Vercel preview | 00 A–C | Done | 2026-10-20 | Next.js 16.4 empty shell, CDS colours, role-filtered menu, sample progress table. No database yet. |
+| 01 | Scaffold and shell | Next.js app, design system, every page as a stub, role-filtered menus, first Vercel preview | 00 A–C | Done | 2026-10-20 | Next.js 16.4 empty shell, CDS colours, role-filtered menu, sample progress table. No database yet. Live Vercel URL was publishing only `public/` until `vercel.json` sets the framework to Next.js. |
 | 02 | Database foundation | Supabase connection, reference/people/content/progress/audit tables, RLS, curriculum seed | 01, 00 D | Not started | | |
 | 03 | Login and roles | Google sign-in (CDS only), profiles, route protection, first admin, access-rule tests | 02, 00 E | Not started | | Skeleton complete |
 
