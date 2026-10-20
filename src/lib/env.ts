@@ -29,8 +29,8 @@ export type DevPreviewRole = z.infer<typeof devPreviewRole>;
 export type ServerEnv = PublicEnv & z.infer<typeof serverEnvSchema>;
 
 /**
- * Reads the optional development preview role.
- * Replaced by real sign-in in Prompt 03.
+ * Reads the optional development preview role. Only an admin's view changes,
+ * and only under `next dev` (see `src/lib/auth/current-user.ts`).
  */
 export function readDevPreviewRole(): DevPreviewRole | undefined {
   const raw = process.env.DEV_PREVIEW_ROLE;

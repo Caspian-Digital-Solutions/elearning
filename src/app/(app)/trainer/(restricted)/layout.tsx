@@ -1,7 +1,10 @@
-import type { ReactNode } from "react";
-import { requireRole } from "@/lib/auth/require-role";
+import { Suspense, type ReactNode } from "react";
+import { RoleGate } from "@/components/auth/role-gate";
 
 export default function RestrictedTrainerLayout({ children }: { children: ReactNode }) {
-  requireRole(["trainer", "admin"]);
-  return children;
+  return (
+    <Suspense fallback={null}>
+      <RoleGate allowed={["trainer", "admin"]}>{children}</RoleGate>
+    </Suspense>
+  );
 }

@@ -6,6 +6,9 @@
 
 Read `AGENTS.md`, `docs/ARCHITECTURE.md` (sections 3, 4, 7.1, 9), `docs/ACCESS_RULES.md`, `.cursor/rules/nextjs-auth.mdc`, `.cursor/rules/database-supabase.mdc` and `.cursor/rules/testing.mdc`. Follow them exactly.
 
+## First, a check
+Open `docs/BUILD_PLAN.md`. If Prompt 02 is not marked Done, or `npm run db:check` fails, tell me before starting. The site is deployed at https://elearning-five-kappa.vercel.app and the three Supabase variables are already in Vercel.
+
 ## Goal
 Real sign-in with CDS Google accounts only, automatic profile creation, role-based access everywhere, and automated proof that the access rules work. After this prompt the skeleton is complete.
 
@@ -48,8 +51,9 @@ Give me the exact SQL to run once in the Supabase SQL editor after my first sign
 3. Playwright: signed-out visit to `/my-path` lands on `/login`; `/login` shows the Google button.
 
 ### E. Vercel
-1. Give me click-steps to add `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` in Vercel (Preview and Development environments only for now; `SUPABASE_SECRET_KEY` must not have the `NEXT_PUBLIC_` prefix).
-2. Tell me the exact redirect URL pattern to add in Supabase → Authentication → URL Configuration for Vercel previews of this project.
+1. The Supabase variables are already in Vercel. Check the names match `src/lib/env.ts` and that `SUPABASE_SECRET_KEY` has no `NEXT_PUBLIC_` prefix; tell me if anything needs fixing.
+2. Give me click-steps for Supabase → Authentication → URL Configuration: Site URL `https://elearning-five-kappa.vercel.app`; Redirect URLs `http://localhost:3000/**`, `https://elearning-five-kappa.vercel.app/**`, and the exact wildcard pattern for this Vercel project's preview links (work it out from the project and team name and show me where to confirm it in Vercel).
+3. Make sure the sign-in `redirectTo` uses the address the user is actually on (localhost, preview or the live link), not a hard-coded one.
 
 ### F. Finish
 Commit "Prompt 03: Google sign-in, roles, access tests". Update `docs/BUILD_PLAN.md` (mark the skeleton complete), `docs/ACCESS_RULES.md` (add the sign-in rules) and `CHANGELOG.md`.
@@ -64,7 +68,7 @@ User management screens (Prompt 04), any content screens, production project.
 - [ ] Signing out returns me to `/login`; opening `/my-path` signed out sends me to `/login`
 - [ ] `npm run test:rls` passes every case and leaves no test users behind (check Authentication → Users)
 - [ ] `npm run lint`, `typecheck`, `test`, `test:e2e`, `build` pass
-- [ ] Sign-in works on the Vercel preview link
+- [ ] Sign-in works on https://elearning-five-kappa.vercel.app, and signed out it now shows only the sign-in page
 - [ ] Docs and changelog updated
 
 Finish with a plain-English summary of how sign-in and access work now, in no more than eight sentences, plus anything you assumed.

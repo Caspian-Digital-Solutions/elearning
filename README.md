@@ -2,7 +2,7 @@
 
 A private learning website for Caspian Digital Solutions staff. People sign in with their CDS Google account, follow a learning path, read lessons, sit assessments, and hand in assignments. Trainers load content and mark work. Managers see raw progress counts.
 
-The pages and the menu are in place. The database (Supabase) holds the curriculum, with row-level security on every table; the pages start reading it once Google sign-in arrives in Prompt 03. The logo is a placeholder wordmark until the real CDS logo is added.
+The pages and the menu are in place, and sign-in works with CDS Google accounts only. The database (Supabase) holds the curriculum, with row-level security on every table. The logo is a placeholder wordmark until the real CDS logo is added.
 
 ## Run it on your computer
 
@@ -10,28 +10,26 @@ The pages and the menu are in place. The database (Supabase) holds the curriculu
 2. In this folder, run `npm install`.
 3. Copy `.env.example` to `.env.local` and fill in the Supabase values (the comments say where each one is).
 4. Run `npm run dev`.
-5. Open http://localhost:3000. The site opens on My path.
+5. Open http://localhost:3000 and choose "Sign in with Google" with your CDS account.
 
-## Preview a role
+## Sign-in and roles
 
-Sign-in is not built yet. To see another role's menu, set `DEV_PREVIEW_ROLE` in `.env.local` to one of:
+- Only `caspiands.com` Google accounts can sign in. Anyone else sees "Please sign in with your CDS Google account."
+- Your first sign-in creates your profile as a learner with no department. You see "Your account is almost ready" until a trainer gives you a department.
+- A learner does not see Trainer or Admin. A champion sees only Marking queue in the Trainer area. A trainer sees the Trainer area. An admin sees Trainer and Admin.
+- The full rules are in [docs/ACCESS_RULES.md](docs/ACCESS_RULES.md).
 
-- `learner` (the default)
-- `champion`
-- `manager`
-- `trainer`
-- `admin`
+## Preview a role (admins, on your laptop only)
 
-Stop the site and run `npm run dev` again after you change it.
-
-A learner does not see Trainer or Admin. A champion sees only Marking queue in the Trainer area. A trainer sees the Trainer area. An admin sees Trainer and Admin. This setting is ignored on the live site, which always shows a learner until real sign-in exists.
+An admin can see another role's menu by setting `DEV_PREVIEW_ROLE` in `.env.local` to `learner`, `champion`, `manager`, `trainer` or `admin`, then running `npm run dev` again. It does nothing for anyone who is not an admin, does nothing on the live site, and never changes what the database allows. Leave it blank to see your real role.
 
 ## Checks
 
 - `npm run lint`
 - `npm run typecheck`
 - `npm test`
-- `npm run test:e2e`
+- `npm run test:e2e` — browser checks (signed-out visitors land on the sign-in page)
+- `npm run test:rls` — access-rule tests against the dev database; needs `SUPABASE_DB_URL` in `.env.local`. Every test is rolled back, so nothing is left behind.
 - `npm run build`
 
 ## Database
