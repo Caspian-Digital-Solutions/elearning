@@ -1,6 +1,8 @@
 "use client";
 
+import { useTransition } from "react";
 import { roleLabels } from "@/config/navigation";
+import { signOut } from "@/lib/auth/actions";
 import type { CurrentUser } from "@/lib/auth/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,8 @@ function initials(name: string): string {
 }
 
 export function UserMenu({ user }: { user: CurrentUser }) {
+  const [signingOut, startTransition] = useTransition();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -41,10 +45,23 @@ export function UserMenu({ user }: { user: CurrentUser }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>{user.fullName}</DropdownMenuLabel>
-        <p className="px-1.5 py-1 text-sm text-foreground">{roleLabels[user.role]}</p>
+        <p className="px-1.5 py-1 text-sm text-foreground">
+          {roleLabels[user.role]}
+          {user.isPreviewingRole ? ` (preview; you are ${roleLabels[user.actualRole]})` : null}
+        </p>
+        <p className="px-1.5 text-sm text-foreground">
+          {user.departmentName ?? "No department yet"}
+        </p>
         <p className="px-1.5 pb-1 text-xs text-muted-foreground">{user.email}</p>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled>Sign out</DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={signingOut}
+          onClick={() => {
+            startTransition(() => signOut());
+          }}
+        >
+          {signingOut ? "Signing out…" : "Sign out"}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -325,6 +325,12 @@ isOneToOne: false
                            },
 "has_role":
 { Args: { "roles": (Database["public"]['Enums']["app_role"])[] }; Returns: boolean
+                           },
+"hook_before_user_created":
+{ Args: { "event": Json }; Returns: Json
+                           },
+"is_allowed_sign_in_email":
+{ Args: { "email": string }; Returns: boolean
                            }
           }
           Enums: {

@@ -1,58 +1,84 @@
 import "server-only";
 
+import { cache } from "react";
+import { redirect } from "next/navigation";
 import type { AppRole } from "@/config/navigation";
 import { readDevPreviewRole } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
 import type { CurrentUser } from "@/lib/auth/types";
 
 /**
- * TEMPORARY — replaced in Prompt 03.
- *
- * Returns a fixed demo user so the empty shell can be clicked through
- * before Google sign-in exists. In development, set DEV_PREVIEW_ROLE
- * in .env.local to learner, champion, manager, trainer, or admin.
- * Production builds always return a learner.
+ * The signed-in person and their profile, or null when signed out, when the
+ * profile is missing, or when it is inactive. Checked with getClaims(), which
+ * verifies the session token; getSession() is never trusted for this.
+ * Cached per request, so layouts and pages share one lookup.
+ * Reads cookies, so callers must sit inside a <Suspense> boundary.
  */
-
-const demoUsers: Record<AppRole, CurrentUser> = {
-  learner: {
-    id: "demo-learner",
-    fullName: "Test Learner Content",
-    email: "learner@example.com",
-    role: "learner",
-  },
-  champion: {
-    id: "demo-champion",
-    fullName: "Test Champion Content",
-    email: "champion@example.com",
-    role: "champion",
-  },
-  manager: {
-    id: "demo-manager",
-    fullName: "Test Manager Content",
-    email: "manager@example.com",
-    role: "manager",
-  },
-  trainer: {
-    id: "demo-trainer",
-    fullName: "Test Trainer Content",
-    email: "trainer@example.com",
-    role: "trainer",
-  },
-  admin: {
-    id: "demo-admin",
-    fullName: "Test Admin Content",
-    email: "admin@example.com",
-    role: "admin",
-  },
-};
-
-function resolveRole(): AppRole {
-  if (process.env.NODE_ENV === "production") {
-    return "learner";
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
+  const supabase = await createClient();
+  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
+  const userId = claimsData?.claims?.sub;
+  if (claimsError || !userId) {
+    return null;
   }
-  return readDevPreviewRole() ?? "learner";
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select(
+      "id, email, full_name, role, progress_scope, department_id, stream, is_active, departments ( name )",
+    )
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error || !profile || !profile.is_active) {
+    return null;
+  }
+
+  const actualRole = profile.role;
+  const role = previewRole(actualRole);
+
+  return {
+    id: profile.id,
+    email: profile.email,
+    fullName: profile.full_name?.trim() || profile.email,
+    role,
+    actualRole,
+    isPreviewingRole: role !== actualRole,
+    progressScope: profile.progress_scope,
+    departmentId: profile.department_id,
+    departmentName: profile.departments?.name ?? null,
+    stream: profile.stream,
+  };
+});
+
+/**
+ * DEV_PREVIEW_ROLE lets an admin see another role's menus on their own laptop.
+ * It never applies in production builds or to anyone who is not an admin, and
+ * it does not change what the database allows.
+ */
+function previewRole(actualRole: AppRole): AppRole {
+  if (process.env.NODE_ENV !== "development" || actualRole !== "admin") {
+    return actualRole;
+  }
+  return readDevPreviewRole() ?? actualRole;
 }
 
-export function getCurrentUser(): CurrentUser {
-  return demoUsers[resolveRole()];
+/** Signed-in, active person, or a redirect to /login. */
+export async function requireUser(): Promise<CurrentUser> {
+  const user = await getCurrentUser();
+  if (!user) {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getClaims();
+    redirect(data?.claims?.sub ? "/login?error=no-access" : "/login");
+  }
+  return user;
+}
+
+/** Signed-in person with one of the allowed roles, or a redirect to /my-path. */
+export async function requireRole(allowed: readonly AppRole[]): Promise<CurrentUser> {
+  const user = await requireUser();
+  if (!allowed.includes(user.role)) {
+    redirect("/my-path");
+  }
+  return user;
 }

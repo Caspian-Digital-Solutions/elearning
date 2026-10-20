@@ -10,8 +10,9 @@ import type { Database } from "@/lib/types/database";
  * Acts as the signed-in person, so RLS applies. Create a new one per request.
  */
 export async function createClient() {
-  const env = readPublicEnv();
+  // cookies() first: it marks the render as per-request, so builds never need the variables.
   const cookieStore = await cookies();
+  const env = readPublicEnv();
 
   return createServerClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,

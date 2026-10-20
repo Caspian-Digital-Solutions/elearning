@@ -2,6 +2,7 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-20 | 03 | Google sign-in for CDS accounts only (Before User Created hook plus a second lock in the profile trigger), automatic learner profile, proxy and layout protection by role, sign-out, setup-pending page, access-rule tests (`npm run test:rls`, 25 cases, rolled back), signed-out Playwright checks. Migration applied to dev. |
 | 2026-10-20 | 02 | Applied the six migrations and the curriculum seed to the dev Supabase project; counts, RLS and advisors checked there |
 | 2026-10-20 | 02 | Database foundation: Supabase connection and environment check, 15 tables in 6 migrations with row-level security on every table, audit log, curriculum seed (10 departments, C1–C9, 6 stages, 30 modules), `db:check`, generated types, `docs/ACCESS_RULES.md`. Waiting for the push to the dev project. |
 | 2026-10-20 | 01 | Tell Vercel this project is Next.js, so it builds the app instead of publishing only the public folder |
