@@ -51,19 +51,40 @@ export async function loadCohorts(): Promise<CohortRecord[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("cohorts")
-    .select("id, name, start_date, slot, notes, is_archived")
+    .select("id, name, start_date, week0_start_date, slot, notes, is_archived")
     .order("is_archived")
     .order("start_date", { ascending: true, nullsFirst: false })
     .order("name");
   if (error) {
     throw new Error("Could not load cohorts.");
   }
-  return data.map((row) => ({
+  const cohortIds = (data ?? []).map((row) => row.id);
+  const { data: breaks } = cohortIds.length
+    ? await supabase
+        .from("cohort_breaks")
+        .select("id, cohort_id, start_date, weeks, label")
+        .in("cohort_id", cohortIds)
+        .order("start_date")
+    : { data: [] };
+  const breaksByCohort = new Map<string, CohortRecord["breaks"]>();
+  for (const row of breaks ?? []) {
+    const list = breaksByCohort.get(row.cohort_id) ?? [];
+    list.push({
+      id: row.id,
+      startDate: row.start_date,
+      weeks: row.weeks,
+      label: row.label,
+    });
+    breaksByCohort.set(row.cohort_id, list);
+  }
+  return (data ?? []).map((row) => ({
     id: row.id,
     name: row.name,
     startDate: row.start_date,
+    week0StartDate: row.week0_start_date,
     slot: row.slot,
     notes: row.notes,
     isArchived: row.is_archived,
+    breaks: breaksByCohort.get(row.id) ?? [],
   }));
 }

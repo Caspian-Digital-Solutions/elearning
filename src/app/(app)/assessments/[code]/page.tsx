@@ -12,7 +12,13 @@ import {
   loadUserAttemptsForAssessment,
   streamLabel,
 } from "@/lib/assessments/queries";
-import { attemptsRemaining, countCompletedAttempts, pickBestQuizAttempt } from "@/lib/assessments/quiz-status";
+import {
+  correctCountFromPercentage,
+  formatQuizOutcomeLabel,
+  attemptsRemaining,
+  countCompletedAttempts,
+} from "@/lib/assessments/quiz-status";
+import { formatDateTime } from "@/lib/format";
 import { startAssessmentAttempt } from "@/app/(app)/assessments/attempt-actions";
 import { AssessmentAttemptClient } from "@/app/(app)/assessments/assessment-attempt-client";
 import { QuizResultClient } from "@/app/(app)/assessments/quiz-result-client";
@@ -96,7 +102,7 @@ async function AssessmentPage({ params }: { params: Promise<{ code: string }> })
               <p>Gates noted: {confirmedResult.gates_failed.join(", ")}</p>
             ) : null}
             <p className="text-sm text-muted-foreground">
-              Confirmed {new Date(confirmedResult.confirmed_at).toLocaleString()} by{" "}
+              Confirmed {formatDateTime(confirmedResult.confirmed_at)} by{" "}
               {confirmer?.full_name?.trim() || confirmer?.email || "your trainer"}.
             </p>
           </div>
@@ -125,26 +131,24 @@ async function AssessmentPage({ params }: { params: Promise<{ code: string }> })
 
   if (isQuiz && !attempt) {
     const completed = attempts.filter((a) => a.status !== "in_progress");
-    const best = pickBestQuizAttempt(
-      completed.map((a) => ({
-        percentage: a.percentage,
-        passed: a.passed,
-        submittedAt: a.submitted_at,
-      })),
-    );
     const latestCompleted = completed[0];
     const showAttempt = latestCompleted ?? null;
     if (showAttempt && showAttempt.submitted_at) {
       const itemCount = showAttempt.item_ids?.length ?? payload.sections.flatMap((s) => s.items).length;
       const pct = showAttempt.percentage ?? 0;
-      const correct = Math.round((pct / 100) * itemCount);
+      const correct = correctCountFromPercentage(pct, itemCount);
+      const outcomeLabel = formatQuizOutcomeLabel(
+        correct,
+        itemCount,
+        pct,
+        assessment.pass_mark_pct,
+      );
       return (
         <div className="space-y-6">
           <PageHeader title={payload.assessment.title} purpose="Your quiz result." />
           <QuizResultClient
             attemptId={showAttempt.id}
-            scoreLabel={`${correct} of ${itemCount} (${Math.round(pct)}%)`}
-            passed={Boolean(best?.passed)}
+            outcomeLabel={outcomeLabel}
             passMarkPct={assessment.pass_mark_pct}
           />
           <Button variant="outline" render={<Link href="/assessments" />}>Back to assessments</Button>
@@ -166,14 +170,14 @@ async function AssessmentPage({ params }: { params: Promise<{ code: string }> })
   if (isQuiz && attempt && attempt.status !== "in_progress") {
     const itemCount = attempt.item_ids?.length ?? payload.sections.flatMap((s) => s.items).length;
     const pct = attempt.percentage ?? 0;
-    const correct = Math.round((pct / 100) * itemCount);
+    const correct = correctCountFromPercentage(pct, itemCount);
+    const outcomeLabel = formatQuizOutcomeLabel(correct, itemCount, pct, assessment.pass_mark_pct);
     return (
       <div className="space-y-6">
         <PageHeader title={payload.assessment.title} purpose="Your quiz result." />
         <QuizResultClient
           attemptId={attempt.id}
-          scoreLabel={`${correct} of ${itemCount} (${Math.round(pct)}%)`}
-          passed={Boolean(attempt.passed)}
+          outcomeLabel={outcomeLabel}
           passMarkPct={assessment.pass_mark_pct}
         />
         <Button variant="outline" render={<Link href="/assessments" />}>Back to assessments</Button>

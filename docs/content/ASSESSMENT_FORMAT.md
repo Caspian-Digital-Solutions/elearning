@@ -86,10 +86,22 @@ On import, **option points**, **model answers**, **explanations** and **marking 
 | `instructions_md` | Yes | Markdown shown before the attempt. |
 | `time_guide_min` | Yes | Positive whole number (soft time guide, not a hard limit). |
 | `is_sample` | Yes | `true` for SAMPLE content (e.g. dev testing). |
+| `module` | For `quiz` / `safety_quiz` | Module code (e.g. `F1`, `F3`). Required for module quizzes; omit for `placement`. |
+| `pass_mark_pct` | For quizzes | Whole number 0–100. Learner must meet or exceed this percentage to pass. Use `0` for a non-gating check (F1). |
+| `max_attempts` | No | Whole number or omit for unlimited. When set, `start_attempt` refuses further tries unless a trainer allows a retake. |
+| `items_per_attempt` | No | Draw this many `choice` items at random per attempt (fixed in `attempts.item_ids`). Omit to use all published choice items. Pool size must be ≥ this value. |
+| `show_review_after_submit` | No | Default `true` for quizzes. Must be `false` for `placement` (Week 0). When true, learners may call `get_attempt_review` after submit. |
+
+### Quiz and safety_quiz rules
+
+- Must have a `module` that exists in the curriculum seed.
+- Items must all be type **`choice`** (no profile, practical, or short text).
+- Use a single section (e.g. `check` or `safety`) with `max_score` equal to the sum of drawn item points, or one point per item in the pool.
+- See `docs/content/samples/f1_check_sample.json` and `f3_safety_quiz_sample.json` for SAMPLE imports.
 
 ## Sections
 
-Each section must match **`placement.week0_sections`**:
+**Placement (`type: placement`)** — each section must match **`placement.week0_sections`**:
 
 | Code | Title (seed) | `max_score` | `counts_in_total` |
 |---|---|---:|---|
@@ -136,7 +148,7 @@ Rules:
 
 ### Type-specific rules
 
-- **`profile`**: `points` must be `0`. No `rubric`. Options are not scored.
+- **`profile`**: `points` must be `0`. No `rubric`. Options are not scored. Optional `allow_multiple` (default `false`): when `true`, use at least two options and the learner may tick several; answers store `{ "option_ids": ["a","b"] }` (legacy single-select may use `option_id`).
 - **`choice`**: Each option includes `points` (import only). Option `points` cannot exceed the item `points`. The **highest** option `points` must equal the item `points`. No `rubric`.
 - **`short_text`** / **`practical`**: If `points` > 0, `rubric` is required and **rubric maximum must equal item `points`**. `practical` always requires a `rubric`.
 

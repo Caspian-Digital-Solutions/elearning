@@ -8,10 +8,15 @@ import {
 } from "@/lib/assessments/learner-payload";
 import {
   attemptsRemaining,
+  correctCountFromPercentage,
   countCompletedAttempts,
+  formatQuizLearnerStatusLabel,
+  formatQuizOutcomeLabel,
   pickBestQuizAttempt,
+  quizHasPassMark,
   type QuizAttemptOutcome,
 } from "@/lib/assessments/quiz-status";
+import { formatDateTime } from "@/lib/format";
 import { markdownSnippet } from "@/lib/markdown-snippet";
 import { streamNames, type Stream } from "@/lib/people/labels";
 import { createClient } from "@/lib/supabase/server";
@@ -459,8 +464,16 @@ export type PlacementTableRow = {
   confirmedStream: string;
   confirmedBy: string;
   confirmedAt: string;
+  planBuiltAt: string | null;
   hasPlacement: boolean;
   fullyMarked: boolean;
+};
+
+export type SampleInProgressPlacementRow = {
+  attemptId: string;
+  userId: string;
+  personName: string;
+  department: string;
 };
 
 export async function loadPlacementTableRows(): Promise<PlacementTableRow[]> {
@@ -509,6 +522,23 @@ export async function loadPlacementTableRows(): Promise<PlacementTableRow[]> {
     : { data: [] };
   const confirmerById = new Map((confirmers ?? []).map((p) => [p.id, p]));
 
+  const confirmedUserIds = (results ?? [])
+    .filter((r) => r.confirmed_at)
+    .map((r) => r.user_id);
+  const { data: planRows } = confirmedUserIds.length
+    ? await supabase
+        .from("learner_plan")
+        .select("user_id, created_at")
+        .in("user_id", confirmedUserIds)
+        .order("created_at", { ascending: true })
+    : { data: [] };
+  const planBuiltByUser = new Map<string, string>();
+  for (const row of planRows ?? []) {
+    if (!planBuiltByUser.has(row.user_id)) {
+      planBuiltByUser.set(row.user_id, row.created_at);
+    }
+  }
+
   return (attempts ?? [])
     .filter((attempt) => profileById.has(attempt.user_id))
     .map((attempt) => {
@@ -549,10 +579,52 @@ export async function loadPlacementTableRows(): Promise<PlacementTableRow[]> {
       confirmedStream: pr?.confirmed_stream ? streamLabel(pr.confirmed_stream) : "—",
       confirmedBy: confirmer?.full_name?.trim() || confirmer?.email || "—",
       confirmedAt: pr?.confirmed_at ?? "",
+      planBuiltAt: pr?.confirmed_at ? planBuiltByUser.get(attempt.user_id) ?? null : null,
       hasPlacement: Boolean(pr),
       fullyMarked: attempt.status === "marked" || attempt.status === "confirmed",
     };
   });
+}
+
+export async function loadSampleInProgressPlacementRows(): Promise<SampleInProgressPlacementRow[]> {
+  const supabase = await createClient();
+  const { data: assessment } = await supabase
+    .from("assessments")
+    .select("id")
+    .eq("type", "placement")
+    .eq("is_sample", true)
+    .eq("status", "published")
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!assessment) {
+    return [];
+  }
+  const { data: attempts } = await supabase
+    .from("attempts")
+    .select("id, user_id")
+    .eq("assessment_id", assessment.id)
+    .eq("status", "in_progress");
+  const userIds = [...new Set((attempts ?? []).map((row) => row.user_id))];
+  const { data: profiles } = userIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, full_name, email, departments ( name, code )")
+        .in("id", userIds)
+    : { data: [] };
+  const profileById = new Map((profiles ?? []).map((row) => [row.id, row]));
+  return (attempts ?? [])
+    .filter((attempt) => profileById.has(attempt.user_id))
+    .map((attempt) => {
+      const profile = profileById.get(attempt.user_id)!;
+      const dept = profile.departments as { name: string; code: string } | null;
+      return {
+        attemptId: attempt.id,
+        userId: attempt.user_id,
+        personName: profile.full_name?.trim() || profile.email,
+        department: dept?.name ?? dept?.code ?? "—",
+      };
+    });
 }
 
 export type QuizResultsRow = {
@@ -568,6 +640,7 @@ export type QuizResultsRow = {
   attemptsUsed: string;
   bestPercentage: string;
   passed: string;
+  outcomeLabel: string;
   firstPassAt: string;
   lastAttemptAt: string;
 };
@@ -578,22 +651,62 @@ export async function loadQuizResultsRows(): Promise<QuizResultsRow[]> {
   if (error || !data) {
     return [];
   }
-  return data.map((row) => ({
-    userId: row.user_id,
-    personName: row.full_name?.trim() || row.email,
-    email: row.email,
-    department: row.department_code ?? "—",
-    assessmentCode: row.assessment_code,
-    assessmentTitle: row.assessment_title,
-    quizType: row.assessment_type,
-    passMarkPct: row.pass_mark_pct !== null ? `${row.pass_mark_pct}%` : "—",
-    maxAttempts: row.max_attempts !== null ? String(row.max_attempts) : "Unlimited",
-    attemptsUsed: String(row.attempts_used),
-    bestPercentage: row.best_percentage !== null ? `${row.best_percentage}%` : "—",
-    passed: row.passed ? "Yes" : "No",
-    firstPassAt: row.first_pass_at ? new Date(row.first_pass_at).toLocaleString() : "—",
-    lastAttemptAt: row.last_attempt_at ? new Date(row.last_attempt_at).toLocaleString() : "—",
-  }));
+
+  const assessmentIds = [...new Set(data.map((row) => row.assessment_id))];
+  const { data: assessments } = assessmentIds.length
+    ? await supabase
+        .from("assessments")
+        .select("id, items_per_attempt")
+        .in("id", assessmentIds)
+    : { data: [] };
+  const itemsPerAttemptById = new Map(
+    (assessments ?? []).map((row) => [row.id, row.items_per_attempt]),
+  );
+
+  const { data: itemCounts } = assessmentIds.length
+    ? await supabase.from("assessment_items").select("assessment_id").in("assessment_id", assessmentIds)
+    : { data: [] };
+  const countByAssessment = new Map<string, number>();
+  for (const item of itemCounts ?? []) {
+    countByAssessment.set(item.assessment_id, (countByAssessment.get(item.assessment_id) ?? 0) + 1);
+  }
+
+  return data.map((row) => {
+    const poolSize = countByAssessment.get(row.assessment_id) ?? 0;
+    const drawSize = itemsPerAttemptById.get(row.assessment_id) ?? poolSize;
+    const itemCount = drawSize > 0 ? drawSize : poolSize;
+    const pct = row.best_percentage ?? 0;
+    const correct = correctCountFromPercentage(pct, itemCount);
+    const outcomeLabel =
+      row.best_percentage !== null && itemCount > 0
+        ? formatQuizOutcomeLabel(correct, itemCount, pct, row.pass_mark_pct)
+        : "—";
+    const passedForFilter = quizHasPassMark(row.pass_mark_pct)
+      ? row.passed
+        ? "Yes"
+        : "No"
+      : row.attempts_used > 0
+        ? "Yes"
+        : "No";
+
+    return {
+      userId: row.user_id,
+      personName: row.full_name?.trim() || row.email,
+      email: row.email,
+      department: row.department_code ?? "—",
+      assessmentCode: row.assessment_code,
+      assessmentTitle: row.assessment_title,
+      quizType: row.assessment_type,
+      passMarkPct: row.pass_mark_pct !== null ? `${row.pass_mark_pct}%` : "—",
+      maxAttempts: row.max_attempts !== null ? String(row.max_attempts) : "Unlimited",
+      attemptsUsed: String(row.attempts_used),
+      bestPercentage: row.best_percentage !== null ? `${row.best_percentage}%` : "—",
+      passed: passedForFilter,
+      outcomeLabel,
+      firstPassAt: row.first_pass_at ? formatDateTime(row.first_pass_at) : "—",
+      lastAttemptAt: row.last_attempt_at ? formatDateTime(row.last_attempt_at) : "—",
+    };
+  });
 }
 
 export type QuizQuestionCheckRow = {
@@ -631,7 +744,7 @@ export async function loadPublishedQuizzesForLearner(userId: string): Promise<Mo
   const supabase = await createClient();
   const { data: quizzes } = await supabase
     .from("assessments")
-    .select("id, code, title, type, pass_mark_pct, max_attempts, modules ( code )")
+    .select("id, code, title, type, pass_mark_pct, max_attempts, items_per_attempt, modules ( code )")
     .eq("status", "published")
     .in("type", ["quiz", "safety_quiz"])
     .order("code");
@@ -641,6 +754,12 @@ export async function loadPublishedQuizzesForLearner(userId: string): Promise<Mo
   }
 
   const ids = quizzes.map((q) => q.id);
+  const { data: itemRows } = await supabase.from("assessment_items").select("assessment_id").in("assessment_id", ids);
+  const itemCountByAssessment = new Map<string, number>();
+  for (const item of itemRows ?? []) {
+    itemCountByAssessment.set(item.assessment_id, (itemCountByAssessment.get(item.assessment_id) ?? 0) + 1);
+  }
+
   const { data: attempts } = await supabase
     .from("attempts")
     .select("id, assessment_id, status, percentage, passed, submitted_at")
@@ -670,20 +789,15 @@ export async function loadPublishedQuizzesForLearner(userId: string): Promise<Mo
         }),
       ),
     );
-    const bestPassed = completed.some((a) => a.passed);
-    let statusLabel = "Not started";
-    if (inProgress) {
-      statusLabel = "In progress";
-    } else if (bestPassed && best?.submittedAt) {
-      statusLabel = `Passed ${best.percentage ?? 0}% on ${new Date(best.submittedAt).toLocaleDateString()}`;
-    } else if (best) {
-      statusLabel = `Not passed yet — best ${best.percentage ?? 0}%`;
-      if (remaining !== null) {
-        statusLabel += `, ${remaining} attempt${remaining === 1 ? "" : "s"} left`;
-      }
-    } else if (remaining !== null) {
-      statusLabel = `${remaining} attempt${remaining === 1 ? "" : "s"} available`;
-    }
+    const poolSize = itemCountByAssessment.get(quiz.id) ?? 0;
+    const itemCount = quiz.items_per_attempt ?? poolSize;
+    const statusLabel = formatQuizLearnerStatusLabel({
+      passMarkPct: quiz.pass_mark_pct,
+      inProgress: Boolean(inProgress),
+      best,
+      remaining,
+      itemCount: itemCount > 0 ? itemCount : poolSize,
+    });
 
     const canStart =
       Boolean(inProgress) ||

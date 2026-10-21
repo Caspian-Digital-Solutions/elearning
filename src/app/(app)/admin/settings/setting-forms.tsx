@@ -1,12 +1,13 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { isOneOf, streamNames, streamValues } from "@/lib/people/labels";
+import { defaultPlanStreamRulesSetting } from "@/lib/plan/stream-rules-setting";
 import { parseJsonText, type Json } from "@/lib/settings/validators";
 
 type OnChange = (value: unknown, error?: string) => void;
@@ -34,11 +35,13 @@ export function SettingForm({
   settingKey,
   initial,
   current,
+  moduleCodes = [],
   onChange,
 }: {
   settingKey: string;
   initial: Json;
   current: Record<string, Json>;
+  moduleCodes?: string[];
   onChange: OnChange;
 }) {
   switch (settingKey) {
@@ -50,6 +53,8 @@ export function SettingForm({
       return <SectionsForm initial={initial} onChange={onChange} />;
     case "placement.bridge_modules":
       return <BridgeModulesForm initial={initial} onChange={onChange} />;
+    case "plan.stream_rules":
+      return <PlanStreamRulesForm initial={initial} moduleCodes={moduleCodes} onChange={onChange} />;
     case "certification.foundation":
       return <FoundationForm initial={initial} onChange={onChange} />;
     case "certification.department":
@@ -431,6 +436,128 @@ function BridgeModulesForm({ initial, onChange }: { initial: Json; onChange: OnC
               emit(next);
             }}
           />
+        </div>
+      ))}
+    </fieldset>
+  );
+}
+
+function codesToText(codes: unknown): string {
+  return Array.isArray(codes) ? codes.map(String).join(", ") : "";
+}
+
+function PlanStreamRulesForm({
+  initial,
+  moduleCodes,
+  onChange,
+}: {
+  initial: Json;
+  moduleCodes: string[];
+  onChange: OnChange;
+}) {
+  const base = asObject(initial);
+  const defaults = defaultPlanStreamRulesSetting();
+  const streams = asObject(base.streams);
+  const [bridgeWeek, setBridgeWeek] = useState(toText(base.bridge_due_week ?? defaults.bridge_due_week));
+  const [seniorCode, setSeniorCode] = useState(
+    typeof base.senior_management_department_code === "string"
+      ? base.senior_management_department_code
+      : defaults.senior_management_department_code,
+  );
+  const [streamFields, setStreamFields] = useState(
+    streamValues.map((stream) => {
+      const block = asObject(streams[stream]);
+      return {
+        stream,
+        testedOut: codesToText(block.tested_out ?? defaults.streams[stream].tested_out),
+        optional: codesToText(block.optional ?? defaults.streams[stream].optional),
+      };
+    }),
+  );
+
+  useEffect(() => {
+    const nextStreams: JsonObject = {};
+    for (const row of streamFields) {
+      nextStreams[row.stream] = {
+        tested_out: row.testedOut
+          .split(",")
+          .map((part) => part.trim())
+          .filter(Boolean),
+        optional: row.optional
+          .split(",")
+          .map((part) => part.trim())
+          .filter(Boolean),
+      };
+    }
+    const bridge = toNumber(bridgeWeek);
+    if (bridge === null || Number.isNaN(bridge)) {
+      onChange(undefined, "Bridge due week must be a whole number.");
+      return;
+    }
+    for (const stream of streamValues) {
+      const tested = (nextStreams[stream] as JsonObject)?.tested_out;
+      if (Array.isArray(tested) && tested.map((code) => String(code).toUpperCase()).includes("F3")) {
+        onChange(undefined, "F3 cannot be tested out.");
+        return;
+      }
+    }
+    onChange({
+      bridge_due_week: bridge,
+      senior_management_department_code: seniorCode.trim() || defaults.senior_management_department_code,
+      streams: nextStreams,
+    });
+  }, [bridgeWeek, seniorCode, streamFields, defaults.senior_management_department_code]);
+
+  return (
+    <fieldset className="space-y-4">
+      <legend className="font-medium">Learner plan stream rules</legend>
+      <p className="text-sm text-muted-foreground">
+        Lists of module codes per stream. Anything not listed as tested out or optional is required. Known modules:{" "}
+        {moduleCodes.slice(0, 12).join(", ")}
+        {moduleCodes.length > 12 ? "…" : ""}
+      </p>
+      <NumberField
+        label="Bridge due week"
+        hint="Bridge modules should be finished by the end of this programme week."
+        value={bridgeWeek}
+        onChange={setBridgeWeek}
+        min={0}
+        max={12}
+      />
+      <div className="space-y-1.5">
+        <Label>Senior Management department code</Label>
+        <Input
+          value={seniorCode}
+          onChange={(event) => setSeniorCode(event.target.value)}
+        />
+      </div>
+      {streamFields.map((row, index) => (
+        <div key={row.stream} className="space-y-2 rounded border p-3">
+          <p className="font-medium">{streamNames[row.stream]}</p>
+          <div className="space-y-1">
+            <Label>Tested out (comma-separated)</Label>
+            <Input
+              value={row.testedOut}
+              onChange={(event) => {
+                const next = streamFields.map((entry, position) =>
+                  position === index ? { ...entry, testedOut: event.target.value } : entry,
+                );
+                setStreamFields(next);
+              }}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Optional (comma-separated)</Label>
+            <Input
+              value={row.optional}
+              onChange={(event) => {
+                const next = streamFields.map((entry, position) =>
+                  position === index ? { ...entry, optional: event.target.value } : entry,
+                );
+                setStreamFields(next);
+              }}
+            />
+          </div>
         </div>
       ))}
     </fieldset>

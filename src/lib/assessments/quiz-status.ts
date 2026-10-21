@@ -65,3 +65,64 @@ export function attemptsRemaining(
 export function formatQuizScoreLabel(correct: number, total: number, percentage: number): string {
   return `${correct} of ${total} (${Math.round(percentage)}%)`;
 }
+
+export function correctCountFromPercentage(percentage: number, total: number): number {
+  if (total <= 0) {
+    return 0;
+  }
+  return Math.round((percentage / 100) * total);
+}
+
+/** Whether the quiz uses pass/fail wording (pass mark strictly greater than zero). */
+export function quizHasPassMark(passMarkPct: number | null | undefined): boolean {
+  return passMarkPct !== null && passMarkPct !== undefined && passMarkPct > 0;
+}
+
+/** Completed vs Passed vs Not passed yet — always includes the score fragment. */
+export function formatQuizOutcomeLabel(
+  correct: number,
+  total: number,
+  percentage: number,
+  passMarkPct: number | null | undefined,
+): string {
+  const score = formatQuizScoreLabel(correct, total, percentage);
+  if (!quizHasPassMark(passMarkPct)) {
+    return `Completed — ${score}`;
+  }
+  if (quizPassed(percentage, passMarkPct as number)) {
+    return `Passed — ${score}`;
+  }
+  return `Not passed yet — ${score}`;
+}
+
+export type QuizLearnerStatusInput = {
+  passMarkPct: number | null;
+  inProgress: boolean;
+  best: QuizAttemptOutcome | null;
+  remaining: number | null;
+  itemCount: number;
+};
+
+/** Status line for module cards and /assessments (not the trainer results grid). */
+export function formatQuizLearnerStatusLabel(input: QuizLearnerStatusInput): string {
+  const { passMarkPct, inProgress, best, remaining, itemCount } = input;
+  if (inProgress) {
+    return "In progress";
+  }
+  if (best && best.submittedAt !== null && best.percentage !== null) {
+    const correct = correctCountFromPercentage(best.percentage, itemCount);
+    let label = formatQuizOutcomeLabel(correct, itemCount, best.percentage, passMarkPct);
+    if (
+      quizHasPassMark(passMarkPct) &&
+      !quizPassed(best.percentage, passMarkPct as number) &&
+      remaining !== null
+    ) {
+      label += `, ${remaining} attempt${remaining === 1 ? "" : "s"} left`;
+    }
+    return label;
+  }
+  if (remaining !== null) {
+    return `${remaining} attempt${remaining === 1 ? "" : "s"} available`;
+  }
+  return "Not started";
+}

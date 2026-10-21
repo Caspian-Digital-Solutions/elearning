@@ -5,6 +5,7 @@ import { z } from "zod";
 import { authorise } from "@/lib/auth";
 import { databaseMessage, notAllowed, type ActionResult } from "@/lib/actions/result";
 import { streamValues } from "@/lib/people/labels";
+import { loadQuizQuestionCheck, type QuizQuestionCheckRow } from "@/lib/assessments/queries";
 import { createClient } from "@/lib/supabase/server";
 
 const trainersAndAdmins = ["trainer", "admin"] as const;
@@ -77,4 +78,14 @@ export async function allowAssessmentRetake(input: z.input<typeof retakeInput>):
   }
   revalidatePath("/trainer/placements");
   return { ok: true, data: null };
+}
+
+export async function fetchQuizQuestionCheck(assessmentId: string): Promise<QuizQuestionCheckRow[]> {
+  if (!(await authorise(trainersAndAdmins))) {
+    return [];
+  }
+  if (!assessmentId) {
+    return [];
+  }
+  return loadQuizQuestionCheck(assessmentId);
 }

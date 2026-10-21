@@ -25,13 +25,22 @@ export type DepartmentOption = {
   isActive: boolean;
 };
 
+export type CohortBreakInput = {
+  id?: string;
+  startDate: string;
+  weeks: number;
+  label: string;
+};
+
 export type CohortRecord = {
   id: string;
   name: string;
   startDate: string | null;
+  week0StartDate: string | null;
   slot: string | null;
   notes: string | null;
   isArchived: boolean;
+  breaks: CohortBreakInput[];
 };
 
 /** Set-up pending: an active learner with no department yet. */

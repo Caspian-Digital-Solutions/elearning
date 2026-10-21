@@ -2,6 +2,7 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-21 | 08 | My path and learner plan: cohort `week0_start_date` and `cohort_breaks`, `generate_learner_plan` on placement confirm, overrides and `plan.stream_rules` setting, `/my-path` UI, trainer Plan tab and cohort calendar editor, discard in-progress SAMPLE Week 0 attempts. Migration `20261024100000_learner_plan_and_cohort_calendar.sql`. |
 | 2026-10-21 | 07b | Review fixes and module quizzes: `is_test_account`, multi-select profile items, placements column picker, module hours label, quiz draw and auto-score, `get_attempt_review`, trainer quiz results and question check. Migration applied to dev; sample F1/F3 quizzes on dev. |
 | 2026-10-21 | 07 | Week 0 assessment engine: rubrics, assessments, attempts, marking, placement suggestion and trainer confirmation; answer keys in `assessment_item_keys`; placement rules in `src/lib/placement/` mirrored in SQL; SAMPLE Week 0 JSON import. Migration applied to dev. |
 | 2026-10-21 | 06 | Lessons reader and trainer editor: module overviews, draft/publish for lessons, secure content images, video embeds, bulk Markdown import, learner progress. Migrations applied to dev. |

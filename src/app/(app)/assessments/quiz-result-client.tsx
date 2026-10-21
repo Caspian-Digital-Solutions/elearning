@@ -6,13 +6,11 @@ import { loadAttemptReview, type AttemptReviewRow } from "@/app/(app)/assessment
 
 export function QuizResultClient({
   attemptId,
-  scoreLabel,
-  passed,
+  outcomeLabel,
   passMarkPct,
 }: {
   attemptId: string;
-  scoreLabel: string;
-  passed: boolean;
+  outcomeLabel: string;
   passMarkPct: number | null;
 }) {
   const [rows, setRows] = useState<AttemptReviewRow[] | null>(null);
@@ -31,11 +29,10 @@ export function QuizResultClient({
   return (
     <div className="space-y-6">
       <div className="rounded-lg border p-6 space-y-2">
-        <p className="text-lg font-semibold">{scoreLabel}</p>
-        <p>
-          {passed ? "Passed" : "Not passed"}
-          {passMarkPct !== null ? ` (pass mark ${passMarkPct}%)` : null}
-        </p>
+        <p className="text-lg font-semibold">{outcomeLabel}</p>
+        {passMarkPct !== null && passMarkPct > 0 ? (
+          <p className="text-sm text-muted-foreground">Pass mark {passMarkPct}%</p>
+        ) : null}
       </div>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       {rows ? (

@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { streamNames, streamValues, type Stream } from "@/lib/people/labels";
+import { streamRulesForbidF3TestOut } from "@/lib/plan/stream-rules";
+import { planStreamRulesFromSetting, type PlanStreamRulesSetting } from "@/lib/plan/stream-rules-setting";
 
 /**
  * Checks for the programme settings in app_settings. The numbers themselves
@@ -16,6 +18,7 @@ export const knownSettingKeys = [
   "placement.bands",
   "placement.week0_sections",
   "placement.bridge_modules",
+  "plan.stream_rules",
   "certification.foundation",
   "certification.department",
 ] as const;
@@ -227,6 +230,56 @@ export function checkBridgeModules(
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value: parsed.data };
 }
 
+// Plan stream rules --------------------------------------------------------
+
+const planStreamBlockSchema = z.looseObject({
+  tested_out: z.array(z.string().trim().min(1)),
+  optional: z.array(z.string().trim().min(1)),
+});
+
+const planStreamRulesSchema = z.looseObject({
+  bridge_due_week: wholeNumber("Bridge due week").min(0).max(12),
+  senior_management_department_code: z.string().trim().min(1),
+  streams: z.record(z.string(), planStreamBlockSchema),
+});
+
+export function checkPlanStreamRules(
+  value: unknown,
+  moduleCodes: readonly string[],
+): CheckResult<PlanStreamRulesSetting> {
+  const parsed = planStreamRulesSchema.safeParse(value);
+  if (!parsed.success) {
+    return { ok: false, errors: zodErrors(parsed.error) };
+  }
+  const errors: string[] = [];
+  const known = new Set(moduleCodes.map((code) => code.toUpperCase()));
+  for (const stream of streamValues) {
+    const block = parsed.data.streams[stream];
+    if (!block) {
+      errors.push(`The ${streamNames[stream]} stream is missing from plan.stream_rules.`);
+      continue;
+    }
+    for (const list of [block.tested_out, block.optional]) {
+      for (const code of list) {
+        if (!known.has(code.toUpperCase())) {
+          errors.push(`Module "${code}" is not in the programme.`);
+        }
+      }
+    }
+    if (block.tested_out.includes("F3")) {
+      errors.push("F3 cannot be tested out for any stream.");
+    }
+  }
+  const fullRules = planStreamRulesFromSetting(parsed.data, moduleCodes);
+  if (fullRules && streamRulesForbidF3TestOut(fullRules)) {
+    errors.push("F3 cannot be tested out for any stream.");
+  }
+  if (errors.length > 0) {
+    return { ok: false, errors };
+  }
+  return { ok: true, value: parsed.data as PlanStreamRulesSetting };
+}
+
 // Certification ------------------------------------------------------------
 
 const foundationSchema = z.looseObject({
@@ -281,6 +334,11 @@ export function checkSetting(
         return { ok: false, errors: ["Module codes could not be loaded to validate bridge modules."] };
       }
       return asJson(checkBridgeModules(value, moduleCodes));
+    case "plan.stream_rules":
+      if (!moduleCodes?.length) {
+        return { ok: false, errors: ["Module codes could not be loaded to validate plan stream rules."] };
+      }
+      return asJson(checkPlanStreamRules(value, moduleCodes));
     case "certification.foundation":
       return asJson(checkFoundationCertification(value));
     case "certification.department":

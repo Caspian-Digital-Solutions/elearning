@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PersonPlanTab } from "./person-plan-tab";
 import { Textarea } from "@/components/ui/textarea";
 import type { CohortRecord, DepartmentOption, PersonRecord } from "@/lib/people/types";
 import {
@@ -147,10 +149,18 @@ function EditForm({
       }}
     >
       <SheetHeader className="pr-12">
-        <SheetTitle className="text-lg">Edit {person.name}</SheetTitle>
+        <SheetTitle className="text-lg">{person.name}</SheetTitle>
         <SheetDescription>{person.email}</SheetDescription>
       </SheetHeader>
-      <div className="space-y-4 px-4">
+      <Tabs defaultValue="details" className="px-4">
+        <TabsList className="w-full">
+          <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="plan">Plan</TabsTrigger>
+        </TabsList>
+        <TabsContent value="plan" className="mt-4">
+          <PersonPlanTab userId={person.id} streamSet={Boolean(person.stream)} />
+        </TabsContent>
+        <TabsContent value="details" className="mt-4 space-y-4">
         <FormError>{error}</FormError>
 
         <div className="space-y-1.5">
@@ -243,7 +253,8 @@ function EditForm({
           />
           <p className="text-sm text-muted-foreground">Saved in the audit log with the change.</p>
         </div>
-      </div>
+        </TabsContent>
+      </Tabs>
       <SheetFooter className="flex-row justify-end">
         <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
           Cancel

@@ -54,6 +54,12 @@ export async function updatePeople(input: UpdatePeopleInput): Promise<ActionResu
   if (error) {
     return { ok: false, error: databaseMessage(error, "The change was not saved. Try again.") };
   }
+
+  if (value.stream && value.userIds.length === 1) {
+    await supabase.rpc("generate_learner_plan", { p_user_id: value.userIds[0] });
+    revalidatePath("/my-path");
+  }
+
   revalidatePath("/", "layout");
   return { ok: true, data: { updated: data } };
 }

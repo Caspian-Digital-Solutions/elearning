@@ -10,13 +10,20 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { formatDateTime } from "@/lib/format";
 import { streamNames, streamValues } from "@/lib/people/labels";
-import type { PlacementTableRow, QuizResultsRow, QuizQuestionCheckRow } from "@/lib/assessments/queries";
+import type {
+  PlacementTableRow,
+  QuizResultsRow,
+  QuizQuestionCheckRow,
+  SampleInProgressPlacementRow,
+} from "@/lib/assessments/queries";
 import {
   allowAssessmentRetake,
   calculatePlacement,
   confirmPlacement,
 } from "@/app/(app)/trainer/(restricted)/placements/placement-actions";
+import { discardSampleInProgressAttempt } from "@/app/(app)/trainer/(restricted)/placements/discard-sample-action";
 
 type PlacementRow = {
   attemptId: string;
@@ -40,6 +47,7 @@ type PlacementRow = {
   confirmedStream: string;
   confirmedBy: string;
   confirmedAt: string;
+  planBuilt: string;
   fullyMarked: string;
   hasPlacement: string;
 };
@@ -64,6 +72,7 @@ const allPlacementColumns: DataColumn<PlacementRow>[] = [
   { key: "confirmedStream", header: "Confirmed stream" },
   { key: "confirmedBy", header: "Confirmed by" },
   { key: "confirmedAt", header: "Confirmed at" },
+  { key: "planBuilt", header: "Plan built" },
 ];
 
 const defaultHidden = new Set([
@@ -82,24 +91,26 @@ const defaultHidden = new Set([
 
 export function PlacementsScreen({
   placementRows,
+  sampleInProgressRows,
   profileRows,
   notStartedRows,
   assessmentId,
   quizResultsRows,
   quizOptions,
   questionCheckRows,
-  questionCheckAssessmentId,
-  onQuestionCheckAssessment,
+  initialQuestionCheckAssessmentId,
+  onLoadQuestionCheck,
 }: {
   placementRows: PlacementTableRow[];
+  sampleInProgressRows: SampleInProgressPlacementRow[];
   profileRows: { question: string; option: string; count: number; department: string }[];
   notStartedRows: { name: string; department: string; lastSeen: string }[];
   assessmentId: string | null;
   quizResultsRows: QuizResultsRow[];
   quizOptions: { id: string; code: string; label: string }[];
   questionCheckRows: QuizQuestionCheckRow[];
-  questionCheckAssessmentId: string | null;
-  onQuestionCheckAssessment?: string;
+  initialQuestionCheckAssessmentId: string | null;
+  onLoadQuestionCheck: (assessmentId: string) => Promise<QuizQuestionCheckRow[]>;
 }) {
   const [confirmAttempt, setConfirmAttempt] = useState<PlacementTableRow | null>(null);
   const [stream, setStream] = useState<string>("foundation");
@@ -111,6 +122,13 @@ export function PlacementsScreen({
   const [pending, startTransition] = useTransition();
   const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(defaultHidden);
   const [quizFilter, setQuizFilter] = useState<string>("");
+  const [questionCheckAssessmentId, setQuestionCheckAssessmentId] = useState(
+    initialQuestionCheckAssessmentId ?? "",
+  );
+  const [questionCheckRowsState, setQuestionCheckRowsState] = useState(questionCheckRows);
+  const [questionCheckPending, startQuestionCheckTransition] = useTransition();
+  const [discardAttempt, setDiscardAttempt] = useState<SampleInProgressPlacementRow | null>(null);
+  const [discardReason, setDiscardReason] = useState("");
 
   const placementTableRows: PlacementRow[] = useMemo(
     () =>
@@ -119,7 +137,7 @@ export function PlacementsScreen({
         userId: row.userId,
         personName: row.personName,
         department: row.department,
-        submittedAt: row.submittedAt ? new Date(row.submittedAt).toLocaleString() : "—",
+        submittedAt: row.submittedAt ? formatDateTime(row.submittedAt) : "—",
         markingProgress: row.markingProgress,
         scoreKnowledge: row.scoreKnowledge,
         scorePrompting: row.scorePrompting,
@@ -135,7 +153,8 @@ export function PlacementsScreen({
         domainFlags: row.domainFlags,
         confirmedStream: row.confirmedStream,
         confirmedBy: row.confirmedBy,
-        confirmedAt: row.confirmedAt ? new Date(row.confirmedAt).toLocaleString() : "—",
+        confirmedAt: row.confirmedAt ? formatDateTime(row.confirmedAt) : "—",
+        planBuilt: row.planBuiltAt ? formatDateTime(row.planBuiltAt) : "—",
         fullyMarked: row.fullyMarked ? "yes" : "no",
         hasPlacement: row.hasPlacement ? "yes" : "no",
       })),
@@ -221,6 +240,22 @@ export function PlacementsScreen({
           <TabsTrigger value="not-started">Not started</TabsTrigger>
         </TabsList>
         <TabsContent value="placements" className="space-y-4">
+          {sampleInProgressRows.length > 0 ? (
+            <DataTable
+              rowKey="attemptId"
+              caption="In-progress SAMPLE Week 0 attempts (trainers can discard so the learner starts fresh)"
+              columns={[
+                { key: "personName", header: "Person" },
+                { key: "department", header: "Department" },
+              ]}
+              rows={sampleInProgressRows}
+              rowActions={(row) => (
+                <Button type="button" size="sm" variant="outline" onClick={() => setDiscardAttempt(row)}>
+                  Discard sample attempt
+                </Button>
+              )}
+            />
+          ) : null}
           <fieldset className="space-y-2 rounded-lg border p-3">
             <legend className="px-1 text-sm font-medium">Columns</legend>
             <div className="flex flex-wrap gap-3 text-sm">
@@ -317,7 +352,7 @@ export function PlacementsScreen({
               { key: "maxAttempts", header: "Max attempts" },
               { key: "attemptsUsed", header: "Attempts used" },
               { key: "bestPercentage", header: "Best %" },
-              { key: "passed", header: "Passed" },
+              { key: "outcomeLabel", header: "Outcome" },
               { key: "firstPassAt", header: "First pass" },
               { key: "lastAttemptAt", header: "Last attempt" },
             ]}
@@ -336,6 +371,28 @@ export function PlacementsScreen({
             <p className="text-sm text-muted-foreground">No published module quizzes yet.</p>
           ) : (
             <>
+              <div className="max-w-md space-y-1">
+                <Label htmlFor="question-check-quiz">Quiz</Label>
+                <NativeSelect
+                  id="question-check-quiz"
+                  value={questionCheckAssessmentId}
+                  disabled={questionCheckPending}
+                  onChange={(e) => {
+                    const nextId = e.target.value;
+                    setQuestionCheckAssessmentId(nextId);
+                    startQuestionCheckTransition(async () => {
+                      const rows = await onLoadQuestionCheck(nextId);
+                      setQuestionCheckRowsState(rows);
+                    });
+                  }}
+                >
+                  {quizOptions.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </div>
               <p className="text-sm text-muted-foreground">
                 Raw response counts per question (excludes test accounts).
               </p>
@@ -349,13 +406,8 @@ export function PlacementsScreen({
                   { key: "answeredCount", header: "Answered" },
                   { key: "optionBreakdown", header: "Option counts", wrap: true },
                 ]}
-                rows={questionCheckRows.map((row) => ({ ...row, id: row.itemRef }))}
+                rows={questionCheckRowsState.map((row) => ({ ...row, id: row.itemRef }))}
               />
-              {onQuestionCheckAssessment ? (
-                <p className="text-xs text-muted-foreground">
-                  Showing stats for assessment id {questionCheckAssessmentId ?? onQuestionCheckAssessment}.
-                </p>
-              ) : null}
             </>
           )}
         </TabsContent>
@@ -412,6 +464,43 @@ export function PlacementsScreen({
           <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={() => setConfirmAttempt(null)}>Cancel</Button>
             <Button type="button" disabled={pending} onClick={runConfirm}>Confirm stream</Button>
+          </div>
+        </div>
+      ) : null}
+
+      {discardAttempt ? (
+        <div className="rounded-lg border p-4 space-y-3">
+          <h2 className="font-semibold">Discard sample attempt for {discardAttempt.personName}</h2>
+          <FormError>{error}</FormError>
+          <Textarea
+            placeholder="Reason (at least ten characters)"
+            value={discardReason}
+            onChange={(e) => setDiscardReason(e.target.value)}
+          />
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={() => setDiscardAttempt(null)}>Cancel</Button>
+            <Button
+              type="button"
+              disabled={pending}
+              onClick={() => {
+                setError(null);
+                startTransition(async () => {
+                  const result = await discardSampleInProgressAttempt({
+                    attemptId: discardAttempt.attemptId,
+                    reason: discardReason,
+                  });
+                  if (!result.ok) {
+                    setError(result.error);
+                    return;
+                  }
+                  toast.success("Sample attempt discarded.");
+                  setDiscardAttempt(null);
+                  window.location.reload();
+                });
+              }}
+            >
+              Discard attempt
+            </Button>
           </div>
         </div>
       ) : null}

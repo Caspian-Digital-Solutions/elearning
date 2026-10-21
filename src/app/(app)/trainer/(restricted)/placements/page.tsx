@@ -4,10 +4,13 @@ import {
   loadPlacementTableRows,
   loadQuizQuestionCheck,
   loadQuizResultsRows,
+  loadSampleInProgressPlacementRows,
 } from "@/lib/assessments/queries";
 import { tallyProfileResponses } from "@/lib/assessments/profile-answers";
 import { createClient } from "@/lib/supabase/server";
+import { fetchQuizQuestionCheck } from "@/app/(app)/trainer/(restricted)/placements/placement-actions";
 import { PlacementsScreen } from "@/app/(app)/trainer/(restricted)/placements/placements-screen";
+import { formatDate } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "Placements",
@@ -17,6 +20,7 @@ export default async function Page() {
   await requireRole(["trainer", "admin"]);
   const supabase = await createClient();
   const placementRows = await loadPlacementTableRows();
+  const sampleInProgressRows = await loadSampleInProgressPlacementRows();
   const quizResultsRows = await loadQuizResultsRows();
 
   const { data: quizAssessments } = await supabase
@@ -122,7 +126,7 @@ export default async function Page() {
       notStartedRows.push({
         name: person.full_name?.trim() || person.email,
         department: dept?.name ?? dept?.code ?? "—",
-        lastSeen: person.last_seen_at ? new Date(person.last_seen_at).toLocaleDateString() : "—",
+        lastSeen: person.last_seen_at ? formatDate(person.last_seen_at) : "—",
       });
     }
   }
@@ -130,14 +134,15 @@ export default async function Page() {
   return (
     <PlacementsScreen
       placementRows={placementRows}
+      sampleInProgressRows={sampleInProgressRows}
       profileRows={profileRows}
       notStartedRows={notStartedRows}
       assessmentId={placement?.id ?? null}
       quizResultsRows={quizResultsRows}
       quizOptions={quizOptions}
       questionCheckRows={questionCheckRows}
-      questionCheckAssessmentId={questionCheckAssessmentId}
-      onQuestionCheckAssessment={questionCheckAssessmentId ?? undefined}
+      initialQuestionCheckAssessmentId={questionCheckAssessmentId}
+      onLoadQuestionCheck={fetchQuizQuestionCheck}
     />
   );
 }

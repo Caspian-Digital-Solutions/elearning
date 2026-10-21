@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import type { MarkingQueueRow } from "@/lib/assessments/queries";
+import { formatDateTime } from "@/lib/format";
 import { loadMarkingDetail, saveMark, type MarkingDetail } from "@/app/(app)/trainer/marking/marking-actions";
 
 export function MarkingScreen({ initialQueue }: { initialQueue: MarkingQueueRow[] }) {
@@ -136,7 +137,7 @@ export function MarkingScreen({ initialQueue }: { initialQueue: MarkingQueueRow[
           department: row.department,
           sectionTitle: row.sectionTitle,
           itemRef: row.itemRef,
-          submittedAt: row.submittedAt ? new Date(row.submittedAt).toLocaleDateString() : "—",
+          submittedAt: row.submittedAt ? formatDateTime(row.submittedAt) : "—",
           marked: row.marked ? "yes" : "no",
         }))}
         rowActions={(row) => (

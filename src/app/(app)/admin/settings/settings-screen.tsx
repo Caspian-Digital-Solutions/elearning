@@ -253,6 +253,7 @@ function SettingEditor({
         settingKey={setting.key}
         initial={setting.value}
         current={current}
+        moduleCodes={moduleCodes}
         onChange={(value, error) => {
           setDraft(value);
           setDraftError(error ?? null);

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   attemptsRemaining,
   drawItemIds,
+  formatQuizLearnerStatusLabel,
+  formatQuizOutcomeLabel,
   pickBestQuizAttempt,
   quizPassed,
 } from "@/lib/assessments/quiz-status";
@@ -41,6 +43,33 @@ describe("drawItemIds", () => {
     for (const id of drawn) {
       expect(pool).toContain(id);
     }
+  });
+});
+
+describe("formatQuizOutcomeLabel", () => {
+  it("shows Completed when pass mark is zero", () => {
+    expect(formatQuizOutcomeLabel(2, 5, 40, 0)).toBe("Completed — 2 of 5 (40%)");
+  });
+
+  it("shows Passed when at pass mark", () => {
+    expect(formatQuizOutcomeLabel(8, 10, 80, 80)).toBe("Passed — 8 of 10 (80%)");
+  });
+
+  it("shows Not passed yet below pass mark", () => {
+    expect(formatQuizOutcomeLabel(7, 10, 70, 80)).toBe("Not passed yet — 7 of 10 (70%)");
+  });
+});
+
+describe("formatQuizLearnerStatusLabel", () => {
+  it("appends attempts left when below pass mark", () => {
+    const label = formatQuizLearnerStatusLabel({
+      passMarkPct: 80,
+      inProgress: false,
+      best: { percentage: 70, passed: false, submittedAt: "2026-01-01" },
+      remaining: 2,
+      itemCount: 10,
+    });
+    expect(label).toBe("Not passed yet — 7 of 10 (70%), 2 attempts left");
   });
 });
 

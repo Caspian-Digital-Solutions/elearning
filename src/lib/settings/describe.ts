@@ -6,6 +6,7 @@ export const settingNames: Record<string, string> = {
   "placement.bands": "Placement bands",
   "placement.week0_sections": "Week-0 sections",
   "placement.bridge_modules": "Bridge modules",
+  "plan.stream_rules": "Plan stream rules",
   "certification.foundation": "Foundation certification",
   "certification.department": "Department certification",
 };
@@ -53,6 +54,13 @@ export function summariseSetting(key: string, value: Json | unknown): string {
           return `${domain}: ${list || "none"}`;
         });
         return parts.join("; ");
+      }
+      break;
+    case "plan.stream_rules":
+      if (isRecord(value)) {
+        const bridge = value.bridge_due_week;
+        const streams = isRecord(value.streams) ? Object.keys(value.streams).length : 0;
+        return `Bridge due week ${bridge ?? "?"}, ${streams} streams configured`;
       }
       break;
     case "certification.foundation":

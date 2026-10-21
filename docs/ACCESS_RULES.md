@@ -2,7 +2,7 @@
 
 Plain-English version of the row-level security (RLS) rules in `supabase/migrations/20261020090006_row_level_security.sql` and `supabase/migrations/20261020130001_users_roles_settings.sql`. RLS is a rule inside the database that decides, row by row, who can read or change data. It applies even if a page has a bug. Every table has RLS switched on.
 
-Last updated: Prompt 07b, 21 Oct 2026 (module quizzes, `get_attempt_review`, `is_test_account`, quiz trainer summaries).
+Last updated: Prompt 08, 21 Oct 2026 (learner plan generation, cohort calendar, `plan.stream_rules`, sample attempt discard).
 
 ## Words used below
 
@@ -25,12 +25,13 @@ Last updated: Prompt 07b, 21 Oct 2026 (module quizzes, `get_attempt_review`, `is
 | `modules` | Staff | Trainer, admin |
 | `module_domains` | Staff | Trainer, admin |
 | `department_domain_requirements` | Staff | Trainer, admin |
-| `cohorts` | Staff | Trainer, admin. A cohort that anyone is in cannot be deleted (the database refuses); archive it instead. An archived cohort cannot take new people. Every change goes to the audit log. |
+| `cohorts` | Staff | Trainer, admin. `week0_start_date` (Monday) anchors the programme calendar. A cohort that anyone is in cannot be deleted (the database refuses); archive it instead. An archived cohort cannot take new people. Every change goes to the audit log. |
+| `cohort_breaks` | Staff | Trainer, admin. Holiday weeks that push later programme weeks back. Audit log on change. |
 | `app_settings` | Staff | Admin only, through `admin_update_setting` with a reason. Every change goes to the audit log, with who made it and why. |
 | `profiles` | Your own row. Managers see people within their scope. Trainers and admins see everyone. | Nobody adds rows through the app; the database creates your row at your first sign-in (see "Sign-in" below). Anyone active can change their own name. Trainers and admins can also change anyone's department, stream, specialist pathway, cohort and active flag (in the app, through `trainer_update_profiles`). Only an admin can change a role or progress scope (in the app, through `admin_set_role`), and only an admin can pause or restore another admin. Nobody can change a login id, email, sign-up date or last-seen time through the app: the app's database login may update only the name, department, role, progress scope, stream, pathway, cohort and active columns. Nobody can remove a profile through the app. Every change goes to the audit log. |
 | `lessons` | Published lessons: staff. Draft and archived lessons: trainer, admin. | Trainer, admin |
 | `lesson_progress` | Your own rows. Managers see people within their scope. Trainers and admins see everyone. | An active person adds their own row for a published lesson ("mark as complete") and removes it ("un-mark"). Nobody changes or removes another person's rows. |
-| `learner_plan` | Your own plan. Managers see people within their scope. Trainers and admins see everyone. | Trainer, admin. The database records who set each row. |
+| `learner_plan` | Your own plan. Managers see people within their scope (status fields). Trainers and admins see everyone. | Trainer and admin **only through** `generate_learner_plan` and `override_plan_item` (not direct insert/update/delete on the table). Overrides (`is_override`) are kept when the plan is regenerated. Audit log on change. |
 | `pages` | Published pages: staff (live title and body only). Draft and archived pages: trainer, admin. Unpublished draft text lives in `content_drafts`, not on this row. | Trainer, admin |
 | `updates` | Published notes (`status` published and publish date has passed): staff. Draft and archived notes: trainer, admin. Draft text is in `content_drafts`. | Trainer, admin |
 | `content_drafts` | Trainer, admin | Trainer, admin |
@@ -96,7 +97,10 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 | `submit_attempt(attempt_id, data_declaration)` | Owner of the attempt | Locks answers; auto-scores choice items from keys; sets status to marking or marked. | Not owner; missing data declaration on Week 0; no department item set. |
 | `save_mark(response_id, criterion_scores, comment_md)` | Active trainer or admin | Saves rubric marks for one response. | Wrong role; scores above criterion maxima. |
 | `calculate_placement(attempt_id)` | Active trainer or admin | Computes suggested stream, gates, bridges from current settings; stores a settings snapshot. | Not fully marked; wrong role. |
-| `confirm_placement(attempt_id, stream, reason, portfolio_reviewed)` | Active trainer or admin | Confirms stream on `placement_results` and updates `profiles.stream`. | Override without reason; Champion without portfolio reviewed. |
+| `confirm_placement(attempt_id, stream, reason, portfolio_reviewed)` | Active trainer or admin | Confirms stream on `placement_results`, updates `profiles.stream`, and calls `generate_learner_plan` for that person. | Override without reason; Champion without portfolio reviewed. |
+| `generate_learner_plan(user_id)` | Active trainer or admin | Rebuilds non-override `learner_plan` rows from stream, bridges and `plan.stream_rules`. | Person has no stream; setting missing. |
+| `override_plan_item(user_id, module_id, status, reason)` | Active trainer or admin | Sets one plan row with `is_override` and a recorded reason. | Reason under ten characters. |
+| `discard_sample_in_progress_attempt(attempt_id, reason)` | Active trainer or admin | Deletes an in-progress **sample** Week 0 placement attempt so the learner can start again on the latest published version. | Not sample; not in progress; reason too short. |
 | `allow_retake(user_id, assessment_id, reason)` | Active trainer or admin | Allows a new Week 0 attempt for that person. | Reason too short; wrong role. |
 | `get_attempt_review(attempt_id)` | Owner of a **submitted** quiz/safety_quiz attempt | Returns per-item chosen and correct options and explanations (not Week 0). | Unsubmitted attempt; another user's attempt; placement type; review disabled on assessment. |
 | `get_quiz_results_summary()` | Active trainer or admin | Per person and quiz: attempts used, best percentage, passed, dates. Excludes `is_test_account` profiles. | Wrong role. |
@@ -109,7 +113,9 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 - **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*`, `/trainer/content/updates/*`, `/trainer/content/lessons/*`, `/trainer/content/modules/[code]`, assessments import/preview): trainers and admins. Help pages, What changed, Lessons and Assessments lists; Markdown editor with image upload; history; module overview editor and lesson reorder.
 - **Assessments** (`/assessments`, `/assessments/[code]`): active staff with a department. Published assessments only. The learner API never returns `assessment_item_keys` or option points.
 - **Trainer › Marking** (`/trainer/marking`): trainers and admins (Week 0 tab in Prompt 07). Champions gain assignment marking in Prompt 09.
-- **Trainer › Placements** (`/trainer/placements`, heading “Assessments and placements”): trainers and admins. Week 0 placements (calculate, confirm, retake), **Quiz results** tab, and **Question check** per quiz.
+- **My path** (`/my-path`): all signed-in staff with a department. Shows Week 0 status, then the personalised plan (this week, bridges, overdue, skip, done) when placement is confirmed.
+- **Trainer › Placements** (`/trainer/placements`, heading “Assessments and placements”): trainers and admins. Week 0 placements (calculate, confirm, retake, plan-built date), discard in-progress **sample** Week 0 attempts, **Quiz results** tab, and **Question check** per quiz.
+- **Trainer › Users — Plan tab**: trainers and admins. Per-person plan grid, override status with reason, rebuild plan (keeps overrides).
 - **Lessons** (`/lessons`, `/lessons/[module]`, `/lessons/[module]/[lesson]`): all signed-in staff with access. Published lessons only (row-level security). The **department toggle on `/lessons` is a display filter only** — it hides modules whose published lessons are tagged for other departments; it does not change database access. Leadership briefings default visible to Senior Management, managers, trainers and admins; others can reveal them with “Show lessons for all departments”.
 - **Content images** (`/content-image/...`): signed-in staff only. The app redirects to a short-lived signed URL for objects in the private `content-images` bucket (`lessons/{id}/…` or `pages/{id}/…`). Learners never receive a permanent public storage URL.
 - **Rules and help** (`/help`, `/help/[slug]`): all signed-in staff with access. Published pages only; search uses published text.

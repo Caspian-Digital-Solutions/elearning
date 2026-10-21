@@ -462,6 +462,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      cohort_breaks: {
+        Row: {
+          cohort_id: string;
+          created_at: string;
+          id: string;
+          label: string;
+          start_date: string;
+          updated_at: string;
+          weeks: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          cohort_id: string;
+          created_at?: string;
+          id?: string;
+          label: string;
+          start_date: string;
+          updated_at?: string;
+          weeks: number;
+        };
+        Update: {
+          cohort_id?: string;
+          created_at?: string;
+          id?: string;
+          label?: string;
+          start_date?: string;
+          updated_at?: string;
+          weeks?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cohort_breaks_cohort_id_fkey";
+            columns: ["cohort_id"];
+            isOneToOne: false;
+            referencedRelation: "cohorts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       cohorts: {
         Row: {
           created_at: string;
@@ -472,6 +511,7 @@ export type Database = {
           slot: string | null;
           start_date: string | null;
           updated_at: string;
+          week0_start_date: string | null;
         };
         ComputedFields: never;
         Insert: {
@@ -483,6 +523,7 @@ export type Database = {
           slot?: string | null;
           start_date?: string | null;
           updated_at?: string;
+          week0_start_date?: string | null;
         };
         Update: {
           created_at?: string;
@@ -493,6 +534,7 @@ export type Database = {
           slot?: string | null;
           start_date?: string | null;
           updated_at?: string;
+          week0_start_date?: string | null;
         };
         Relationships: [];
       };
@@ -708,8 +750,11 @@ export type Database = {
       learner_plan: {
         Row: {
           created_at: string;
+          due_week: number | null;
           id: string;
+          is_override: boolean;
           module_id: string;
+          override_reason: string | null;
           reason: string | null;
           set_by: string | null;
           status: Database["public"]["Enums"]["plan_status"];
@@ -719,8 +764,11 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           created_at?: string;
+          due_week?: number | null;
           id?: string;
+          is_override?: boolean;
           module_id: string;
+          override_reason?: string | null;
           reason?: string | null;
           set_by?: string | null;
           status: Database["public"]["Enums"]["plan_status"];
@@ -729,8 +777,11 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          due_week?: number | null;
           id?: string;
+          is_override?: boolean;
           module_id?: string;
+          override_reason?: string | null;
           reason?: string | null;
           set_by?: string | null;
           status?: Database["public"]["Enums"]["plan_status"];
@@ -1599,6 +1650,15 @@ export type Database = {
         Args: { p_option_id: string; p_options: Json };
         Returns: string;
       };
+      _plan_rules_module_list_contains: {
+        Args: {
+          p_list: string;
+          p_module_code: string;
+          p_rules: Json;
+          p_stream: Database["public"]["Enums"]["stream_type"];
+        };
+        Returns: boolean;
+      };
       admin_set_role: {
         Args: {
           new_role: Database["public"]["Enums"]["app_role"];
@@ -1698,6 +1758,11 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
       };
+      discard_sample_in_progress_attempt: {
+        Args: { p_attempt_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      generate_learner_plan: { Args: { p_user_id: string }; Returns: number };
       get_attempt_review: {
         Args: { p_attempt_id: string };
         Returns: {
@@ -1754,6 +1819,33 @@ export type Database = {
       };
       my_access_status: { Args: Record<PropertyKey, never>; Returns: string };
       next_module_revision: { Args: { p_module_id: string }; Returns: number };
+      override_plan_item: {
+        Args: {
+          p_module_id: string;
+          p_reason: string;
+          p_status: Database["public"]["Enums"]["plan_status"];
+          p_user_id: string;
+        };
+        Returns: {
+          created_at: string;
+          due_week: number | null;
+          id: string;
+          is_override: boolean;
+          module_id: string;
+          override_reason: string | null;
+          reason: string | null;
+          set_by: string | null;
+          status: Database["public"]["Enums"]["plan_status"];
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "learner_plan";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       publish_content: {
         Args: {
           p_change_note: string;
