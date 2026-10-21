@@ -14,6 +14,7 @@ const planStatuses = [
   "required",
   "optional",
   "tested_out",
+  "test_out_pending",
   "bridge",
   "not_applicable",
 ] as const satisfies readonly PlanStatus[];

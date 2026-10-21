@@ -17,7 +17,9 @@ import {
   type ModuleQuizState,
   type PublishedLesson,
 } from "@/lib/plan/module-complete";
-import type { PlanStatus } from "@/lib/plan/types";
+import { blockForStream } from "@/lib/plan/stream-rules";
+import { planStreamRulesFromSetting } from "@/lib/plan/stream-rules-setting";
+import type { PlanStatus, TestOutRule } from "@/lib/plan/types";
 import { createClient } from "@/lib/supabase/server";
 
 export type PlanModuleRow = {
@@ -41,6 +43,18 @@ export type PlanModuleRow = {
   href: string;
 };
 
+export type MyPathTestOutCard = {
+  code: string;
+  week: number;
+  moduleCodes: string[];
+  dueDateLabel: string | null;
+  href: string | null;
+  attemptsLeft: number | null;
+  kind: "active" | "passed" | "failed";
+  headline: string;
+  detail: string | null;
+};
+
 export type MyPathPlanView = {
   streamLabel: string;
   cohortName: string | null;
@@ -50,6 +64,8 @@ export type MyPathPlanView = {
   requiredTotal: number;
   thisWeek: PlanModuleRow[];
   bridges: PlanModuleRow[];
+  testOuts: MyPathTestOutCard[];
+  week5TestOutNote: string | null;
   comingUp: PlanModuleRow[];
   overdue: PlanModuleRow[];
   maySkip: PlanModuleRow[];
@@ -113,6 +129,166 @@ function dueLabel(dueWeek: number | null, week0: string | null, breaks: readonly
   }
   const friday = dueDateForProgrammeWeek(dueWeek, week0, breaks);
   return friday ? `Due Fri ${friday}` : null;
+}
+
+function moduleCodesLabel(codes: string[]): string {
+  if (codes.length <= 1) {
+    return codes.join(", ");
+  }
+  const sorted = [...codes].sort();
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  if (sorted.length > 2 && first.startsWith("F") && last.startsWith("F")) {
+    return `${first}–${last}`;
+  }
+  return sorted.join(", ");
+}
+
+function testOutResultKind(
+  rows: PlanModuleRow[],
+  testOut: TestOutRule,
+): "pending" | "passed" | "failed" | "none" {
+  const moduleSet = new Set(testOut.modules.map((code) => code.toUpperCase()));
+  const relevant = rows.filter((row) => moduleSet.has(row.code.toUpperCase()));
+  if (relevant.length === 0) {
+    return "none";
+  }
+  if (relevant.some((row) => row.status === "test_out_pending")) {
+    return "pending";
+  }
+  if (relevant.every((row) => row.status === "tested_out")) {
+    return "passed";
+  }
+  if (
+    relevant.some(
+      (row) => row.status === "required" && (row.reason?.includes("test-out not passed") ?? false),
+    )
+  ) {
+    return "failed";
+  }
+  return "none";
+}
+
+async function loadTestOutCards(
+  userId: string,
+  stream: Stream | null | undefined,
+  rows: PlanModuleRow[],
+  week0: string | null,
+  breaks: readonly CohortBreak[],
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<{ testOuts: MyPathTestOutCard[]; week5TestOutNote: string | null }> {
+  if (!stream) {
+    return { testOuts: [], week5TestOutNote: null };
+  }
+  const { data: settingRow } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "plan.stream_rules")
+    .maybeSingle();
+  const moduleCodes = rows.map((row) => row.code);
+  const rules = planStreamRulesFromSetting(settingRow?.value, moduleCodes);
+  if (!rules) {
+    return { testOuts: [], week5TestOutNote: null };
+  }
+  const block = blockForStream(stream, rules);
+  const testOuts: MyPathTestOutCard[] = [];
+  let week5TestOutNote: string | null = null;
+
+  for (const testOut of block.test_outs) {
+    const result = testOutResultKind(rows, testOut);
+    const dueFriday =
+      week0 && testOut.week !== null ? dueDateForProgrammeWeek(testOut.week, week0, breaks) : null;
+    const dueDateLabel = dueFriday ? `Fri ${dueFriday}` : null;
+    const modulesLabel = moduleCodesLabel(testOut.modules);
+
+    if (testOut.via === "assignment") {
+      if (testOut.code === "week5" && result === "pending") {
+        week5TestOutNote = `Week 5 test-out: submit a prompt workflow (available from Week 5)`;
+      }
+      continue;
+    }
+
+    if (result === "passed") {
+      const reason = rows.find((row) => testOut.modules.includes(row.code))?.reason;
+      testOuts.push({
+        code: testOut.code,
+        week: testOut.week,
+        moduleCodes: testOut.modules,
+        dueDateLabel,
+        href: null,
+        attemptsLeft: null,
+        kind: "passed",
+        headline: `Week ${testOut.week} test-out passed`,
+        detail: reason
+          ? `${reason} — ${modulesLabel} moved to You may skip`
+          : `${modulesLabel} moved to You may skip`,
+      });
+      continue;
+    }
+
+    if (result === "failed") {
+      const reason = rows.find((row) => testOut.modules.includes(row.code))?.reason;
+      testOuts.push({
+        code: testOut.code,
+        week: testOut.week,
+        moduleCodes: testOut.modules,
+        dueDateLabel,
+        href: null,
+        attemptsLeft: 0,
+        kind: "failed",
+        headline: `Week ${testOut.week} test-out not passed`,
+        detail: reason
+          ? `${reason} — ${modulesLabel} are now part of your plan with due dates`
+          : `${modulesLabel} are now part of your plan with due dates`,
+      });
+      continue;
+    }
+
+    if (result !== "pending") {
+      continue;
+    }
+
+    const { data: assessment } = await supabase
+      .from("assessments")
+      .select("id, code, max_attempts")
+      .eq("code", testOut.source_code)
+      .eq("status", "published")
+      .order("version", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    let attemptsLeft: number | null = null;
+    if (assessment) {
+      const { count } = await supabase
+        .from("attempts")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("assessment_id", assessment.id)
+        .in("status", ["submitted", "marking", "marked", "confirmed"]);
+      const used = count ?? 0;
+      attemptsLeft =
+        assessment.max_attempts !== null && assessment.max_attempts !== undefined
+          ? Math.max(0, assessment.max_attempts - used)
+          : null;
+    }
+
+    testOuts.push({
+      code: testOut.code,
+      week: testOut.week,
+      moduleCodes: testOut.modules,
+      dueDateLabel,
+      href: assessment ? `/assessments/${assessment.code}` : null,
+      attemptsLeft,
+      kind: "active",
+      headline: `Pass the Week ${testOut.week} test-out by ${dueDateLabel ?? `week ${testOut.week}`} to skip ${modulesLabel}`,
+      detail:
+        attemptsLeft !== null
+          ? `${attemptsLeft} attempt${attemptsLeft === 1 ? "" : "s"} left`
+          : null,
+    });
+  }
+
+  return { testOuts, week5TestOutNote };
 }
 
 async function loadModuleCatalog(supabase: Awaited<ReturnType<typeof createClient>>) {
@@ -433,7 +609,7 @@ export async function loadMyPathState(userId: string): Promise<MyPathState> {
     ),
   );
 
-  const requiredStatuses = new Set<PlanStatus>(["required", "bridge"]);
+  const requiredStatuses = new Set<PlanStatus>(["required", "test_out_pending", "bridge"]);
   const requiredRows = rows.filter((row) => requiredStatuses.has(row.status));
   const requiredDone = requiredRows.filter((row) => row.done).length;
 
@@ -467,7 +643,10 @@ export async function loadMyPathState(userId: string): Promise<MyPathState> {
     week0 === null
       ? []
       : rows.filter((row) => {
-          if (row.done || (row.status !== "required" && row.status !== "bridge")) {
+          if (
+            row.done ||
+            (row.status !== "required" && row.status !== "bridge" && row.status !== "test_out_pending")
+          ) {
             return false;
           }
           if (row.dueWeek === null) {
@@ -490,6 +669,15 @@ export async function loadMyPathState(userId: string): Promise<MyPathState> {
   const done = rows.filter((row) => row.done);
   const optional = rows.filter((row) => row.status === "optional" && !row.done);
 
+  const { testOuts, week5TestOutNote } = await loadTestOutCards(
+    userId,
+    profile?.stream as Stream | null | undefined,
+    rows,
+    week0,
+    breakRows,
+    supabase,
+  );
+
   return {
     kind: "plan_ready",
     plan: {
@@ -501,6 +689,8 @@ export async function loadMyPathState(userId: string): Promise<MyPathState> {
       requiredTotal: requiredRows.length,
       thisWeek,
       bridges,
+      testOuts,
+      week5TestOutNote,
       comingUp,
       overdue,
       maySkip,

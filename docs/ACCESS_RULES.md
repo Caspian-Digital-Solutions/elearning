@@ -2,7 +2,7 @@
 
 Plain-English version of the row-level security (RLS) rules in `supabase/migrations/20261020090006_row_level_security.sql` and `supabase/migrations/20261020130001_users_roles_settings.sql`. RLS is a rule inside the database that decides, row by row, who can read or change data. It applies even if a page has a bug. Every table has RLS switched on.
 
-Last updated: Prompt 08, 21 Oct 2026 (learner plan generation, cohort calendar, `plan.stream_rules`, sample attempt discard).
+Last updated: Prompt 08b, 21 Oct 2026 (test-outs DL-027, `test_out_pending`, `apply_test_out_result`, learner plan generation, cohort calendar, `plan.stream_rules`, sample attempt discard).
 
 ## Words used below
 
@@ -94,12 +94,13 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 | `update_module_overview(module_id, body_md, change_note)` | Active trainer or admin | Saves `modules.overview_md` and appends a `content_revisions` row (`content_type = module`). | Change note under five characters. |
 | `reorder_lessons(module_id, lesson_ids)` | Active trainer or admin | Sets `sort_order` on lessons in the given order within one module. | Lesson not in module; wrong role. |
 | `start_attempt(assessment_id)` | Active staff with a department | Starts or resumes your in-progress attempt on a published assessment. | No department; duplicate Week 0 attempt without retake. |
-| `submit_attempt(attempt_id, data_declaration)` | Owner of the attempt | Locks answers; auto-scores choice items from keys; sets status to marking or marked. | Not owner; missing data declaration on Week 0; no department item set. |
+| `submit_attempt(attempt_id, data_declaration)` | Owner of the attempt | Locks answers; auto-scores choice items from keys; sets status to marking or marked. For published quizzes whose `code` matches a stream test-out with `via = assessment`, calls `apply_test_out_result` for that learner after scoring. | Not owner; missing data declaration on Week 0; no department item set. |
+| `apply_test_out_result(user_id, test_out_code)` | **Service role only** (invoked from `submit_attempt` or server jobs) | After a test-out quiz is scored, sets gated modules to `tested_out` on pass or `required` with Foundation due weeks when attempts are exhausted. | Not callable by learners or trainers directly (`authenticated` has no execute). |
 | `save_mark(response_id, criterion_scores, comment_md)` | Active trainer or admin | Saves rubric marks for one response. | Wrong role; scores above criterion maxima. |
 | `calculate_placement(attempt_id)` | Active trainer or admin | Computes suggested stream, gates, bridges from current settings; stores a settings snapshot. | Not fully marked; wrong role. |
 | `confirm_placement(attempt_id, stream, reason, portfolio_reviewed)` | Active trainer or admin | Confirms stream on `placement_results`, updates `profiles.stream`, and calls `generate_learner_plan` for that person. | Override without reason; Champion without portfolio reviewed. |
-| `generate_learner_plan(user_id)` | Active trainer or admin | Rebuilds non-override `learner_plan` rows from stream, bridges and `plan.stream_rules`. | Person has no stream; setting missing. |
-| `override_plan_item(user_id, module_id, status, reason)` | Active trainer or admin | Sets one plan row with `is_override` and a recorded reason. | Reason under ten characters. |
+| `generate_learner_plan(user_id)` | Active trainer or admin | Rebuilds non-override `learner_plan` rows from stream, bridges and `plan.stream_rules` (required, optional, `test_outs`, tested_out). Bridge rows beat `test_out_pending` on the same module. Keeps overrides and rows already updated by a test-out result. | Person has no stream; setting missing. |
+| `override_plan_item(user_id, module_id, status, reason)` | Active trainer or admin | Sets one plan row with `is_override` and a recorded reason. Status may include `test_out_pending`. | Reason under ten characters. |
 | `discard_sample_in_progress_attempt(attempt_id, reason)` | Active trainer or admin | Deletes an in-progress **sample** Week 0 placement attempt so the learner can start again on the latest published version. | Not sample; not in progress; reason too short. |
 | `allow_retake(user_id, assessment_id, reason)` | Active trainer or admin | Allows a new Week 0 attempt for that person. | Reason too short; wrong role. |
 | `get_attempt_review(attempt_id)` | Owner of a **submitted** quiz/safety_quiz attempt | Returns per-item chosen and correct options and explanations (not Week 0). | Unsubmitted attempt; another user's attempt; placement type; review disabled on assessment. |
@@ -113,7 +114,7 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 - **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*`, `/trainer/content/updates/*`, `/trainer/content/lessons/*`, `/trainer/content/modules/[code]`, assessments import/preview): trainers and admins. Help pages, What changed, Lessons and Assessments lists; Markdown editor with image upload; history; module overview editor and lesson reorder.
 - **Assessments** (`/assessments`, `/assessments/[code]`): active staff with a department. Published assessments only. The learner API never returns `assessment_item_keys` or option points.
 - **Trainer › Marking** (`/trainer/marking`): trainers and admins (Week 0 tab in Prompt 07). Champions gain assignment marking in Prompt 09.
-- **My path** (`/my-path`): all signed-in staff with a department. Shows Week 0 status, then the personalised plan (this week, bridges, overdue, skip, done) when placement is confirmed.
+- **My path** (`/my-path`): all signed-in staff with a department. Shows Week 0 status, then the personalised plan (this week, bridges, **test-out** gates, overdue, skip, done) when placement is confirmed. `test_out_pending` modules count as required until the test-out is passed.
 - **Trainer › Placements** (`/trainer/placements`, heading “Assessments and placements”): trainers and admins. Week 0 placements (calculate, confirm, retake, plan-built date), discard in-progress **sample** Week 0 attempts, **Quiz results** tab, and **Question check** per quiz.
 - **Trainer › Users — Plan tab**: trainers and admins. Per-person plan grid, override status with reason, rebuild plan (keeps overrides).
 - **Lessons** (`/lessons`, `/lessons/[module]`, `/lessons/[module]/[lesson]`): all signed-in staff with access. Published lessons only (row-level security). The **department toggle on `/lessons` is a display filter only** — it hides modules whose published lessons are tagged for other departments; it does not change database access. Leadership briefings default visible to Senior Management, managers, trainers and admins; others can reveal them with “Show lessons for all departments”.

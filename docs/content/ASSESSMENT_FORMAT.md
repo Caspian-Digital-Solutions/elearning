@@ -99,6 +99,27 @@ On import, **option points**, **model answers**, **explanations** and **marking 
 - Use a single section (e.g. `check` or `safety`) with `max_score` equal to the sum of drawn item points, or one point per item in the pool.
 - See `docs/content/samples/f1_check_sample.json` and `f3_safety_quiz_sample.json` for SAMPLE imports.
 
+### Test-out quizzes (`week1-testout`, etc.)
+
+Test-outs are normal **`quiz`** assessments linked from `plan.stream_rules` → `test_outs[]` with `via: "assessment"` and `source_code` equal to the assessment `code`. They gate skipping a bundle of Foundation modules (e.g. F1–F6 in Week 1 for Practitioner streams).
+
+| Field | Typical Week 1 test-out |
+|---|---|
+| `code` | `week1-testout` |
+| `module_code` | `f1` (curriculum anchor; the gate can still cover F1–F6) |
+| `pass_mark_pct` | `80` |
+| `max_attempts` | `1` (or as approved) |
+| `show_review_after_submit` | `true` |
+| `items_per_attempt` | Pool size (e.g. `8` when the pool has eight choice items) |
+
+Content rules:
+
+- At least **three** items must test **safety and data-handling** at the same standard as the real **F3 safety quiz** (the SAMPLE file uses fictional scenarios only).
+- All items are type **`choice`**; use one section with `counts_in_total: true`.
+- The real production Week 1 test-out must meet the F3 safety standard; the SAMPLE import (`docs/content/samples/week1_testout_sample.json`) is for dev testing only (`is_sample: true`).
+
+Publish with `scripts/seed-week1-testout-sample.ts` on dev (same pattern as other quiz samples). Passing the quiz triggers `apply_test_out_result` via `submit_attempt` when stream rules match.
+
 ## Sections
 
 **Placement (`type: placement`)** — each section must match **`placement.week0_sections`**:

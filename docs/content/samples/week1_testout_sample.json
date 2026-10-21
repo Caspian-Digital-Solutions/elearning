@@ -1,0 +1,139 @@
+{
+  "assessment": {
+    "code": "week1-testout",
+    "title": "SAMPLE Week 1 test-out — not for real use",
+    "type": "quiz",
+    "module_code": "f1",
+    "instructions_md": "Fictional Week 1 practitioner test-out for platform testing. Includes safety and data-handling items at a sample standard only.",
+    "time_guide_min": 60,
+    "is_sample": true,
+    "pass_mark_pct": 80,
+    "max_attempts": 1,
+    "show_review_after_submit": true,
+    "items_per_attempt": 8
+  },
+  "sections": [
+    {
+      "code": "testout",
+      "title": "Test-out",
+      "max_score": null,
+      "counts_in_total": true,
+      "instructions_md": ""
+    }
+  ],
+  "rubrics": [],
+  "items": [
+    {
+      "ref": "W1-01",
+      "section": "testout",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "**Safety:** Before pasting client data into a public AI tool, what must you do first?",
+      "options": [
+        { "id": "a", "text": "Check the data rules and remove or anonymise sensitive fields", "points": 1 },
+        { "id": "b", "text": "Paste everything so the model has full context", "points": 0 }
+      ],
+      "explanation_md": "Client identifiers and personal data must not enter unapproved tools."
+    },
+    {
+      "ref": "W1-02",
+      "section": "testout",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "**Safety:** A colleague shares a screenshot with visible email addresses in a shared channel. What is the best response?",
+      "options": [
+        { "id": "a", "text": "Ask them to delete it and repost a redacted version", "points": 1 },
+        { "id": "b", "text": "Forward it to your personal email for reference", "points": 0 }
+      ],
+      "explanation_md": "Redact personal data before sharing."
+    },
+    {
+      "ref": "W1-03",
+      "section": "testout",
+      "type": "choice",
+      "domain": "C2",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "**Safety:** Which item is acceptable to include in a prompt sent to an approved workspace AI?",
+      "options": [
+        { "id": "a", "text": "Aggregated campaign metrics with no client names", "points": 1 },
+        { "id": "b", "text": "A CSV export of customer phone numbers", "points": 0 }
+      ],
+      "explanation_md": "Only non-sensitive or approved data may be used."
+    },
+    {
+      "ref": "W1-04",
+      "section": "testout",
+      "type": "choice",
+      "domain": "C2",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "What is the main purpose of giving clear context in a prompt?",
+      "options": [
+        { "id": "a", "text": "So the model can tailor the answer to the task and audience", "points": 1 },
+        { "id": "b", "text": "So the answer is always shorter", "points": 0 }
+      ],
+      "explanation_md": "Context steers relevance and tone."
+    },
+    {
+      "ref": "W1-05",
+      "section": "testout",
+      "type": "choice",
+      "domain": "C3",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "When an AI draft includes a statistic you did not source, you should:",
+      "options": [
+        { "id": "a", "text": "Verify or remove it before using the draft", "points": 1 },
+        { "id": "b", "text": "Assume the model is correct because it sounds confident", "points": 0 }
+      ],
+      "explanation_md": "Human review is required for factual claims."
+    },
+    {
+      "ref": "W1-06",
+      "section": "testout",
+      "type": "choice",
+      "domain": "C3",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Which habit best reduces hallucinated details in client-facing copy?",
+      "options": [
+        { "id": "a", "text": "Ask for bullet points tied to supplied facts only", "points": 1 },
+        { "id": "b", "text": "Request the longest possible answer", "points": 0 }
+      ],
+      "explanation_md": "Constraining output to supplied facts helps accuracy."
+    },
+    {
+      "ref": "W1-07",
+      "section": "testout",
+      "type": "choice",
+      "domain": "C4",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "After receiving a useful AI workflow from a teammate, you should:",
+      "options": [
+        { "id": "a", "text": "Save or document it in the team prompt library with notes", "points": 1 },
+        { "id": "b", "text": "Keep it only in your chat history", "points": 0 }
+      ],
+      "explanation_md": "Shared libraries spread good practice."
+    },
+    {
+      "ref": "W1-08",
+      "section": "testout",
+      "type": "choice",
+      "domain": "C4",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "A test-out quiz with one attempt means you should:",
+      "options": [
+        { "id": "a", "text": "Review the safety rules and prepare before starting", "points": 1 },
+        { "id": "b", "text": "Submit quickly and rely on review later", "points": 0 }
+      ],
+      "explanation_md": "Single-attempt gates need preparation."
+    }
+  ]
+}

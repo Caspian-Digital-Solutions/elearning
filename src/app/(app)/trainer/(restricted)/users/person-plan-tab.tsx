@@ -29,6 +29,7 @@ const statusLabels: Record<PlanStatus, string> = {
   required: "Required",
   optional: "Optional",
   tested_out: "Tested out",
+  test_out_pending: "Test-out pending",
   bridge: "Bridge",
   not_applicable: "Not applicable",
 };

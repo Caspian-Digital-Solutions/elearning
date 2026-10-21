@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { streamNames, streamValues, type Stream } from "@/lib/people/labels";
 import { streamRulesForbidF3TestOut } from "@/lib/plan/stream-rules";
-import { planStreamRulesFromSetting, type PlanStreamRulesSetting } from "@/lib/plan/stream-rules-setting";
+import {
+  defaultPlanStreamRulesSetting,
+  planStreamRulesFromSetting,
+  type PlanStreamRulesSetting,
+} from "@/lib/plan/stream-rules-setting";
 
 /**
  * Checks for the programme settings in app_settings. The numbers themselves
@@ -232,9 +236,20 @@ export function checkBridgeModules(
 
 // Plan stream rules --------------------------------------------------------
 
+const testOutRuleSchema = z.looseObject({
+  code: z.string().trim().min(1),
+  modules: z.array(z.string().trim().min(1)).min(1),
+  via: z.enum(["assessment", "assignment"]),
+  source_code: z.string().trim().min(1),
+  week: wholeNumber("Test-out week").min(0).max(12),
+});
+
 const planStreamBlockSchema = z.looseObject({
+  required: z.array(z.string().trim().min(1)).optional(),
   tested_out: z.array(z.string().trim().min(1)),
   optional: z.array(z.string().trim().min(1)),
+  test_outs: z.array(testOutRuleSchema).optional(),
+  specialist_eligible: z.boolean().optional(),
 });
 
 const planStreamRulesSchema = z.looseObject({
@@ -259,15 +274,29 @@ export function checkPlanStreamRules(
       errors.push(`The ${streamNames[stream]} stream is missing from plan.stream_rules.`);
       continue;
     }
-    for (const list of [block.tested_out, block.optional]) {
+    const lists = [block.tested_out, block.optional, ...(block.required ?? [])];
+    for (const list of lists) {
       for (const code of list) {
         if (!known.has(code.toUpperCase())) {
           errors.push(`Module "${code}" is not in the programme.`);
         }
       }
     }
-    if (block.tested_out.includes("F3")) {
-      errors.push("F3 cannot be tested out for any stream.");
+    for (const rule of block.test_outs ?? []) {
+      for (const code of rule.modules) {
+        if (!known.has(code.toUpperCase())) {
+          errors.push(`Module "${code}" in test-out "${rule.code}" is not in the programme.`);
+        }
+      }
+      if (rule.via === "assessment" && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(rule.source_code)) {
+        errors.push(`Test-out "${rule.code}" needs a valid assessment source code.`);
+      }
+    }
+    if (block.tested_out.some((code) => code.toUpperCase() === "F3")) {
+      errors.push("F3 cannot be listed as tested out for any stream.");
+    }
+    if (block.optional.some((code) => code.toUpperCase() === "F3")) {
+      errors.push("F3 cannot be listed as optional for any stream.");
     }
   }
   const fullRules = planStreamRulesFromSetting(parsed.data, moduleCodes);
@@ -277,7 +306,27 @@ export function checkPlanStreamRules(
   if (errors.length > 0) {
     return { ok: false, errors };
   }
-  return { ok: true, value: parsed.data as PlanStreamRulesSetting };
+  const defaults = defaultPlanStreamRulesSetting();
+  const streams: PlanStreamRulesSetting["streams"] = {} as PlanStreamRulesSetting["streams"];
+  for (const stream of streamValues) {
+    const block = parsed.data.streams[stream]!;
+    const def = defaults.streams[stream];
+    streams[stream] = {
+      required: block.required ?? def.required,
+      tested_out: block.tested_out,
+      optional: block.optional,
+      test_outs: block.test_outs ?? def.test_outs,
+      ...(stream === "champion" && block.specialist_eligible ? { specialist_eligible: true } : {}),
+    };
+  }
+  return {
+    ok: true,
+    value: {
+      bridge_due_week: parsed.data.bridge_due_week,
+      senior_management_department_code: parsed.data.senior_management_department_code,
+      streams,
+    },
+  };
 }
 
 // Certification ------------------------------------------------------------

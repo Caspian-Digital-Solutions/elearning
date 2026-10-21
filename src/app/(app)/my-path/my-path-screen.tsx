@@ -114,6 +114,35 @@ export function MyPathScreen({ state }: { state: MyPathState }) {
         </section>
       ) : null}
 
+      {plan.testOuts.length > 0 ? (
+        <section className="space-y-2">
+          <h2 className="font-heading text-lg text-heading">Test-out</h2>
+          <ul className="space-y-3 text-sm">
+            {plan.testOuts.map((card) => (
+              <li key={card.code} className="rounded-lg border border-border p-3">
+                <p className="font-medium">{card.headline}</p>
+                {card.detail ? <p className="mt-1 text-muted-foreground">{card.detail}</p> : null}
+                {card.kind === "active" && card.href ? (
+                  <Link
+                    href={card.href}
+                    className="mt-2 inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+                  >
+                    Start
+                  </Link>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {plan.week5TestOutNote ? (
+        <section className="space-y-2">
+          <h2 className="font-heading text-lg text-heading">Fast track</h2>
+          <p className="text-sm text-muted-foreground">{plan.week5TestOutNote}</p>
+        </section>
+      ) : null}
+
       <section className="space-y-2">
         <h2 className="font-heading text-lg text-heading">Coming up</h2>
         <ModuleList rows={plan.comingUp} empty="Next week's modules will show here when your cohort calendar is set." />

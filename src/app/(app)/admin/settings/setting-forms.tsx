@@ -464,13 +464,37 @@ function PlanStreamRulesForm({
       ? base.senior_management_department_code
       : defaults.senior_management_department_code,
   );
+  type TestOutVia = "assessment" | "assignment";
+  type TestOutField = {
+    code: string;
+    modules: string;
+    via: TestOutVia;
+    source_code: string;
+    week: string;
+  };
+
   const [streamFields, setStreamFields] = useState(
     streamValues.map((stream) => {
       const block = asObject(streams[stream]);
+      const def = defaults.streams[stream];
+      const testOutsRaw = Array.isArray(block.test_outs) ? block.test_outs : def.test_outs;
+      const testOuts: TestOutField[] = testOutsRaw.map((entry) => {
+        const row = asObject(entry);
+        return {
+          code: typeof row.code === "string" ? row.code : "",
+          modules: codesToText(row.modules),
+          via: row.via === "assignment" ? "assignment" : "assessment",
+          source_code: typeof row.source_code === "string" ? row.source_code : "",
+          week: toText(row.week ?? ""),
+        };
+      });
       return {
         stream,
-        testedOut: codesToText(block.tested_out ?? defaults.streams[stream].tested_out),
-        optional: codesToText(block.optional ?? defaults.streams[stream].optional),
+        required: codesToText(block.required ?? def.required),
+        testedOut: codesToText(block.tested_out ?? def.tested_out),
+        optional: codesToText(block.optional ?? def.optional),
+        specialistEligible: stream === "champion" && block.specialist_eligible === true,
+        testOuts,
       };
     }),
   );
@@ -478,7 +502,29 @@ function PlanStreamRulesForm({
   useEffect(() => {
     const nextStreams: JsonObject = {};
     for (const row of streamFields) {
+      const test_outs = row.testOuts
+        .map((entry) => {
+          const week = toNumber(entry.week);
+          if (!entry.code.trim() || week === null || Number.isNaN(week)) {
+            return null;
+          }
+          return {
+            code: entry.code.trim(),
+            modules: entry.modules
+              .split(",")
+              .map((part) => part.trim())
+              .filter(Boolean),
+            via: entry.via,
+            source_code: entry.source_code.trim(),
+            week,
+          };
+        })
+        .filter(Boolean);
       nextStreams[row.stream] = {
+        required: row.required
+          .split(",")
+          .map((part) => part.trim())
+          .filter(Boolean),
         tested_out: row.testedOut
           .split(",")
           .map((part) => part.trim())
@@ -487,6 +533,8 @@ function PlanStreamRulesForm({
           .split(",")
           .map((part) => part.trim())
           .filter(Boolean),
+        test_outs,
+        ...(row.stream === "champion" && row.specialistEligible ? { specialist_eligible: true } : {}),
       };
     }
     const bridge = toNumber(bridgeWeek);
@@ -495,9 +543,15 @@ function PlanStreamRulesForm({
       return;
     }
     for (const stream of streamValues) {
-      const tested = (nextStreams[stream] as JsonObject)?.tested_out;
+      const block = nextStreams[stream] as JsonObject;
+      const tested = block?.tested_out;
+      const optional = block?.optional;
       if (Array.isArray(tested) && tested.map((code) => String(code).toUpperCase()).includes("F3")) {
-        onChange(undefined, "F3 cannot be tested out.");
+        onChange(undefined, "F3 cannot be listed as tested out.");
+        return;
+      }
+      if (Array.isArray(optional) && optional.map((code) => String(code).toUpperCase()).includes("F3")) {
+        onChange(undefined, "F3 cannot be listed as optional.");
         return;
       }
     }
@@ -512,7 +566,8 @@ function PlanStreamRulesForm({
     <fieldset className="space-y-4">
       <legend className="font-medium">Learner plan stream rules</legend>
       <p className="text-sm text-muted-foreground">
-        Lists of module codes per stream. Anything not listed as tested out or optional is required. Known modules:{" "}
+        Required modules, permanent tested-out and optional lists, and test-out gates per stream (DL-027). F3 may only
+        be skipped by passing a test-out, not via tested-out or optional lists. Known modules:{" "}
         {moduleCodes.slice(0, 12).join(", ")}
         {moduleCodes.length > 12 ? "…" : ""}
       </p>
@@ -534,6 +589,18 @@ function PlanStreamRulesForm({
       {streamFields.map((row, index) => (
         <div key={row.stream} className="space-y-2 rounded border p-3">
           <p className="font-medium">{streamNames[row.stream]}</p>
+          <div className="space-y-1">
+            <Label>Required (comma-separated)</Label>
+            <Input
+              value={row.required}
+              onChange={(event) => {
+                const next = streamFields.map((entry, position) =>
+                  position === index ? { ...entry, required: event.target.value } : entry,
+                );
+                setStreamFields(next);
+              }}
+            />
+          </div>
           <div className="space-y-1">
             <Label>Tested out (comma-separated)</Label>
             <Input
@@ -557,6 +624,150 @@ function PlanStreamRulesForm({
                 setStreamFields(next);
               }}
             />
+          </div>
+          {row.stream === "champion" ? (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={row.specialistEligible}
+                onChange={(event) => {
+                  const next = streamFields.map((entry, position) =>
+                    position === index ? { ...entry, specialistEligible: event.target.checked } : entry,
+                  );
+                  setStreamFields(next);
+                }}
+              />
+              Specialist track eligible
+            </label>
+          ) : null}
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Test-outs</p>
+            {row.testOuts.map((testOut, testOutIndex) => (
+              <div key={`${row.stream}-${testOutIndex}`} className="grid gap-2 rounded border border-dashed p-2 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label>Code</Label>
+                  <Input
+                    value={testOut.code}
+                    onChange={(event) => {
+                      const next = streamFields.map((entry, position) => {
+                        if (position !== index) {
+                          return entry;
+                        }
+                        const testOuts = entry.testOuts.map((item, itemIndex) =>
+                          itemIndex === testOutIndex ? { ...item, code: event.target.value } : item,
+                        );
+                        return { ...entry, testOuts };
+                      });
+                      setStreamFields(next);
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Week</Label>
+                  <Input
+                    value={testOut.week}
+                    onChange={(event) => {
+                      const next = streamFields.map((entry, position) => {
+                        if (position !== index) {
+                          return entry;
+                        }
+                        const testOuts = entry.testOuts.map((item, itemIndex) =>
+                          itemIndex === testOutIndex ? { ...item, week: event.target.value } : item,
+                        );
+                        return { ...entry, testOuts };
+                      });
+                      setStreamFields(next);
+                    }}
+                  />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label>Modules (comma-separated)</Label>
+                  <Input
+                    value={testOut.modules}
+                    onChange={(event) => {
+                      const next = streamFields.map((entry, position) => {
+                        if (position !== index) {
+                          return entry;
+                        }
+                        const testOuts = entry.testOuts.map((item, itemIndex) =>
+                          itemIndex === testOutIndex ? { ...item, modules: event.target.value } : item,
+                        );
+                        return { ...entry, testOuts };
+                      });
+                      setStreamFields(next);
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Via</Label>
+                  <NativeSelect
+                    value={testOut.via}
+                    onChange={(event) => {
+                      const via: TestOutVia =
+                        event.target.value === "assignment" ? "assignment" : "assessment";
+                      const next = streamFields.map((entry, position) => {
+                        if (position !== index) {
+                          return entry;
+                        }
+                        const testOuts = entry.testOuts.map((item, itemIndex) =>
+                          itemIndex === testOutIndex ? { ...item, via } : item,
+                        );
+                        return { ...entry, testOuts };
+                      });
+                      setStreamFields(next);
+                    }}
+                  >
+                    <option value="assessment">Assessment</option>
+                    <option value="assignment">Assignment</option>
+                  </NativeSelect>
+                </div>
+                <div className="space-y-1">
+                  <Label>Source code</Label>
+                  <Input
+                    value={testOut.source_code}
+                    onChange={(event) => {
+                      const next = streamFields.map((entry, position) => {
+                        if (position !== index) {
+                          return entry;
+                        }
+                        const testOuts = entry.testOuts.map((item, itemIndex) =>
+                          itemIndex === testOutIndex ? { ...item, source_code: event.target.value } : item,
+                        );
+                        return { ...entry, testOuts };
+                      });
+                      setStreamFields(next);
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const next = streamFields.map((entry, position) =>
+                  position === index
+                    ? {
+                        ...entry,
+                        testOuts: [
+                          ...entry.testOuts,
+                          {
+                            code: "",
+                            modules: "",
+                            via: "assessment" as TestOutVia,
+                            source_code: "",
+                            week: "",
+                          },
+                        ],
+                      }
+                    : entry,
+                );
+                setStreamFields(next);
+              }}
+            >
+              Add test-out
+            </Button>
           </div>
         </div>
       ))}

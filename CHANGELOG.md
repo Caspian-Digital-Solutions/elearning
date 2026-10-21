@@ -2,6 +2,7 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-21 | 08b | Test-outs per programme architecture (DL-027): `test_out_pending` plan status, `plan.stream_rules` required and `test_outs` lists, `apply_test_out_result` and `submit_attempt` hook, My path Test-out section and fast-track Week 5 note, Admin settings validation and forms, SAMPLE `week1-testout` JSON and seed script. Migration `20261025100000_test_outs_dl027.sql`. |
 | 2026-10-21 | 08 | My path and learner plan: cohort `week0_start_date` and `cohort_breaks`, `generate_learner_plan` on placement confirm, overrides and `plan.stream_rules` setting, `/my-path` UI, trainer Plan tab and cohort calendar editor, discard in-progress SAMPLE Week 0 attempts. Migration `20261024100000_learner_plan_and_cohort_calendar.sql`. |
 | 2026-10-21 | 07b | Review fixes and module quizzes: `is_test_account`, multi-select profile items, placements column picker, module hours label, quiz draw and auto-score, `get_attempt_review`, trainer quiz results and question check. Migration applied to dev; sample F1/F3 quizzes on dev. |
 | 2026-10-21 | 07 | Week 0 assessment engine: rubrics, assessments, attempts, marking, placement suggestion and trainer confirmation; answer keys in `assessment_item_keys`; placement rules in `src/lib/placement/` mirrored in SQL; SAMPLE Week 0 JSON import. Migration applied to dev. |

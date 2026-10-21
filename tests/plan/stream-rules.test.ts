@@ -3,6 +3,7 @@ import {
   applyStreamRulesForModule,
   defaultPlanStreamRules,
   streamRulesForbidF3TestOut,
+  testOutRuleForModule,
 } from "@/lib/plan/stream-rules";
 
 const base = {
@@ -14,8 +15,8 @@ const base = {
   isSpecialist: false,
 };
 
-describe("applyStreamRulesForModule", () => {
-  it("foundation requires F3", () => {
+describe("applyStreamRulesForModule (DL-027)", () => {
+  it("foundation requires F3 with no test-out gate", () => {
     const decision = applyStreamRulesForModule({
       ...base,
       stream: "foundation",
@@ -25,16 +26,19 @@ describe("applyStreamRulesForModule", () => {
     expect(decision.status).toBe("required");
   });
 
-  it("practitioner tests out F1 but not F3", () => {
+  it("practitioner puts F1–F6 in test_out_pending and keeps F7 required", () => {
     expect(
       applyStreamRulesForModule({ ...base, stream: "practitioner", bridges: [], moduleCode: "F1" }).status,
-    ).toBe("tested_out");
+    ).toBe("test_out_pending");
     expect(
       applyStreamRulesForModule({ ...base, stream: "practitioner", bridges: [], moduleCode: "F3" }).status,
+    ).toBe("test_out_pending");
+    expect(
+      applyStreamRulesForModule({ ...base, stream: "practitioner", bridges: [], moduleCode: "F7" }).status,
     ).toBe("required");
   });
 
-  it("practitioner fast track makes P1 optional", () => {
+  it("fast track adds week 5 test-out pending on P1 and P2", () => {
     expect(
       applyStreamRulesForModule({
         ...base,
@@ -42,16 +46,24 @@ describe("applyStreamRulesForModule", () => {
         bridges: [],
         moduleCode: "P1",
       }).status,
-    ).toBe("optional");
+    ).toBe("test_out_pending");
+    expect(
+      applyStreamRulesForModule({
+        ...base,
+        stream: "practitioner_fast_track",
+        bridges: [],
+        moduleCode: "P3",
+      }).status,
+    ).toBe("required");
   });
 
-  it("champion matches fast track optional P2", () => {
+  it("champion matches fast track test-outs", () => {
     expect(
       applyStreamRulesForModule({ ...base, stream: "champion", bridges: [], moduleCode: "P2" }).status,
-    ).toBe("optional");
+    ).toBe("test_out_pending");
   });
 
-  it("bridge wins over tested_out", () => {
+  it("bridge wins over test_out_pending on the same module", () => {
     const decision = applyStreamRulesForModule({
       ...base,
       stream: "practitioner",
@@ -60,6 +72,16 @@ describe("applyStreamRulesForModule", () => {
     });
     expect(decision.status).toBe("bridge");
     expect(decision.dueWeek).toBe(4);
+  });
+
+  it("uses test-out week as due week for pending modules", () => {
+    const decision = applyStreamRulesForModule({
+      ...base,
+      stream: "practitioner",
+      bridges: [],
+      moduleCode: "F2",
+    });
+    expect(decision.dueWeek).toBe(1);
   });
 
   it("leadership required for senior management department", () => {
@@ -86,16 +108,32 @@ describe("applyStreamRulesForModule", () => {
   });
 });
 
+describe("testOutRuleForModule", () => {
+  it("finds week1 test-out for F3 on practitioner stream", () => {
+    const rule = testOutRuleForModule(defaultPlanStreamRules.practitioner, "F3");
+    expect(rule?.code).toBe("week1");
+    expect(rule?.source_code).toBe("week1-testout");
+  });
+});
+
 describe("streamRulesForbidF3TestOut", () => {
-  it("flags when F3 appears in a tested_out list", () => {
+  it("flags when F3 appears in tested_out or optional", () => {
     expect(streamRulesForbidF3TestOut(defaultPlanStreamRules)).toBe(false);
-    const bad = {
+    const badTested = {
       ...defaultPlanStreamRules,
       practitioner: {
         ...defaultPlanStreamRules.practitioner,
-        tested_out: [...defaultPlanStreamRules.practitioner.tested_out, "F3"],
+        tested_out: ["F3"],
       },
     };
-    expect(streamRulesForbidF3TestOut(bad)).toBe(true);
+    expect(streamRulesForbidF3TestOut(badTested)).toBe(true);
+    const badOptional = {
+      ...defaultPlanStreamRules,
+      practitioner: {
+        ...defaultPlanStreamRules.practitioner,
+        optional: ["F3"],
+      },
+    };
+    expect(streamRulesForbidF3TestOut(badOptional)).toBe(true);
   });
 });
