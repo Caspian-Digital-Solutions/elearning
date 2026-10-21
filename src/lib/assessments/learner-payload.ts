@@ -33,6 +33,7 @@ export type ItemRow = {
   response_format: ResponseFormat | null;
   department_id: string | null;
   section_id: string;
+  allow_multiple?: boolean;
 };
 
 export type LearnerChoiceOption = {
@@ -49,6 +50,7 @@ export type LearnerAssessmentItem = {
   options: LearnerChoiceOption[];
   responseFormat: ResponseFormat | null;
   departmentId: string | null;
+  allowMultiple: boolean;
 };
 
 export type LearnerAssessmentSection = {
@@ -109,13 +111,24 @@ function sanitiseOptions(raw: ItemRow["options"]): LearnerChoiceOption[] {
     .filter((option): option is LearnerChoiceOption => option !== null);
 }
 
+export type BuildLearnerPayloadOptions = {
+  /** When set (quiz draw), only include these item ids. */
+  itemIds?: string[];
+};
+
 export function buildLearnerAssessmentPayload(
   assessment: AssessmentRow,
   sections: SectionRow[],
   items: ItemRow[],
+  options?: BuildLearnerPayloadOptions,
 ): LearnerAssessmentPayload {
+  const allowedIds =
+    options?.itemIds && options.itemIds.length > 0 ? new Set(options.itemIds) : null;
   const itemsBySection = new Map<string, LearnerAssessmentItem[]>();
   for (const item of items) {
+    if (allowedIds && !allowedIds.has(item.id)) {
+      continue;
+    }
     const list = itemsBySection.get(item.section_id) ?? [];
     list.push({
       id: item.id,
@@ -126,6 +139,7 @@ export function buildLearnerAssessmentPayload(
       options: sanitiseOptions(item.options),
       responseFormat: item.response_format,
       departmentId: item.department_id,
+      allowMultiple: Boolean(item.allow_multiple),
     });
     itemsBySection.set(item.section_id, list);
   }

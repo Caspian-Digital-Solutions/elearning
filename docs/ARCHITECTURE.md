@@ -211,7 +211,7 @@ erDiagram
 
 | Table | Holds | Key columns |
 |---|---|---|
-| `assessments` | Week 0 diagnostic, safety quiz, module checks | `code`, `title`, `type` (placement, quiz, safety_quiz, capstone), `module_id`, `max_score`, `pass_mark`, `version`, `status` |
+| `assessments` | Week 0 diagnostic, safety quiz, module checks | `code`, `title`, `type` (placement, quiz, safety_quiz, capstone), `module_id`, `pass_mark_pct`, `max_attempts`, `items_per_attempt`, `version`, `status` |
 | `assessment_sections` | Knowledge 25, Prompting 25, Department 25, Safety 15, Workflow 10, Technical supplement | `code`, `max_score`, `counts_in_total`, `gate_min` |
 | `assessment_items` | Questions | `type` (profile, mcq, scenario, practical), `prompt_md`, `options`, `correct_option`, `explanation`, `difficulty`, `domain_id`, `points`, `department_id`, `rubric_id` |
 | `attempts` | One sitting | `user_id`, `assessment_id`, `started_at`, `submitted_at`, `status` |
@@ -350,7 +350,7 @@ The plan is tight: hardening and the R&D review fall in the last two weeks of De
 |---|---|---|---|
 | Local | Bharg's laptop with Cursor | Dev project | `npm run dev` |
 | Preview | Every pushed change gets a link | Dev project | Preview deployment |
-| Production | Staff use this | Prod project (Pro) | Production, e.g. `academy.caspiands.com` |
+| Production | Staff use this | Prod project (Pro) | https://ailearning.devteam-cds.tech (redirect from legacy Vercel hostname) |
 
 | Item | Monthly cost | Source |
 |---|---|---|

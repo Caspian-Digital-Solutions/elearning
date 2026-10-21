@@ -5,7 +5,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { MarkdownView } from "@/components/shared/markdown-view";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { formatKindLabel, loadLearnerModuleByCode } from "@/lib/lessons/queries";
+import { formatKindLabel, formatModuleHours, loadLearnerModuleByCode } from "@/lib/lessons/queries";
+import { loadModuleQuizForModule } from "@/lib/assessments/queries";
 
 export async function generateMetadata({
   params,
@@ -24,6 +25,8 @@ export default async function Page({ params }: { params: Promise<{ module: strin
   if (!data) {
     notFound();
   }
+  const moduleQuiz = await loadModuleQuizForModule(user.id, data.module.id);
+  const hoursLabel = formatModuleHours(data.module.live_hours, data.module.async_hours);
 
   const supabase = await createClient();
   const { data: progress } = await supabase
@@ -42,7 +45,7 @@ export default async function Page({ params }: { params: Promise<{ module: strin
     <div className="space-y-6">
       <PageHeader
         title={`${data.module.code} — ${data.module.title}`}
-        purpose={`${stage?.name ?? "Module"} · ${weeks} · ${data.module.live_hours}h live · Assessed by ${data.module.assessed_by ?? "—"}`}
+        purpose={`${stage?.name ?? "Module"} · ${weeks}${hoursLabel ? ` · ${hoursLabel}` : ""} · Assessed by ${data.module.assessed_by ?? "—"}`}
       />
       {data.domainNames.length > 0 ? (
         <p className="text-sm text-muted">Domains: {data.domainNames.join(", ")}</p>
@@ -51,6 +54,24 @@ export default async function Page({ params }: { params: Promise<{ module: strin
         <div className="max-w-3xl overflow-x-auto">
           <MarkdownView markdown={data.module.overview_md} />
         </div>
+      ) : null}
+      {moduleQuiz ? (
+        <section className="rounded-lg border p-4 space-y-2 text-sm">
+          <h2 className="font-heading text-lg text-heading">
+            {moduleQuiz.type === "safety_quiz"
+              ? `Safety quiz — ${moduleQuiz.passMarkPct ?? 0}% to pass`
+              : "5-question check"}
+          </h2>
+          <p>{moduleQuiz.statusLabel}</p>
+          {moduleQuiz.canStart ? (
+            <Link
+              href={moduleQuiz.href}
+              className="inline-flex font-medium text-accent-strong underline underline-offset-2"
+            >
+              {moduleQuiz.statusLabel === "Not started" ? "Start" : "Try again"}
+            </Link>
+          ) : null}
+        </section>
       ) : null}
       <section className="space-y-2">
         <h2 className="font-heading text-lg text-heading">Lessons</h2>

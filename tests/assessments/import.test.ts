@@ -13,8 +13,8 @@ const week0Sections = {
   sections: defaultWeek0SectionsFromSeed().sections,
 };
 
-function validate(data: unknown) {
-  return validateAssessmentImport(data, { week0Sections });
+function validate(data: unknown, moduleCodes: string[] = ["f1", "f3"]) {
+  return validateAssessmentImport(data, { week0Sections, moduleCodes });
 }
 
 const minimalPlacement = (): AssessmentImportFile => ({
@@ -361,6 +361,74 @@ describe("assessment import validator", () => {
     const result = validate(data);
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.includes("Profile"))).toBe(true);
+  });
+
+  it("rejects a quiz without module_code", () => {
+    const data = {
+      assessment: {
+        code: "quiz-x",
+        title: "Quiz",
+        type: "quiz",
+        instructions_md: "Go",
+        time_guide_min: 10,
+        is_sample: true,
+        pass_mark_pct: 80,
+      },
+      sections: [{ code: "check", title: "Check", max_score: null, counts_in_total: true }],
+      rubrics: [],
+      items: [
+        {
+          ref: "C1",
+          section: "check",
+          type: "choice",
+          domain: "C1",
+          difficulty: 1,
+          points: 1,
+          prompt_md: "Pick",
+          options: [
+            { id: "a", text: "A", points: 0 },
+            { id: "b", text: "B", points: 1 },
+          ],
+        },
+      ],
+    };
+    const result = validate(data);
+    expect(result.ok).toBe(false);
+    expect(result.errors.some((e) => e.includes("module_code"))).toBe(true);
+  });
+
+  it("rejects non-choice items in a quiz", () => {
+    const data = {
+      assessment: {
+        code: "quiz-x",
+        title: "Quiz",
+        type: "quiz",
+        module_code: "f1",
+        instructions_md: "Go",
+        time_guide_min: 10,
+        is_sample: true,
+        pass_mark_pct: 0,
+      },
+      sections: [{ code: "check", title: "Check", max_score: null, counts_in_total: true }],
+      rubrics: [],
+      items: [
+        {
+          ref: "P1",
+          section: "check",
+          type: "profile",
+          domain: "C1",
+          points: 0,
+          prompt_md: "Profile",
+          options: [
+            { id: "a", text: "A", points: 0 },
+            { id: "b", text: "B", points: 0 },
+          ],
+        },
+      ],
+    };
+    const result = validate(data);
+    expect(result.ok).toBe(false);
+    expect(result.errors.some((e) => e.includes("type choice"))).toBe(true);
   });
 
   it("rejects practical items without a rubric", () => {

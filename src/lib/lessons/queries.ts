@@ -142,6 +142,16 @@ export async function loadActiveDepartments() {
   return data ?? [];
 }
 
+export function formatModuleHours(liveHours: number, asyncHours: number): string | null {
+  if (liveHours > 0) {
+    return `${liveHours}h live`;
+  }
+  if (asyncHours > 0) {
+    return `${asyncHours}h self-paced`;
+  }
+  return null;
+}
+
 export type LearnerModuleCard = {
   code: string;
   title: string;
@@ -164,7 +174,7 @@ export async function loadLearnerModulesOverview(userId: string) {
       supabase
         .from("modules")
         .select(
-          "id, code, title, week_start, week_end, live_hours, assessed_by, is_leadership, sort_order, stages ( name, sort_order, code )",
+          "id, code, title, week_start, week_end, live_hours, async_hours, assessed_by, is_leadership, sort_order, stages ( name, sort_order, code )",
         )
         .order("sort_order"),
       supabase
@@ -217,7 +227,7 @@ export async function loadLearnerModulesOverview(userId: string) {
         stageSort: stage?.sort_order ?? 0,
         isLeadership: moduleRow.is_leadership,
         weekLabel: weeks,
-        liveHours: `${moduleRow.live_hours}h live`,
+        liveHours: formatModuleHours(moduleRow.live_hours, moduleRow.async_hours) ?? "—",
         assessedBy: moduleRow.assessed_by ?? "—",
         publishedCount: published.length,
         completedCount,
@@ -234,7 +244,7 @@ export async function loadLearnerModuleByCode(code: string) {
   const { data: moduleRow } = await supabase
     .from("modules")
     .select(
-      "id, code, title, week_start, week_end, live_hours, assessed_by, overview_md, is_leadership, stages ( name ), module_domains ( competency_domains ( name ) )",
+      "id, code, title, week_start, week_end, live_hours, async_hours, assessed_by, overview_md, is_leadership, stages ( name ), module_domains ( competency_domains ( name ) )",
     )
     .ilike("code", code)
     .maybeSingle();

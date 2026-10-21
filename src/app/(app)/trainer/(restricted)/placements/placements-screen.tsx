@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { DataTable } from "@/components/shared/data-table";
+import { DataTable, type DataColumn } from "@/components/shared/data-table";
 import { FormError } from "@/components/shared/form-error";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
@@ -11,23 +11,95 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { streamNames, streamValues } from "@/lib/people/labels";
-import type { PlacementTableRow } from "@/lib/assessments/queries";
+import type { PlacementTableRow, QuizResultsRow, QuizQuestionCheckRow } from "@/lib/assessments/queries";
 import {
   allowAssessmentRetake,
   calculatePlacement,
   confirmPlacement,
 } from "@/app/(app)/trainer/(restricted)/placements/placement-actions";
 
+type PlacementRow = {
+  attemptId: string;
+  userId: string;
+  personName: string;
+  department: string;
+  submittedAt: string;
+  markingProgress: string;
+  scoreKnowledge: string;
+  scorePrompting: string;
+  scoreDepartment: string;
+  scoreSafety: string;
+  scoreWorkflow: string;
+  total: string;
+  technical: string;
+  suggestedBand: string;
+  suggestedStream: string;
+  gates: string;
+  bridges: string;
+  domainFlags: string;
+  confirmedStream: string;
+  confirmedBy: string;
+  confirmedAt: string;
+  fullyMarked: string;
+  hasPlacement: string;
+};
+
+const allPlacementColumns: DataColumn<PlacementRow>[] = [
+  { key: "personName", header: "Person" },
+  { key: "department", header: "Department" },
+  { key: "submittedAt", header: "Submitted" },
+  { key: "markingProgress", header: "Marking" },
+  { key: "scoreKnowledge", header: "Knowledge" },
+  { key: "scorePrompting", header: "Prompting" },
+  { key: "scoreDepartment", header: "Department" },
+  { key: "scoreSafety", header: "Safety" },
+  { key: "scoreWorkflow", header: "Workflow" },
+  { key: "total", header: "Total" },
+  { key: "technical", header: "Technical" },
+  { key: "suggestedBand", header: "Suggested band" },
+  { key: "suggestedStream", header: "Suggested stream" },
+  { key: "gates", header: "Gates failed", wrap: true },
+  { key: "bridges", header: "Bridges", wrap: true },
+  { key: "domainFlags", header: "Required-domain flags", wrap: true },
+  { key: "confirmedStream", header: "Confirmed stream" },
+  { key: "confirmedBy", header: "Confirmed by" },
+  { key: "confirmedAt", header: "Confirmed at" },
+];
+
+const defaultHidden = new Set([
+  "scoreKnowledge",
+  "scorePrompting",
+  "scoreDepartment",
+  "scoreSafety",
+  "scoreWorkflow",
+  "technical",
+  "suggestedBand",
+  "gates",
+  "bridges",
+  "domainFlags",
+  "confirmedBy",
+]);
+
 export function PlacementsScreen({
   placementRows,
   profileRows,
   notStartedRows,
   assessmentId,
+  quizResultsRows,
+  quizOptions,
+  questionCheckRows,
+  questionCheckAssessmentId,
+  onQuestionCheckAssessment,
 }: {
   placementRows: PlacementTableRow[];
   profileRows: { question: string; option: string; count: number; department: string }[];
   notStartedRows: { name: string; department: string; lastSeen: string }[];
   assessmentId: string | null;
+  quizResultsRows: QuizResultsRow[];
+  quizOptions: { id: string; code: string; label: string }[];
+  questionCheckRows: QuizQuestionCheckRow[];
+  questionCheckAssessmentId: string | null;
+  onQuestionCheckAssessment?: string;
 }) {
   const [confirmAttempt, setConfirmAttempt] = useState<PlacementTableRow | null>(null);
   const [stream, setStream] = useState<string>("foundation");
@@ -37,6 +109,47 @@ export function PlacementsScreen({
   const [retakeReason, setRetakeReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(defaultHidden);
+  const [quizFilter, setQuizFilter] = useState<string>("");
+
+  const placementTableRows: PlacementRow[] = useMemo(
+    () =>
+      placementRows.map((row) => ({
+        attemptId: row.attemptId,
+        userId: row.userId,
+        personName: row.personName,
+        department: row.department,
+        submittedAt: row.submittedAt ? new Date(row.submittedAt).toLocaleString() : "—",
+        markingProgress: row.markingProgress,
+        scoreKnowledge: row.scoreKnowledge,
+        scorePrompting: row.scorePrompting,
+        scoreDepartment: row.scoreDepartment,
+        scoreSafety: row.scoreSafety,
+        scoreWorkflow: row.scoreWorkflow,
+        total: row.total,
+        technical: row.technical,
+        suggestedBand: row.suggestedBand,
+        suggestedStream: row.suggestedStream,
+        gates: row.gates,
+        bridges: row.bridges,
+        domainFlags: row.domainFlags,
+        confirmedStream: row.confirmedStream,
+        confirmedBy: row.confirmedBy,
+        confirmedAt: row.confirmedAt ? new Date(row.confirmedAt).toLocaleString() : "—",
+        fullyMarked: row.fullyMarked ? "yes" : "no",
+        hasPlacement: row.hasPlacement ? "yes" : "no",
+      })),
+    [placementRows],
+  );
+
+  const visiblePlacementColumns = allPlacementColumns.filter((col) => !hiddenColumns.has(col.key));
+
+  const filteredQuizRows = useMemo(() => {
+    if (!quizFilter) {
+      return quizResultsRows;
+    }
+    return quizResultsRows.filter((row) => row.assessmentCode === quizFilter);
+  }, [quizFilter, quizResultsRows]);
 
   const runCalculate = (attemptId: string) => {
     startTransition(async () => {
@@ -96,43 +209,50 @@ export function PlacementsScreen({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Placements"
-        purpose="Calculate Week 0 placement, review domain scores, and confirm streams."
+        title="Assessments and placements"
+        purpose="Week 0 placement, module quiz results, and profile aggregates."
       />
       <Tabs defaultValue="placements">
         <TabsList>
           <TabsTrigger value="placements">Placements</TabsTrigger>
+          <TabsTrigger value="quiz-results">Quiz results</TabsTrigger>
+          <TabsTrigger value="question-check">Question check</TabsTrigger>
           <TabsTrigger value="profile">Profile answers</TabsTrigger>
           <TabsTrigger value="not-started">Not started</TabsTrigger>
         </TabsList>
         <TabsContent value="placements" className="space-y-4">
+          <fieldset className="space-y-2 rounded-lg border p-3">
+            <legend className="px-1 text-sm font-medium">Columns</legend>
+            <div className="flex flex-wrap gap-3 text-sm">
+              {allPlacementColumns.map((column) => (
+                <label key={column.key} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={!hiddenColumns.has(column.key)}
+                    onChange={(event) => {
+                      setHiddenColumns((current) => {
+                        const next = new Set(current);
+                        if (event.target.checked) {
+                          next.delete(column.key);
+                        } else {
+                          next.add(column.key);
+                        }
+                        return next;
+                      });
+                    }}
+                  />
+                  {column.header}
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <DataTable
             rowKey="attemptId"
             caption="Submitted Week 0 attempts"
             exportFileName="placements.csv"
-            columns={[
-              { key: "personName", header: "Person" },
-              { key: "department", header: "Department" },
-              { key: "submittedAt", header: "Submitted" },
-              { key: "markingProgress", header: "Marking" },
-              { key: "total", header: "Total" },
-              { key: "suggestedStream", header: "Suggested" },
-              { key: "confirmedStream", header: "Confirmed" },
-            ]}
-            rows={placementRows.map((row) => ({
-              attemptId: row.attemptId,
-              userId: row.userId,
-              personName: row.personName,
-              department: row.department,
-              submittedAt: row.submittedAt ? new Date(row.submittedAt).toLocaleString() : "—",
-              markingProgress: row.markingProgress,
-              total: row.total,
-              suggestedStream: row.suggestedStream,
-              confirmedStream: row.confirmedStream,
-              fullyMarked: row.fullyMarked ? "yes" : "no",
-              hasPlacement: row.hasPlacement ? "yes" : "no",
-              confirmedAt: row.confirmedAt,
-            }))}
+            columns={visiblePlacementColumns}
+            exportColumns={allPlacementColumns}
+            rows={placementTableRows}
             rowActions={(row) => {
               const source = placementRows.find((entry) => entry.attemptId === row.attemptId);
               if (!source) {
@@ -171,6 +291,73 @@ export function PlacementsScreen({
               );
             }}
           />
+        </TabsContent>
+        <TabsContent value="quiz-results" className="space-y-4">
+          <div className="max-w-xs space-y-1">
+            <Label htmlFor="quiz-filter">Quiz</Label>
+            <NativeSelect id="quiz-filter" value={quizFilter} onChange={(e) => setQuizFilter(e.target.value)}>
+              <option value="">All quizzes</option>
+              {quizOptions.map((opt) => (
+                <option key={opt.id} value={opt.code}>
+                  {opt.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </div>
+          <DataTable
+            rowKey="id"
+            caption="Module quiz results per person"
+            exportFileName="quiz-results.csv"
+            columns={[
+              { key: "personName", header: "Person" },
+              { key: "department", header: "Department" },
+              { key: "assessmentCode", header: "Quiz code" },
+              { key: "assessmentTitle", header: "Quiz title" },
+              { key: "passMarkPct", header: "Pass mark" },
+              { key: "maxAttempts", header: "Max attempts" },
+              { key: "attemptsUsed", header: "Attempts used" },
+              { key: "bestPercentage", header: "Best %" },
+              { key: "passed", header: "Passed" },
+              { key: "firstPassAt", header: "First pass" },
+              { key: "lastAttemptAt", header: "Last attempt" },
+            ]}
+            rows={filteredQuizRows.map((row) => ({
+              ...row,
+              id: `${row.userId}-${row.assessmentCode}`,
+            }))}
+            filters={[
+              { key: "department", label: "Department" },
+              { key: "passed", label: "Passed", options: ["Yes", "No"] },
+            ]}
+          />
+        </TabsContent>
+        <TabsContent value="question-check" className="space-y-4">
+          {quizOptions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No published module quizzes yet.</p>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Raw response counts per question (excludes test accounts).
+              </p>
+              <DataTable
+                rowKey="itemRef"
+                caption="Question check"
+                exportFileName="quiz-question-check.csv"
+                columns={[
+                  { key: "itemRef", header: "Item ref" },
+                  { key: "prompt", header: "Prompt", wrap: true },
+                  { key: "answeredCount", header: "Answered" },
+                  { key: "optionBreakdown", header: "Option counts", wrap: true },
+                ]}
+                rows={questionCheckRows.map((row) => ({ ...row, id: row.itemRef }))}
+              />
+              {onQuestionCheckAssessment ? (
+                <p className="text-xs text-muted-foreground">
+                  Showing stats for assessment id {questionCheckAssessmentId ?? onQuestionCheckAssessment}.
+                </p>
+              ) : null}
+            </>
+          )}
         </TabsContent>
         <TabsContent value="profile">
           <DataTable

@@ -44,9 +44,17 @@ function orderedOptions(
   return sorted;
 }
 
-function isAnswered(type: string, answer: Record<string, unknown> | undefined): boolean {
+function isAnswered(
+  type: string,
+  answer: Record<string, unknown> | undefined,
+  allowMultiple?: boolean,
+): boolean {
   if (!answer) {
     return false;
+  }
+  if (type === "profile" && allowMultiple) {
+    const ids = answer.option_ids;
+    return Array.isArray(ids) && ids.some((id) => typeof id === "string" && id.length > 0);
   }
   if (type === "profile" || type === "choice") {
     return typeof answer.option_id === "string" && answer.option_id.length > 0;
@@ -80,6 +88,8 @@ export function AssessmentAttemptClient({
   meta,
   timeGuideMin,
   readOnly,
+  variant = "placement",
+  passMarkPct,
 }: {
   code: string;
   attemptId: string;
@@ -88,7 +98,10 @@ export function AssessmentAttemptClient({
   meta: Record<string, unknown>;
   timeGuideMin: number | null;
   readOnly: boolean;
+  variant?: "placement" | "quiz";
+  passMarkPct?: number | null;
 }) {
+  const isQuiz = variant === "quiz";
   const [activeSectionId, setActiveSectionId] = useState(payload.sections[0]?.id ?? "");
   const [answers, setAnswers] = useState<SavedMap>(initialAnswers);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -108,7 +121,7 @@ export function AssessmentAttemptClient({
         if (item.type === "profile") {
           continue;
         }
-        if (!isAnswered(item.type, answers[item.id])) {
+        if (!isAnswered(item.type, answers[item.id], item.allowMultiple)) {
           missing.push(`${section.title}: ${item.ref}`);
         }
       }
@@ -156,7 +169,7 @@ export function AssessmentAttemptClient({
     startTransition(async () => {
       const result = await submitAssessmentAttempt({
         attemptId,
-        dataDeclaration: declaration,
+        dataDeclaration: isQuiz ? true : declaration,
         code,
       });
       if (!result.ok) {
@@ -168,8 +181,13 @@ export function AssessmentAttemptClient({
     });
   };
 
+  const flatItems = isQuiz
+    ? payload.sections.flatMap((section) => section.items)
+    : [];
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
+    <div className={isQuiz ? "space-y-6" : "grid gap-6 lg:grid-cols-[220px_1fr]"}>
+      {!isQuiz ? (
       <nav className="space-y-1 text-sm" aria-label="Sections">
         {payload.sections.map((section) => {
           const answered = section.items.filter((item) => isAnswered(item.type, answers[item.id])).length;
@@ -199,9 +217,41 @@ export function AssessmentAttemptClient({
           </p>
         ) : null}
       </nav>
+      ) : null}
 
       <div className="space-y-6">
-        {activeSection ? (
+        {isQuiz ? (
+          flatItems.map((item) => {
+            const answer = answers[item.id] ?? {};
+            const options = orderedOptions(item.id, item.options, meta);
+            return (
+              <article key={item.id} className="space-y-3 rounded-lg border p-4">
+                <p className="text-xs font-medium text-muted-foreground">{item.ref}</p>
+                <MarkdownView markdown={item.promptMd} nested />
+                <div className="space-y-2">
+                  {options.map((opt) => (
+                    <label key={opt.id} className="flex cursor-pointer items-start gap-2">
+                      <input
+                        type="radio"
+                        name={item.id}
+                        className="mt-1"
+                        disabled={readOnly}
+                        checked={answer.option_id === opt.id}
+                        onChange={() => {
+                          const next = { option_id: opt.id };
+                          setAnswers((prev) => ({ ...prev, [item.id]: next }));
+                          persist(item.id, next);
+                        }}
+                      />
+                      <span>{opt.text}</span>
+                    </label>
+                  ))}
+                </div>
+              </article>
+            );
+          })
+        ) : null}
+        {!isQuiz && activeSection ? (
           <>
             <div>
               <h2 className="text-lg font-semibold">{activeSection.title}</h2>
@@ -218,23 +268,43 @@ export function AssessmentAttemptClient({
                   <MarkdownView markdown={item.promptMd} nested />
                   {item.type === "choice" || item.type === "profile" ? (
                     <div className="space-y-2">
-                      {options.map((opt) => (
+                      {options.map((opt) => {
+                        const multi = item.type === "profile" && item.allowMultiple;
+                        const selectedIds = Array.isArray(answer.option_ids)
+                          ? (answer.option_ids as string[])
+                          : [];
+                        const checked = multi
+                          ? selectedIds.includes(opt.id)
+                          : answer.option_id === opt.id;
+                        return (
                         <label key={opt.id} className="flex cursor-pointer items-start gap-2">
                           <input
-                            type="radio"
+                            type={multi ? "checkbox" : "radio"}
                             name={item.id}
                             className="mt-1"
                             disabled={readOnly}
-                            checked={answer.option_id === opt.id}
+                            checked={checked}
                             onChange={() => {
-                              const next = { option_id: opt.id };
+                              let next: Record<string, unknown>;
+                              if (multi) {
+                                const set = new Set(selectedIds);
+                                if (set.has(opt.id)) {
+                                  set.delete(opt.id);
+                                } else {
+                                  set.add(opt.id);
+                                }
+                                next = { option_ids: [...set] };
+                              } else {
+                                next = { option_id: opt.id };
+                              }
                               setAnswers((prev) => ({ ...prev, [item.id]: next }));
                               persist(item.id, next);
                             }}
                           />
                           <span>{opt.text}</span>
                         </label>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : null}
                   {item.type === "short_text" ? (
@@ -322,6 +392,10 @@ export function AssessmentAttemptClient({
                 {unanswered.length} scorable item{unanswered.length === 1 ? "" : "s"} still unanswered.
               </p>
             ) : null}
+            {isQuiz && passMarkPct !== null && passMarkPct !== undefined ? (
+              <p className="text-sm text-muted-foreground">Pass mark: {passMarkPct}%</p>
+            ) : null}
+            {!isQuiz ? (
             <label className="flex items-start gap-2 text-sm">
               <input
                 type="checkbox"
@@ -333,12 +407,13 @@ export function AssessmentAttemptClient({
                 I confirm this work is my own and I understand how my answers will be used for placement.
               </span>
             </label>
+            ) : null}
             <Button
               type="button"
-              disabled={!declaration || pending}
+              disabled={(!isQuiz && !declaration) || pending}
               onClick={() => setConfirmOpen(true)}
             >
-              Submit assessment
+              {isQuiz ? "Submit quiz" : "Submit assessment"}
             </Button>
             {confirmOpen ? (
               <div className="rounded-md border bg-muted/40 p-4 space-y-3">

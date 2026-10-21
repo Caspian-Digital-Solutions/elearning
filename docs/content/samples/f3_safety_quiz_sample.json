@@ -1,0 +1,351 @@
+{
+  "assessment": {
+    "code": "f3-safety-sample",
+    "title": "SAMPLE F3 safety quiz",
+    "type": "safety_quiz",
+    "module_code": "f3",
+    "instructions_md": "Fictional safety quiz — not for real use.",
+    "time_guide_min": 20,
+    "is_sample": true,
+    "pass_mark_pct": 80,
+    "max_attempts": 3,
+    "show_review_after_submit": true,
+    "items_per_attempt": 10
+  },
+  "sections": [
+    {
+      "code": "safety",
+      "title": "Safety",
+      "max_score": null,
+      "counts_in_total": true,
+      "instructions_md": ""
+    }
+  ],
+  "rubrics": [],
+  "items": [
+    {
+      "ref": "S1",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S1?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S2",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S2?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S3",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S3?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S4",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S4?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S5",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S5?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S6",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S6?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S7",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S7?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S8",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S8?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S9",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S9?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S10",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S10?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S11",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S11?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "S12",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question S12?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    }
+  ]
+}

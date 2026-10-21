@@ -79,6 +79,11 @@ export type AssessmentImportAssessment = {
   instructions_md: string;
   time_guide_min: number;
   is_sample: boolean;
+  module_code?: string;
+  pass_mark_pct?: number | null;
+  max_attempts?: number | null;
+  show_review_after_submit?: boolean;
+  items_per_attempt?: number | null;
 };
 
 export type AssessmentImportItem = {
@@ -97,6 +102,7 @@ export type AssessmentImportItem = {
   explanation_md?: string;
   marking_notes_md?: string;
   sort_order?: number;
+  allow_multiple?: boolean;
 };
 
 export type AssessmentImportFile = {
@@ -447,6 +453,11 @@ function validateItems(
       errors.push(`Item "${ref}" must not set department outside the department section.`);
     }
 
+    const allowMultiple = raw.allow_multiple === true;
+    if (type !== "profile" && allowMultiple) {
+      errors.push(`Item "${ref}" may set allow_multiple only on profile items.`);
+    }
+
     if (type === "profile") {
       if ((points as number) !== 0) {
         errors.push(`Profile item "${ref}" must have points 0.`);
@@ -456,6 +467,15 @@ function validateItems(
       }
       if (!Array.isArray(raw.options) || raw.options.length < 2) {
         errors.push(`Profile item "${ref}" needs at least two options.`);
+      }
+      if (allowMultiple && (!Array.isArray(raw.options) || raw.options.length < 2)) {
+        errors.push(`Profile item "${ref}" with allow_multiple needs at least two options.`);
+      }
+      for (const opt of Array.isArray(raw.options) ? raw.options : []) {
+        if (isRecord(opt) && opt.points !== undefined && opt.points !== 0) {
+          errors.push(`Profile item "${ref}" options must not carry points.`);
+          break;
+        }
       }
     }
 
@@ -591,7 +611,217 @@ function validateItems(
 export type ValidateAssessmentImportOptions = {
   /** Parsed `placement.week0_sections` from app_settings (or curriculum seed). */
   week0Sections: unknown;
+  /** Published module codes for quiz `module_code` validation. */
+  moduleCodes?: string[];
 };
+
+function validateQuizAssessmentMeta(
+  assessment: AssessmentImportAssessment,
+  moduleCodes: string[],
+  errors: string[],
+): void {
+  const moduleCode =
+    typeof assessment.module_code === "string" ? assessment.module_code.trim().toLowerCase() : "";
+  if (!moduleCode) {
+    errors.push("Quiz assessments must set assessment.module_code.");
+  } else if (!moduleCodes.includes(moduleCode)) {
+    errors.push(`Unknown module_code "${moduleCode}".`);
+  }
+
+  const passMark = assessment.pass_mark_pct;
+  if (passMark === undefined || passMark === null) {
+    errors.push("Quiz assessments must set pass_mark_pct (0–100).");
+  } else if (!Number.isInteger(passMark) || passMark < 0 || passMark > 100) {
+    errors.push("pass_mark_pct must be a whole number from 0 to 100.");
+  }
+
+  const maxAttempts = assessment.max_attempts;
+  if (maxAttempts !== undefined && maxAttempts !== null) {
+    if (!Number.isInteger(maxAttempts) || maxAttempts < 1) {
+      errors.push("max_attempts must be a whole number ≥ 1 when set.");
+    }
+  }
+
+  if (
+    assessment.show_review_after_submit !== undefined &&
+    typeof assessment.show_review_after_submit !== "boolean"
+  ) {
+    errors.push("show_review_after_submit must be true or false when set.");
+  }
+
+  const itemsPerAttempt = assessment.items_per_attempt;
+  if (itemsPerAttempt !== undefined && itemsPerAttempt !== null) {
+    if (!Number.isInteger(itemsPerAttempt) || itemsPerAttempt < 1) {
+      errors.push("items_per_attempt must be a whole number ≥ 1 when set.");
+    }
+  }
+}
+
+function validateQuizSections(
+  sections: unknown,
+  errors: string[],
+): Map<string, AssessmentImportSection> {
+  const byCode = new Map<string, AssessmentImportSection>();
+  if (!Array.isArray(sections) || sections.length === 0) {
+    errors.push("Quiz assessments need at least one section.");
+    return byCode;
+  }
+  for (const [index, raw] of sections.entries()) {
+    if (!isRecord(raw)) {
+      errors.push(`Section ${index + 1} must be an object.`);
+      continue;
+    }
+    const code = typeof raw.code === "string" ? raw.code.trim() : "";
+    if (!code) {
+      errors.push(`Section ${index + 1} needs a code.`);
+      continue;
+    }
+    if (byCode.has(code)) {
+      errors.push(`Duplicate section code "${code}".`);
+    }
+    if (typeof raw.title !== "string" || !raw.title.trim()) {
+      errors.push(`Section "${code}" needs a title.`);
+    }
+    const maxScore = raw.max_score;
+    if (maxScore !== null && maxScore !== undefined) {
+      if (!Number.isInteger(maxScore) || (maxScore as number) < 0) {
+        errors.push(`Section "${code}" max_score must be a whole number ≥ 0 or null.`);
+      }
+    }
+    if (typeof raw.counts_in_total !== "boolean") {
+      errors.push(`Section "${code}" must set counts_in_total true or false.`);
+    }
+    byCode.set(code, {
+      code,
+      title: (raw.title as string).trim(),
+      max_score:
+        maxScore === undefined || maxScore === null ? (maxScore as null) : (maxScore as number),
+      counts_in_total: raw.counts_in_total as boolean,
+      instructions_md: typeof raw.instructions_md === "string" ? raw.instructions_md : "",
+    });
+  }
+  return byCode;
+}
+
+function validateQuizItems(
+  items: unknown,
+  sections: Map<string, AssessmentImportSection>,
+  assessment: AssessmentImportAssessment,
+  errors: string[],
+): SectionPointsReport[] {
+  const reports: SectionPointsReport[] = [];
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push("Add at least one choice item.");
+    return reports;
+  }
+
+  let choiceCount = 0;
+  const refs = new Set<string>();
+
+  for (const [index, raw] of items.entries()) {
+    if (!isRecord(raw)) {
+      errors.push(`Item ${index + 1} must be an object.`);
+      continue;
+    }
+    const ref = typeof raw.ref === "string" ? raw.ref.trim() : "";
+    if (!ref || !itemRefRe.test(ref)) {
+      errors.push(`Item ${index + 1} needs a valid ref.`);
+      continue;
+    }
+    if (refs.has(ref)) {
+      errors.push(`Duplicate item ref "${ref}".`);
+    }
+    refs.add(ref);
+
+    const type = raw.type;
+    if (type !== "choice") {
+      errors.push(`Quiz item "${ref}" must be type choice.`);
+      continue;
+    }
+    choiceCount += 1;
+
+    const sectionCode = typeof raw.section === "string" ? raw.section.trim() : "";
+    if (!sectionCode || !sections.has(sectionCode)) {
+      errors.push(`Item "${ref}" section "${sectionCode}" is not defined.`);
+      continue;
+    }
+
+    const domain = typeof raw.domain === "string" ? raw.domain.trim().toUpperCase() : "";
+    if (!domain || !importDomainCodes.includes(domain as (typeof importDomainCodes)[number])) {
+      errors.push(`Item "${ref}" domain must be one of: ${importDomainCodes.join(", ")}.`);
+    }
+
+    const difficulty = raw.difficulty;
+    if (!Number.isInteger(difficulty) || (difficulty as number) < 1 || (difficulty as number) > 3) {
+      errors.push(`Item "${ref}" needs difficulty 1–3.`);
+    }
+
+    const points = raw.points;
+    if (!Number.isInteger(points) || (points as number) < 0) {
+      errors.push(`Item "${ref}" points must be a whole number ≥ 0.`);
+    }
+
+    if (typeof raw.prompt_md !== "string" || !raw.prompt_md.trim()) {
+      errors.push(`Item "${ref}" needs prompt_md.`);
+    }
+
+    if (raw.allow_multiple) {
+      errors.push(`Item "${ref}" must not set allow_multiple on choice items.`);
+    }
+
+    if (!Array.isArray(raw.options) || raw.options.length < 2) {
+      errors.push(`Choice item "${ref}" needs at least two options.`);
+    } else {
+      let best = -1;
+      const optionIds = new Set<string>();
+      for (const [oIdx, opt] of raw.options.entries()) {
+        if (!isRecord(opt)) {
+          errors.push(`Item "${ref}" option ${oIdx + 1} must be an object.`);
+          continue;
+        }
+        const id = typeof opt.id === "string" ? opt.id.trim() : "";
+        const text = typeof opt.text === "string" ? opt.text.trim() : "";
+        const optPoints = opt.points;
+        if (!id || optionIds.has(id)) {
+          errors.push(`Item "${ref}" option ${oIdx + 1} needs a unique id.`);
+        } else {
+          optionIds.add(id);
+        }
+        if (!text) {
+          errors.push(`Item "${ref}" option "${id || oIdx + 1}" needs text.`);
+        }
+        if (!Number.isInteger(optPoints) || (optPoints as number) < 0) {
+          errors.push(`Item "${ref}" option "${id}" points must be a whole number ≥ 0.`);
+        } else {
+          best = Math.max(best, optPoints as number);
+        }
+      }
+      if (Number.isInteger(points) && best !== (points as number)) {
+        errors.push(
+          `Choice item "${ref}" best option points (${best}) must equal item points (${points}).`,
+        );
+      }
+    }
+  }
+
+  const drawSize = assessment.items_per_attempt;
+  if (drawSize !== undefined && drawSize !== null && choiceCount < drawSize) {
+    errors.push(
+      `items_per_attempt is ${drawSize} but only ${choiceCount} choice items are in the file.`,
+    );
+  }
+
+  for (const section of sections.values()) {
+    reports.push({
+      code: section.code,
+      itemPoints: 0,
+      maxScore: section.max_score,
+      ok: true,
+    });
+  }
+
+  return reports;
+}
 
 /**
  * Validates an assessment import file before creating a draft in the database.
@@ -602,6 +832,23 @@ export function validateAssessmentImport(
   options: ValidateAssessmentImportOptions,
 ): AssessmentImportValidation {
   const errors: string[] = [];
+  const { file, errors: shapeErrors } = parseTopLevel(data);
+  errors.push(...shapeErrors);
+  if (!file) {
+    return { ok: false, errors, sections: [] };
+  }
+
+  validateAssessmentMeta(file.assessment, errors);
+  const assessmentType = file.assessment.type;
+  const moduleCodes = options.moduleCodes ?? [];
+
+  if (assessmentType === "quiz" || assessmentType === "safety_quiz") {
+    validateQuizAssessmentMeta(file.assessment, moduleCodes, errors);
+    const sectionMap = validateQuizSections(file.sections, errors);
+    const sections = validateQuizItems(file.items, sectionMap, file.assessment, errors);
+    return { ok: errors.length === 0, errors, sections };
+  }
+
   const week0Check = checkWeek0Sections(options.week0Sections);
   if (!week0Check.ok) {
     return {
@@ -612,13 +859,6 @@ export function validateAssessmentImport(
   }
   const week0 = week0Check.value;
 
-  const { file, errors: shapeErrors } = parseTopLevel(data);
-  errors.push(...shapeErrors);
-  if (!file) {
-    return { ok: false, errors, sections: [] };
-  }
-
-  validateAssessmentMeta(file.assessment, errors);
   const rubricMap = validateRubrics(file.rubrics, errors);
   const sectionMap = validateSectionsAgainstSettings(file.sections, week0, errors);
   const sections = validateItems(file.items, sectionMap, rubricMap, week0, errors);

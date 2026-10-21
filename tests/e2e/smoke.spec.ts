@@ -21,6 +21,7 @@ for (const path of [
   "/lessons/f1",
   "/assessments",
   "/assessments/week0",
+  "/assessments/f3-safety-sample",
   "/content-image/x.png",
   "/trainer/content",
   "/trainer/placements",

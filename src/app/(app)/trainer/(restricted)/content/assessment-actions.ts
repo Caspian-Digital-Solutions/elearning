@@ -40,7 +40,11 @@ export async function previewAssessmentImport(jsonText: string): Promise<ActionR
     .select("value")
     .eq("key", "placement.week0_sections")
     .maybeSingle();
-  const validation = validateAssessmentImport(parsed.data, { week0Sections: setting?.value });
+  const { moduleCodes } = await loadLookups(supabase);
+  const validation = validateAssessmentImport(parsed.data, {
+    week0Sections: setting?.value,
+    moduleCodes,
+  });
   return {
     ok: true,
     data: {
@@ -156,6 +160,11 @@ export async function importAssessmentDraft(
     .limit(1);
   const nextVersion = (versions?.[0]?.version ?? 0) + 1;
 
+  const moduleCode = file.assessment.module_code?.trim().toLowerCase();
+  const { data: moduleRow } = moduleCode
+    ? await supabase.from("modules").select("id").ilike("code", moduleCode).maybeSingle()
+    : { data: null };
+
   const { data: assessment, error: asmError } = await supabase
     .from("assessments")
     .insert({
@@ -167,7 +176,13 @@ export async function importAssessmentDraft(
       is_sample: file.assessment.is_sample,
       version: nextVersion,
       status: "draft",
-      module_id: null,
+      module_id: moduleRow?.id ?? null,
+      pass_mark_pct: file.assessment.pass_mark_pct ?? null,
+      max_attempts: file.assessment.max_attempts ?? null,
+      show_review_after_submit:
+        file.assessment.show_review_after_submit ??
+        (file.assessment.type === "placement" ? false : true),
+      items_per_attempt: file.assessment.items_per_attempt ?? null,
     })
     .select("id")
     .single();
@@ -225,6 +240,7 @@ export async function importAssessmentDraft(
         domain_id: domainId,
         difficulty: item.difficulty ?? null,
         points: item.points,
+        allow_multiple: item.allow_multiple ?? false,
         rubric_id: item.rubric ? rubricIds.get(item.rubric) ?? null : null,
       })
       .select("id")

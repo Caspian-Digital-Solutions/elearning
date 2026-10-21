@@ -166,6 +166,7 @@
       "domain": "C1",
       "points": 0,
       "prompt_md": "Which tools do you use for work-related AI today? (Select all that apply.)",
+      "allow_multiple": true,
       "options": [
         { "id": "chatgpt", "text": "Personal ChatGPT account", "points": 0 },
         { "id": "claude", "text": "Approved Claude workspace", "points": 0 },

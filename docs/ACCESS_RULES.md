@@ -2,7 +2,7 @@
 
 Plain-English version of the row-level security (RLS) rules in `supabase/migrations/20261020090006_row_level_security.sql` and `supabase/migrations/20261020130001_users_roles_settings.sql`. RLS is a rule inside the database that decides, row by row, who can read or change data. It applies even if a page has a bug. Every table has RLS switched on.
 
-Last updated: Prompt 07, 21 Oct 2026 (Week 0 assessment, marking, placement, `assessment_item_keys`, placement RPCs).
+Last updated: Prompt 07b, 21 Oct 2026 (module quizzes, `get_attempt_review`, `is_test_account`, quiz trainer summaries).
 
 ## Words used below
 
@@ -98,6 +98,9 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 | `calculate_placement(attempt_id)` | Active trainer or admin | Computes suggested stream, gates, bridges from current settings; stores a settings snapshot. | Not fully marked; wrong role. |
 | `confirm_placement(attempt_id, stream, reason, portfolio_reviewed)` | Active trainer or admin | Confirms stream on `placement_results` and updates `profiles.stream`. | Override without reason; Champion without portfolio reviewed. |
 | `allow_retake(user_id, assessment_id, reason)` | Active trainer or admin | Allows a new Week 0 attempt for that person. | Reason too short; wrong role. |
+| `get_attempt_review(attempt_id)` | Owner of a **submitted** quiz/safety_quiz attempt | Returns per-item chosen and correct options and explanations (not Week 0). | Unsubmitted attempt; another user's attempt; placement type; review disabled on assessment. |
+| `get_quiz_results_summary()` | Active trainer or admin | Per person and quiz: attempts used, best percentage, passed, dates. Excludes `is_test_account` profiles. | Wrong role. |
+| `get_quiz_question_stats(assessment_id)` | Active trainer or admin | Per-item response and option counts for question check. Excludes test accounts. | Wrong role. |
 | `mark_updates_seen()` | Any active signed-in person | Sets *your own* `updates_seen_at` when you open What changed. | Paused people (nothing happens). |
 | `search_help_pages(query)` | Any active signed-in person | Full-text search over published help pages. | — |
 
@@ -106,7 +109,7 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 - **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*`, `/trainer/content/updates/*`, `/trainer/content/lessons/*`, `/trainer/content/modules/[code]`, assessments import/preview): trainers and admins. Help pages, What changed, Lessons and Assessments lists; Markdown editor with image upload; history; module overview editor and lesson reorder.
 - **Assessments** (`/assessments`, `/assessments/[code]`): active staff with a department. Published assessments only. The learner API never returns `assessment_item_keys` or option points.
 - **Trainer › Marking** (`/trainer/marking`): trainers and admins (Week 0 tab in Prompt 07). Champions gain assignment marking in Prompt 09.
-- **Trainer › Placements** (`/trainer/placements`): trainers and admins. Calculate, confirm and retake Week 0 placements.
+- **Trainer › Placements** (`/trainer/placements`, heading “Assessments and placements”): trainers and admins. Week 0 placements (calculate, confirm, retake), **Quiz results** tab, and **Question check** per quiz.
 - **Lessons** (`/lessons`, `/lessons/[module]`, `/lessons/[module]/[lesson]`): all signed-in staff with access. Published lessons only (row-level security). The **department toggle on `/lessons` is a display filter only** — it hides modules whose published lessons are tagged for other departments; it does not change database access. Leadership briefings default visible to Senior Management, managers, trainers and admins; others can reveal them with “Show lessons for all departments”.
 - **Content images** (`/content-image/...`): signed-in staff only. The app redirects to a short-lived signed URL for objects in the private `content-images` bucket (`lessons/{id}/…` or `pages/{id}/…`). Learners never receive a permanent public storage URL.
 - **Rules and help** (`/help`, `/help/[slug]`): all signed-in staff with access. Published pages only; search uses published text.
@@ -119,6 +122,11 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 
 - Week 0 placement is **suggested** by the platform and **confirmed** by a trainer; `profiles.stream` changes only through `confirm_placement` (or admin user tools with audit).
 - Managers do not read `attempts`, `response_scores` or `placement_results`; they may see a person's confirmed stream on `profiles` after confirmation (DL-022).
+
+## Assumptions in Prompt 07b
+
+- **`profiles.is_test_account`:** durable screenshot/E2E accounts from `scripts/ensure-test-accounts.ts` are excluded from Trainer › Users counts, Placements “Not started”, and quiz aggregates. They are not deleted by the test suite.
+- Module **quizzes** auto-score on submit; learners never read `assessment_item_keys` — post-submit review uses **`get_attempt_review`** only when `show_review_after_submit` is true (false for Week 0).
 
 ## Assumptions in Prompt 04
 

@@ -48,8 +48,8 @@ beforeEach(async () => {
   });
 
   const asm = await db.trusted<{ id: string }>(
-    `insert into public.assessments (code, title, type, status, version, instructions_md)
-     values ('rls-week0-07', 'RLS Week 0', 'placement', 'published', 1, 'Test')
+    `insert into public.assessments (code, title, type, status, version, instructions_md, show_review_after_submit)
+     values ('rls-week0-07', 'RLS Week 0', 'placement', 'published', 1, 'Test', false)
      returning id`,
   );
   assessmentId = asm.rows[0].id;

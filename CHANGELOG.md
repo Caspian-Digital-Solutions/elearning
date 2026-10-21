@@ -2,6 +2,7 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-21 | 07b | Review fixes and module quizzes: `is_test_account`, multi-select profile items, placements column picker, module hours label, quiz draw and auto-score, `get_attempt_review`, trainer quiz results and question check. Migration applied to dev; sample F1/F3 quizzes on dev. |
 | 2026-10-21 | 07 | Week 0 assessment engine: rubrics, assessments, attempts, marking, placement suggestion and trainer confirmation; answer keys in `assessment_item_keys`; placement rules in `src/lib/placement/` mirrored in SQL; SAMPLE Week 0 JSON import. Migration applied to dev. |
 | 2026-10-21 | 06 | Lessons reader and trainer editor: module overviews, draft/publish for lessons, secure content images, video embeds, bulk Markdown import, learner progress. Migrations applied to dev. |
 | 2026-10-20 | 05 | Help pages, What changed and content editor: draft/publish workflow (`content_drafts`, `content_revisions`, `publish_content`), Trainer › Content, learner Rules and help with search and acknowledgements, What changed feed with unread badge, Markdown editor with callouts. Migration applied to dev. `test:rls` 54 cases. |

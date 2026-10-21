@@ -117,6 +117,7 @@ export type Database = {
       };
       assessment_items: {
         Row: {
+          allow_multiple: boolean;
           assessment_id: string;
           created_at: string;
           department_id: string | null;
@@ -137,6 +138,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          allow_multiple?: boolean;
           assessment_id: string;
           created_at?: string;
           department_id?: string | null;
@@ -156,6 +158,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          allow_multiple?: boolean;
           assessment_id?: string;
           created_at?: string;
           department_id?: string | null;
@@ -267,10 +270,13 @@ export type Database = {
           id: string;
           instructions_md: string;
           is_sample: boolean;
+          items_per_attempt: number | null;
+          max_attempts: number | null;
           module_id: string | null;
-          pass_mark: number | null;
+          pass_mark_pct: number | null;
           published_at: string | null;
           published_by: string | null;
+          show_review_after_submit: boolean;
           status: Database["public"]["Enums"]["content_status"];
           time_guide_min: number | null;
           title: string;
@@ -285,10 +291,13 @@ export type Database = {
           id?: string;
           instructions_md?: string;
           is_sample?: boolean;
+          items_per_attempt?: number | null;
+          max_attempts?: number | null;
           module_id?: string | null;
-          pass_mark?: number | null;
+          pass_mark_pct?: number | null;
           published_at?: string | null;
           published_by?: string | null;
+          show_review_after_submit?: boolean;
           status?: Database["public"]["Enums"]["content_status"];
           time_guide_min?: number | null;
           title: string;
@@ -302,10 +311,13 @@ export type Database = {
           id?: string;
           instructions_md?: string;
           is_sample?: boolean;
+          items_per_attempt?: number | null;
+          max_attempts?: number | null;
           module_id?: string | null;
-          pass_mark?: number | null;
+          pass_mark_pct?: number | null;
           published_at?: string | null;
           published_by?: string | null;
+          show_review_after_submit?: boolean;
           status?: Database["public"]["Enums"]["content_status"];
           time_guide_min?: number | null;
           title?: string;
@@ -337,7 +349,10 @@ export type Database = {
           created_at: string;
           data_declaration: boolean;
           id: string;
+          item_ids: string[];
           meta: NonNullable<Json>;
+          passed: boolean | null;
+          percentage: number | null;
           seconds_active: number | null;
           started_at: string;
           status: Database["public"]["Enums"]["attempt_status"];
@@ -352,7 +367,10 @@ export type Database = {
           created_at?: string;
           data_declaration?: boolean;
           id?: string;
+          item_ids?: string[];
           meta?: NonNullable<Json>;
+          passed?: boolean | null;
+          percentage?: number | null;
           seconds_active?: number | null;
           started_at?: string;
           status?: Database["public"]["Enums"]["attempt_status"];
@@ -366,7 +384,10 @@ export type Database = {
           created_at?: string;
           data_declaration?: boolean;
           id?: string;
+          item_ids?: string[];
           meta?: NonNullable<Json>;
+          passed?: boolean | null;
+          percentage?: number | null;
           seconds_active?: number | null;
           started_at?: string;
           status?: Database["public"]["Enums"]["attempt_status"];
@@ -1173,6 +1194,7 @@ export type Database = {
           full_name: string | null;
           id: string;
           is_active: boolean;
+          is_test_account: boolean;
           last_seen_at: string | null;
           progress_scope: Database["public"]["Enums"]["progress_scope_type"];
           role: Database["public"]["Enums"]["app_role"];
@@ -1191,6 +1213,7 @@ export type Database = {
           full_name?: string | null;
           id: string;
           is_active?: boolean;
+          is_test_account?: boolean;
           last_seen_at?: string | null;
           progress_scope?: Database["public"]["Enums"]["progress_scope_type"];
           role?: Database["public"]["Enums"]["app_role"];
@@ -1208,6 +1231,7 @@ export type Database = {
           full_name?: string | null;
           id?: string;
           is_active?: boolean;
+          is_test_account?: boolean;
           last_seen_at?: string | null;
           progress_scope?: Database["public"]["Enums"]["progress_scope_type"];
           role?: Database["public"]["Enums"]["app_role"];
@@ -1567,6 +1591,14 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      _correct_option_id_from_points: {
+        Args: { p_option_points: Json };
+        Returns: string;
+      };
+      _option_text_from_options: {
+        Args: { p_option_id: string; p_options: Json };
+        Returns: string;
+      };
       admin_set_role: {
         Args: {
           new_role: Database["public"]["Enums"]["app_role"];
@@ -1665,6 +1697,49 @@ export type Database = {
       current_app_role: {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
+      };
+      get_attempt_review: {
+        Args: { p_attempt_id: string };
+        Returns: {
+          chosen_option_id: string;
+          chosen_text: string;
+          correct_option_id: string;
+          correct_text: string;
+          explanation_md: string;
+          item_id: string;
+          prompt_md: string;
+        }[];
+      };
+      get_quiz_question_stats: {
+        Args: { p_assessment_id: string };
+        Returns: {
+          answered_count: number;
+          item_id: string;
+          item_ref: string;
+          option_counts: Json;
+          prompt_md: string;
+          sort_order: number;
+        }[];
+      };
+      get_quiz_results_summary: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          assessment_code: string;
+          assessment_id: string;
+          assessment_title: string;
+          assessment_type: Database["public"]["Enums"]["assessment_type"];
+          attempts_used: number;
+          best_percentage: number;
+          department_code: string;
+          email: string;
+          first_pass_at: string;
+          full_name: string;
+          last_attempt_at: string;
+          max_attempts: number;
+          pass_mark_pct: number;
+          passed: boolean;
+          user_id: string;
+        }[];
       };
       has_role: {
         Args: { roles: Database["public"]["Enums"]["app_role"][] };
@@ -1773,7 +1848,10 @@ export type Database = {
           created_at: string;
           data_declaration: boolean;
           id: string;
+          item_ids: string[];
           meta: NonNullable<Json>;
+          passed: boolean | null;
+          percentage: number | null;
           seconds_active: number | null;
           started_at: string;
           status: Database["public"]["Enums"]["attempt_status"];
@@ -1796,7 +1874,10 @@ export type Database = {
           created_at: string;
           data_declaration: boolean;
           id: string;
+          item_ids: string[];
           meta: NonNullable<Json>;
+          passed: boolean | null;
+          percentage: number | null;
           seconds_active: number | null;
           started_at: string;
           status: Database["public"]["Enums"]["attempt_status"];

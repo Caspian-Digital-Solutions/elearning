@@ -1,0 +1,162 @@
+{
+  "assessment": {
+    "code": "f1-check-sample",
+    "title": "SAMPLE F1 five-question check",
+    "type": "quiz",
+    "module_code": "f1",
+    "instructions_md": "Fictional check for platform testing.",
+    "time_guide_min": 15,
+    "is_sample": true,
+    "pass_mark_pct": 0,
+    "max_attempts": null,
+    "show_review_after_submit": true,
+    "items_per_attempt": null
+  },
+  "sections": [
+    {
+      "code": "check",
+      "title": "Check",
+      "max_score": null,
+      "counts_in_total": true,
+      "instructions_md": ""
+    }
+  ],
+  "rubrics": [],
+  "items": [
+    {
+      "ref": "Q1",
+      "section": "check",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question Q1?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "Q2",
+      "section": "check",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question Q2?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "Q3",
+      "section": "check",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question Q3?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "Q4",
+      "section": "check",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question Q4?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    },
+    {
+      "ref": "Q5",
+      "section": "check",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 1,
+      "prompt_md": "Sample question Q5?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Answer A",
+          "points": 0
+        },
+        {
+          "id": "b",
+          "text": "Answer B",
+          "points": 1
+        },
+        {
+          "id": "c",
+          "text": "Answer C",
+          "points": 0
+        }
+      ],
+      "explanation_md": "Because B is correct in this fictional scenario."
+    }
+  ]
+}

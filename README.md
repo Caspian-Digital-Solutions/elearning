@@ -12,6 +12,12 @@ The pages and the menu are in place, and sign-in works with CDS Google accounts 
 4. Run `npm run dev`.
 5. Open http://localhost:3000 and choose "Sign in with Google" with your CDS account.
 
+Production staff URL: https://ailearning.devteam-cds.tech
+
+### Screenshot and E2E test accounts
+
+For signed-in Playwright runs, use the fixed accounts created by `npx tsx scripts/ensure-test-accounts.ts` (Test Learner / Test Trainer at `test-*-screenshots@caspiands.com`). They are marked `is_test_account` on `profiles` and are excluded from trainer user counts, placements lists, and quiz analytics. The script uses the Supabase Admin API; it does not delete these users mid-run.
+
 ## Sign-in and roles
 
 - Only `caspiands.com` Google accounts can sign in. Anyone else sees "Please sign in with your CDS Google account."
@@ -28,7 +34,7 @@ An admin can see another role's menu by setting `DEV_PREVIEW_ROLE` in `.env.loca
 - `npm run lint`
 - `npm run typecheck`
 - `npm test`
-- `npm run test:e2e` — browser checks (signed-out visitors land on the sign-in page)
+- `npm run test:e2e` — browser checks (signed-out visitors land on the sign-in page). Set `PLAYWRIGHT_BASE_URL` to override the default `http://127.0.0.1:3000` (for example the production URL).
 - `npm run test:rls` — access-rule tests against the dev database; needs `SUPABASE_DB_URL` in `.env.local`. Every test is rolled back, so nothing is left behind.
 - `npm run build`
 

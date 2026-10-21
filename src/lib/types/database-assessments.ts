@@ -17,7 +17,10 @@ type AssessmentTables = {
       instructions_md: string;
       is_sample: boolean;
       module_id: string | null;
-      pass_mark: number | null;
+      pass_mark_pct: number | null;
+      max_attempts: number | null;
+      show_review_after_submit: boolean;
+      items_per_attempt: number | null;
       published_at: string | null;
       published_by: string | null;
       status: ContentStatus;
@@ -34,7 +37,10 @@ type AssessmentTables = {
       instructions_md?: string;
       is_sample?: boolean;
       module_id?: string | null;
-      pass_mark?: number | null;
+      pass_mark_pct?: number | null;
+      max_attempts?: number | null;
+      show_review_after_submit?: boolean;
+      items_per_attempt?: number | null;
       published_at?: string | null;
       published_by?: string | null;
       status?: ContentStatus;
@@ -51,7 +57,10 @@ type AssessmentTables = {
       instructions_md?: string;
       is_sample?: boolean;
       module_id?: string | null;
-      pass_mark?: number | null;
+      pass_mark_pct?: number | null;
+      max_attempts?: number | null;
+      show_review_after_submit?: boolean;
+      items_per_attempt?: number | null;
       published_at?: string | null;
       published_by?: string | null;
       status?: ContentStatus;
@@ -104,6 +113,7 @@ type AssessmentTables = {
   };
   assessment_items: {
     Row: {
+      allow_multiple: boolean;
       assessment_id: string;
       created_at: string;
       department_id: string | null;
@@ -122,6 +132,7 @@ type AssessmentTables = {
       updated_at: string;
     };
     Insert: {
+      allow_multiple?: boolean;
       assessment_id: string;
       created_at?: string;
       department_id?: string | null;
@@ -140,6 +151,7 @@ type AssessmentTables = {
       updated_at?: string;
     };
     Update: {
+      allow_multiple?: boolean;
       assessment_id?: string;
       created_at?: string;
       department_id?: string | null;
@@ -199,7 +211,10 @@ type AssessmentTables = {
       created_at: string;
       data_declaration: boolean;
       id: string;
+      item_ids: string[];
       meta: Json;
+      passed: boolean | null;
+      percentage: number | null;
       seconds_active: number | null;
       started_at: string;
       status: AttemptStatus;
@@ -485,6 +500,49 @@ type AssessmentFunctions = {
   allow_retake: {
     Args: { p_user_id: string; p_assessment_id: string; p_reason: string };
     Returns: undefined;
+  };
+  get_attempt_review: {
+    Args: { p_attempt_id: string };
+    Returns: {
+      item_id: string;
+      prompt_md: string;
+      chosen_option_id: string | null;
+      chosen_text: string | null;
+      correct_option_id: string | null;
+      correct_text: string | null;
+      explanation_md: string;
+    }[];
+  };
+  get_quiz_results_summary: {
+    Args: Record<string, never>;
+    Returns: {
+      user_id: string;
+      full_name: string | null;
+      email: string;
+      department_code: string | null;
+      assessment_id: string;
+      assessment_code: string;
+      assessment_title: string;
+      assessment_type: AssessmentType;
+      pass_mark_pct: number | null;
+      max_attempts: number | null;
+      attempts_used: number;
+      best_percentage: number | null;
+      passed: boolean;
+      first_pass_at: string | null;
+      last_attempt_at: string | null;
+    }[];
+  };
+  get_quiz_question_stats: {
+    Args: { p_assessment_id: string };
+    Returns: {
+      item_id: string;
+      item_ref: string;
+      prompt_md: string;
+      sort_order: number;
+      answered_count: number;
+      option_counts: Json;
+    }[];
   };
 };
 

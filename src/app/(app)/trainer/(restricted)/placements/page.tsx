@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { requireRole } from "@/lib/auth";
-import { loadPlacementTableRows } from "@/lib/assessments/queries";
+import {
+  loadPlacementTableRows,
+  loadQuizQuestionCheck,
+  loadQuizResultsRows,
+} from "@/lib/assessments/queries";
+import { tallyProfileResponses } from "@/lib/assessments/profile-answers";
 import { createClient } from "@/lib/supabase/server";
 import { PlacementsScreen } from "@/app/(app)/trainer/(restricted)/placements/placements-screen";
 
@@ -12,6 +17,25 @@ export default async function Page() {
   await requireRole(["trainer", "admin"]);
   const supabase = await createClient();
   const placementRows = await loadPlacementTableRows();
+  const quizResultsRows = await loadQuizResultsRows();
+
+  const { data: quizAssessments } = await supabase
+    .from("assessments")
+    .select("id, code, title")
+    .eq("status", "published")
+    .in("type", ["quiz", "safety_quiz"])
+    .order("code");
+
+  const quizOptions = (quizAssessments ?? []).map((row) => ({
+    id: row.id,
+    code: row.code,
+    label: `${row.code} — ${row.title}`,
+  }));
+
+  const questionCheckAssessmentId = quizAssessments?.[0]?.id ?? null;
+  const questionCheckRows = questionCheckAssessmentId
+    ? await loadQuizQuestionCheck(questionCheckAssessmentId)
+    : [];
 
   const { data: placement } = await supabase
     .from("assessments")
@@ -27,11 +51,27 @@ export default async function Page() {
   if (placement) {
     const { data: profileItems } = await supabase
       .from("assessment_items")
-      .select("id, ref")
+      .select("id, ref, options")
       .eq("assessment_id", placement.id)
       .eq("type", "profile");
-    const profileItemIds = (profileItems ?? []).map((i) => i.id);
-    const refByItemId = new Map((profileItems ?? []).map((i) => [i.id, i.ref]));
+    const optionsByItemId = new Map(
+      (profileItems ?? []).map((item) => [
+        item.id,
+        Array.isArray(item.options)
+          ? item.options
+              .map((opt) => {
+                if (typeof opt !== "object" || opt === null) {
+                  return null;
+                }
+                const record = opt as Record<string, unknown>;
+                const id = typeof record.id === "string" ? record.id : "";
+                const text = typeof record.text === "string" ? record.text : id;
+                return id ? { id, text } : null;
+              })
+              .filter((opt): opt is { id: string; text: string } => opt !== null)
+          : [],
+      ]),
+    );
 
     const { data: attemptRows } = await supabase
       .from("attempts")
@@ -39,22 +79,23 @@ export default async function Page() {
       .eq("assessment_id", placement.id);
     const placementAttemptIds = (attemptRows ?? []).map((a) => a.id);
 
-    const { data: responses } = profileItemIds.length && placementAttemptIds.length
+    const { data: responses } = profileItems?.length && placementAttemptIds.length
       ? await supabase
           .from("responses")
           .select("answer, item_id")
           .in("attempt_id", placementAttemptIds)
-          .in("item_id", profileItemIds)
+          .in("item_id", (profileItems ?? []).map((i) => i.id))
       : { data: [] };
 
-    const counts = new Map<string, number>();
-    for (const row of responses ?? []) {
-      const ref = refByItemId.get(row.item_id) ?? "—";
-      const answer = row.answer as { option_id?: string };
-      const key = `${ref}:${answer.option_id ?? "—"}:all`;
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    }
-    for (const [key, count] of counts) {
+    const refByItemId = new Map((profileItems ?? []).map((i) => [i.id, i.ref]));
+    const tallies = tallyProfileResponses(
+      (responses ?? []).map((row) => ({
+        itemRef: refByItemId.get(row.item_id) ?? "—",
+        answer: row.answer as Record<string, unknown>,
+        options: optionsByItemId.get(row.item_id) ?? [],
+      })),
+    );
+    for (const [key, count] of tallies) {
       const [question, option] = key.split(":");
       profileRows.push({ question, option, count, department: "All" });
     }
@@ -63,6 +104,7 @@ export default async function Page() {
       .from("profiles")
       .select("id, full_name, email, last_seen_at, departments ( name, code )")
       .eq("is_active", true)
+      .eq("is_test_account", false)
       .in("role", ["learner", "champion"]);
 
     const { data: submitted } = await supabase
@@ -91,6 +133,11 @@ export default async function Page() {
       profileRows={profileRows}
       notStartedRows={notStartedRows}
       assessmentId={placement?.id ?? null}
+      quizResultsRows={quizResultsRows}
+      quizOptions={quizOptions}
+      questionCheckRows={questionCheckRows}
+      questionCheckAssessmentId={questionCheckAssessmentId}
+      onQuestionCheckAssessment={questionCheckAssessmentId ?? undefined}
     />
   );
 }

@@ -55,6 +55,7 @@ export function DataTable<T extends Record<string, string>>({
   rows,
   caption,
   exportFileName = "export.csv",
+  exportColumns,
   rowKey,
   filters = [],
   quickFilters = [],
@@ -69,6 +70,8 @@ export function DataTable<T extends Record<string, string>>({
   rows: readonly T[];
   caption: string;
   exportFileName?: string;
+  /** When set, CSV export uses these columns instead of the visible table columns. */
+  exportColumns?: readonly DataColumn<T>[];
   rowKey?: keyof T & string;
   filters?: readonly DataFilter<T>[];
   quickFilters?: readonly QuickFilter<T>[];
@@ -144,10 +147,11 @@ export function DataTable<T extends Record<string, string>>({
   }
 
   function exportCsv() {
+    const exportCols = exportColumns ?? columns;
     downloadCsv(
       exportFileName,
-      columns.map((column) => column.header),
-      visibleRows.map((row) => columns.map((column) => row[column.key])),
+      exportCols.map((column) => column.header),
+      visibleRows.map((row) => exportCols.map((column) => row[column.key])),
     );
   }
 
