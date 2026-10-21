@@ -2,7 +2,7 @@
 
 Plain-English version of the row-level security (RLS) rules in `supabase/migrations/20261020090006_row_level_security.sql` and `supabase/migrations/20261020130001_users_roles_settings.sql`. RLS is a rule inside the database that decides, row by row, who can read or change data. It applies even if a page has a bug. Every table has RLS switched on.
 
-Last updated: Prompt 05, 20 Oct 2026 (help content drafts, publish functions, acknowledgements).
+Last updated: Prompt 06, 21 Oct 2026 (lessons publish flow, content-images storage, `/content-image` route, module overview revisions).
 
 ## Words used below
 
@@ -80,15 +80,19 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 | `admin_update_setting(key, new_value, reason)` | Active admin | Replaces a setting's value. The app checks the shape of known settings first (for example, placement bands must cover 0 to 100 with no gaps or overlaps). | A reason under 10 characters; an empty value; a setting that does not exist. |
 | `my_access_status()` | Any signed-in person | Says whether *your own* account is active, paused or missing. | Tells nothing about anyone else. |
 | `record_last_seen()` | Any active signed-in person | Updates *your own* "last seen" time, at most once an hour. Not recorded in the audit log. | Paused people (nothing happens). |
-| `publish_content(type, id, change_note)` | Active trainer or admin | Copies a draft to the live page or update, bumps the version, stores a revision and deletes the draft. | No draft; change note under five characters; lesson type (not built yet). |
-| `unpublish_content(type, id, reason)` | Active trainer or admin | Archives a page or update so learners no longer see it. | Reason under five characters. |
-| `restore_revision(type, id, revision_no)` | Active trainer or admin | Copies an old revision into the draft table without publishing. | Revision not found. |
+| `publish_content(type, id, change_note)` | Active trainer or admin | Copies a draft to the live page, update or lesson, bumps the version, stores a revision and deletes the draft. | No draft; change note under five characters; invalid slug or lesson metadata (duration, departments, video host). |
+| `unpublish_content(type, id, reason)` | Active trainer or admin | Archives a page, update or lesson so learners no longer see it. | Reason under five characters. |
+| `restore_revision(type, id, revision_no)` | Active trainer or admin | Copies an old revision into the draft table without publishing (page, update or lesson). | Revision not found. |
+| `update_module_overview(module_id, body_md, change_note)` | Active trainer or admin | Saves `modules.overview_md` and appends a `content_revisions` row (`content_type = module`). | Change note under five characters. |
+| `reorder_lessons(module_id, lesson_ids)` | Active trainer or admin | Sets `sort_order` on lessons in the given order within one module. | Lesson not in module; wrong role. |
 | `mark_updates_seen()` | Any active signed-in person | Sets *your own* `updates_seen_at` when you open What changed. | Paused people (nothing happens). |
 | `search_help_pages(query)` | Any active signed-in person | Full-text search over published help pages. | — |
 
 ## Screens and who can use them
 
-- **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*` and `/trainer/content/updates/*`): trainers and admins. Help pages and What changed lists, Markdown editor, history, acknowledgements panel.
+- **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*`, `/trainer/content/updates/*`, `/trainer/content/lessons/*`, `/trainer/content/modules/[code]`): trainers and admins. Help pages, What changed and Lessons lists; Markdown editor with image upload; history; module overview editor and lesson reorder.
+- **Lessons** (`/lessons`, `/lessons/[module]`, `/lessons/[module]/[lesson]`): all signed-in staff with access. Published lessons only (row-level security). The **department toggle on `/lessons` is a display filter only** — it hides modules whose published lessons are tagged for other departments; it does not change database access. Leadership briefings default visible to Senior Management, managers, trainers and admins; others can reveal them with “Show lessons for all departments”.
+- **Content images** (`/content-image/...`): signed-in staff only. The app redirects to a short-lived signed URL for objects in the private `content-images` bucket (`lessons/{id}/…` or `pages/{id}/…`). Learners never receive a permanent public storage URL.
 - **Rules and help** (`/help`, `/help/[slug]`): all signed-in staff with access. Published pages only; search uses published text.
 - **What changed** (`/what-changed`, `/what-changed/[slug]`): all signed-in staff. Opening the feed clears the sidebar unread badge for that person.
 - **Trainer › Users** (`/trainer/users`): trainers and admins. Counts, the people table, the edit panel, bulk changes and the Cohorts tab. Role and scope are shown read-only.
@@ -105,4 +109,10 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 
 ## Automated proof
 
-`npm run test:rls` signs in as synthetic people ("Test Learner Content", "Test Manager Creative" and so on) inside one database transaction per test, checks these rules, and rolls everything back. 54 cases: Prompt 03 and 04 rules plus, in `tests/rls/content-editor.test.ts`, drafts, publish functions, archived content and page acknowledgements. It needs `SUPABASE_DB_URL` (the dev database) in `.env.local`.
+## Storage (`content-images`)
+
+Private bucket `content-images`. Row-level security on `storage.objects`: any authenticated person may **read** (the app serves images via signed URLs); only trainers and admins may **insert, update or delete**. Paths are `lessons/{lesson_id}/…` or `pages/{page_id}/…`.
+
+## Automated proof
+
+`npm run test:rls` signs in as synthetic people ("Test Learner Content", "Test Manager Creative" and so on) inside one database transaction per test, checks these rules, and rolls everything back. Cases include Prompt 03 and 04 rules, `tests/rls/content-editor.test.ts` (drafts, publish, acknowledgements) and `tests/rls/lessons-images.test.ts` (lesson drafts, lesson functions, progress version, content-images upload). It needs `SUPABASE_DB_URL` (the dev database) in `.env.local`.

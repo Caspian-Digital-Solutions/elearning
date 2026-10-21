@@ -11,7 +11,7 @@ function youtubeEmbed(id: string): string | null {
   if (!youtubeId.test(id)) {
     return null;
   }
-  return `https://www.youtube.com/embed/${id}`;
+  return `https://www.youtube-nocookie.com/embed/${id}`;
 }
 
 /**

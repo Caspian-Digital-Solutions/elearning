@@ -15,6 +15,7 @@ import {
   savePageDraft,
   unpublishPage,
 } from "@/app/(app)/trainer/(restricted)/content/actions";
+import { uploadContentImage } from "@/app/(app)/trainer/(restricted)/content/image-actions";
 import { slugifyTitle } from "@/lib/content/slug";
 import { formatDateTime } from "@/lib/format";
 
@@ -143,6 +144,9 @@ export function PageEditor({
         onPublish={() => setPublishOpen(true)}
         publishVersionLabel={versionLabel}
         saving={saving}
+        imageUpload={
+          pageId ? { contentId: pageId, folder: "pages", upload: uploadContentImage } : undefined
+        }
         extraFields={
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">

@@ -7,21 +7,27 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PageListRow, UpdateListRow } from "@/lib/content/queries";
+import type { LessonListRow } from "@/lib/lessons/queries";
+import { LessonImportDialog } from "@/app/(app)/trainer/(restricted)/content/lesson-import-dialog";
 
 export function ContentScreen({
   pages,
   updates,
+  lessons,
+  defaultTab = "pages",
 }: {
   pages: PageListRow[];
   updates: UpdateListRow[];
+  lessons: LessonListRow[];
+  defaultTab?: "pages" | "updates" | "lessons";
 }) {
   return (
     <div className="space-y-6">
       <PageHeader
         title="Content"
-        purpose="Write, preview and publish help pages and What changed notes."
+        purpose="Write, preview and publish help pages, What changed notes and lessons."
       />
-      <Tabs defaultValue="pages">
+      <Tabs defaultValue={defaultTab}>
         <TabsList>
           <TabsTrigger value="pages">Help pages</TabsTrigger>
           <TabsTrigger value="updates">What changed</TabsTrigger>
@@ -81,11 +87,54 @@ export function ContentScreen({
             filters={[{ key: "statusLabel", label: "Status" }]}
           />
         </TabsContent>
-        <TabsContent value="lessons">
-          <EmptyState
-            title="Lessons"
-            description="Built in Prompt 06."
-          />
+        <TabsContent value="lessons" className="space-y-4">
+          <div className="flex flex-wrap justify-end gap-2">
+            <LessonImportDialog />
+            <Button render={<Link href="/trainer/content/lessons/new" />}>New lesson</Button>
+          </div>
+          {lessons.length === 0 ? (
+            <EmptyState title="No lessons yet" description="Create a lesson or import Markdown drafts." />
+          ) : (
+            <DataTable
+              rowKey="id"
+              columns={[
+                { key: "moduleCode", header: "Module" },
+                { key: "moduleTitle", header: "Module title" },
+                { key: "title", header: "Lesson" },
+                { key: "kindLabel", header: "Kind" },
+                { key: "statusLabel", header: "Status" },
+                { key: "version", header: "Version" },
+                { key: "departments", header: "Departments", wrap: true },
+                { key: "duration", header: "Duration" },
+                { key: "completions", header: "Completions" },
+                { key: "lastPublished", header: "Last published" },
+              ]}
+              rows={lessons}
+              caption="Lessons"
+              exportFileName="lessons.csv"
+              filters={[
+                { key: "stage", label: "Stage" },
+                { key: "moduleCode", label: "Module" },
+                { key: "kindLabel", label: "Kind" },
+                { key: "statusLabel", label: "Status" },
+                { key: "departments", label: "Department" },
+              ]}
+              rowActions={(row) => (
+                <div className="flex flex-wrap gap-1">
+                  <Button variant="outline" size="sm" render={<Link href={`/trainer/content/lessons/${row.id}`} />}>
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    render={<Link href={`/trainer/content/modules/${row.moduleCode.toLowerCase()}`} />}
+                  >
+                    Module
+                  </Button>
+                </div>
+              )}
+            />
+          )}
         </TabsContent>
       </Tabs>
     </div>

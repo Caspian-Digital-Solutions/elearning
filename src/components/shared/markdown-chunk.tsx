@@ -43,6 +43,20 @@ const components: Components = {
   ),
   th: ({ children }) => <th className="border border-border bg-surface px-2 py-1 font-medium">{children}</th>,
   td: ({ children }) => <td className="border border-border px-2 py-1">{children}</td>,
+  img: ({ src, alt }) => {
+    const href = typeof src === "string" ? src : undefined;
+    if (!href || (!href.startsWith("/content-image/") && !href.startsWith("http"))) {
+      return null;
+    }
+    return (
+      <img
+        src={href}
+        alt={alt ?? ""}
+        loading="lazy"
+        className="my-3 h-auto max-w-full rounded-lg border border-border"
+      />
+    );
+  },
 };
 
 export function MarkdownChunk({ markdown, className }: { markdown: string; className?: string }) {

@@ -4,10 +4,10 @@ import { videoEmbedUrl } from "@/lib/markdown/video-embed";
 describe("video embed allow-list", () => {
   it("embeds YouTube and Google Drive links", () => {
     expect(videoEmbedUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ")).toBe(
-      "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
     );
     expect(videoEmbedUrl("https://youtu.be/dQw4w9WgXcQ")).toBe(
-      "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
     );
     expect(videoEmbedUrl("https://drive.google.com/file/d/abcDEF_123/view")).toBe(
       "https://drive.google.com/file/d/abcDEF_123/preview",
