@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
-import { SectionPage } from "@/components/shared/stub-page";
+import { requireRole } from "@/lib/auth";
+import { loadWeek0MarkingQueue } from "@/lib/assessments/queries";
+import { MarkingScreen } from "@/app/(app)/trainer/marking/marking-screen";
 
 export const metadata: Metadata = {
   title: "Marking queue",
 };
 
-export default function Page() {
-  return <SectionPage section="marking" />;
+export default async function Page() {
+  await requireRole(["trainer", "admin", "champion"]);
+  const queue = await loadWeek0MarkingQueue(true);
+  return <MarkingScreen initialQueue={queue} />;
 }

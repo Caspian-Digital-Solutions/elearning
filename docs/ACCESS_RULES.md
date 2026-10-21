@@ -2,7 +2,7 @@
 
 Plain-English version of the row-level security (RLS) rules in `supabase/migrations/20261020090006_row_level_security.sql` and `supabase/migrations/20261020130001_users_roles_settings.sql`. RLS is a rule inside the database that decides, row by row, who can read or change data. It applies even if a page has a bug. Every table has RLS switched on.
 
-Last updated: Prompt 06, 21 Oct 2026 (lessons publish flow, content-images storage, `/content-image` route, module overview revisions).
+Last updated: Prompt 07, 21 Oct 2026 (Week 0 assessment, marking, placement, `assessment_item_keys`, placement RPCs).
 
 ## Words used below
 
@@ -36,6 +36,13 @@ Last updated: Prompt 06, 21 Oct 2026 (lessons publish flow, content-images stora
 | `content_drafts` | Trainer, admin | Trainer, admin |
 | `content_revisions` | Trainer, admin (read only) | Nobody through the app; rows are added only inside `publish_content` |
 | `page_acknowledgements` | Your own rows. Trainers and admins see all. Managers see people within their scope. | You insert your own confirmation for the current page version. No updates or deletes. |
+| `rubrics`, `rubric_criteria`, `rubric_levels` | Staff | Trainer, admin |
+| `assessments`, `assessment_sections`, `assessment_items` | Published: active staff. Draft or archived: trainer, admin. | Trainer, admin (import creates draft; publish is a separate step). |
+| `assessment_item_keys` | Trainer, admin only | Trainer, admin (import). Learners have no policy on this table. |
+| `attempts` | Your own rows. Trainer and admin see all. **Managers: no access.** | You start your own attempt (`start_attempt`). You update your own responses only while status is `in_progress`. Nobody edits another person's attempt through the app. |
+| `responses` | Same as attempts | Owner insert/update while attempt `in_progress`; trainer and admin read all. |
+| `response_scores` | Trainer and admin read and write. You read your own only **after** placement is confirmed (Week 0 result page). **Managers: no access.** | Written by `submit_attempt` (auto) or `save_mark` (trainer/admin). |
+| `placement_results` | Trainer and admin. You read your own only **after** confirmation. **Managers: no access** (they may see your confirmed **stream** on `profiles` only). | Rows created/updated by `calculate_placement` and `confirm_placement` (trainer/admin). |
 | `audit_log` | Admin only | Nobody directly. Only the automatic recorder writes rows, with the reason given for the change when there is one. Nobody can change or remove a row: not admins, and not the server's secret key. |
 
 Champions have learner rights in these tables. Their marking rights arrive with the assignment tables in Prompt 09.
@@ -85,12 +92,21 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 | `restore_revision(type, id, revision_no)` | Active trainer or admin | Copies an old revision into the draft table without publishing (page, update or lesson). | Revision not found. |
 | `update_module_overview(module_id, body_md, change_note)` | Active trainer or admin | Saves `modules.overview_md` and appends a `content_revisions` row (`content_type = module`). | Change note under five characters. |
 | `reorder_lessons(module_id, lesson_ids)` | Active trainer or admin | Sets `sort_order` on lessons in the given order within one module. | Lesson not in module; wrong role. |
+| `start_attempt(assessment_id)` | Active staff with a department | Starts or resumes your in-progress attempt on a published assessment. | No department; duplicate Week 0 attempt without retake. |
+| `submit_attempt(attempt_id, data_declaration)` | Owner of the attempt | Locks answers; auto-scores choice items from keys; sets status to marking or marked. | Not owner; missing data declaration on Week 0; no department item set. |
+| `save_mark(response_id, criterion_scores, comment_md)` | Active trainer or admin | Saves rubric marks for one response. | Wrong role; scores above criterion maxima. |
+| `calculate_placement(attempt_id)` | Active trainer or admin | Computes suggested stream, gates, bridges from current settings; stores a settings snapshot. | Not fully marked; wrong role. |
+| `confirm_placement(attempt_id, stream, reason, portfolio_reviewed)` | Active trainer or admin | Confirms stream on `placement_results` and updates `profiles.stream`. | Override without reason; Champion without portfolio reviewed. |
+| `allow_retake(user_id, assessment_id, reason)` | Active trainer or admin | Allows a new Week 0 attempt for that person. | Reason too short; wrong role. |
 | `mark_updates_seen()` | Any active signed-in person | Sets *your own* `updates_seen_at` when you open What changed. | Paused people (nothing happens). |
 | `search_help_pages(query)` | Any active signed-in person | Full-text search over published help pages. | — |
 
 ## Screens and who can use them
 
-- **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*`, `/trainer/content/updates/*`, `/trainer/content/lessons/*`, `/trainer/content/modules/[code]`): trainers and admins. Help pages, What changed and Lessons lists; Markdown editor with image upload; history; module overview editor and lesson reorder.
+- **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*`, `/trainer/content/updates/*`, `/trainer/content/lessons/*`, `/trainer/content/modules/[code]`, assessments import/preview): trainers and admins. Help pages, What changed, Lessons and Assessments lists; Markdown editor with image upload; history; module overview editor and lesson reorder.
+- **Assessments** (`/assessments`, `/assessments/[code]`): active staff with a department. Published assessments only. The learner API never returns `assessment_item_keys` or option points.
+- **Trainer › Marking** (`/trainer/marking`): trainers and admins (Week 0 tab in Prompt 07). Champions gain assignment marking in Prompt 09.
+- **Trainer › Placements** (`/trainer/placements`): trainers and admins. Calculate, confirm and retake Week 0 placements.
 - **Lessons** (`/lessons`, `/lessons/[module]`, `/lessons/[module]/[lesson]`): all signed-in staff with access. Published lessons only (row-level security). The **department toggle on `/lessons` is a display filter only** — it hides modules whose published lessons are tagged for other departments; it does not change database access. Leadership briefings default visible to Senior Management, managers, trainers and admins; others can reveal them with “Show lessons for all departments”.
 - **Content images** (`/content-image/...`): signed-in staff only. The app redirects to a short-lived signed URL for objects in the private `content-images` bucket (`lessons/{id}/…` or `pages/{id}/…`). Learners never receive a permanent public storage URL.
 - **Rules and help** (`/help`, `/help/[slug]`): all signed-in staff with access. Published pages only; search uses published text.
@@ -98,6 +114,11 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 - **Trainer › Users** (`/trainer/users`): trainers and admins. Counts, the people table, the edit panel, bulk changes and the Cohorts tab. Role and scope are shown read-only.
 - **Admin › Roles** (`/admin/roles`), **Admin › Settings** (`/admin/settings`), **Admin › Audit log** (`/admin/audit`, and its CSV export at `/admin/audit/export`): admins only.
 - Each page checks the role on the server, each server action checks the real role again before calling the database (a preview role never counts), and the database checks a third time.
+
+## Assumptions in Prompt 07
+
+- Week 0 placement is **suggested** by the platform and **confirmed** by a trainer; `profiles.stream` changes only through `confirm_placement` (or admin user tools with audit).
+- Managers do not read `attempts`, `response_scores` or `placement_results`; they may see a person's confirmed stream on `profiles` after confirmation (DL-022).
 
 ## Assumptions in Prompt 04
 
@@ -107,12 +128,10 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 - ASSUMPTION: a cohort nobody is in may be deleted; one with people may only be archived.
 - ASSUMPTION: a paused person loses even the right to rename themselves and un-mark lessons.
 
-## Automated proof
-
 ## Storage (`content-images`)
 
 Private bucket `content-images`. Row-level security on `storage.objects`: any authenticated person may **read** (the app serves images via signed URLs); only trainers and admins may **insert, update or delete**. Paths are `lessons/{lesson_id}/…` or `pages/{page_id}/…`.
 
 ## Automated proof
 
-`npm run test:rls` signs in as synthetic people ("Test Learner Content", "Test Manager Creative" and so on) inside one database transaction per test, checks these rules, and rolls everything back. Cases include Prompt 03 and 04 rules, `tests/rls/content-editor.test.ts` (drafts, publish, acknowledgements) and `tests/rls/lessons-images.test.ts` (lesson drafts, lesson functions, progress version, content-images upload). It needs `SUPABASE_DB_URL` (the dev database) in `.env.local`.
+`npm run test:rls` signs in as synthetic people ("Test Learner Content", "Test Manager Creative" and so on) inside one database transaction per test, checks these rules, and rolls everything back. Cases include Prompt 03 and 04 rules, `tests/rls/content-editor.test.ts`, `tests/rls/lessons-images.test.ts`, and `tests/rls/assessment-placement.test.ts` (keys, attempts, placement confirm). It needs `SUPABASE_DB_URL` (the dev database) in `.env.local`.

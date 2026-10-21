@@ -5,6 +5,7 @@ export const settingNames: Record<string, string> = {
   "placement.gates": "Placement gates",
   "placement.bands": "Placement bands",
   "placement.week0_sections": "Week-0 sections",
+  "placement.bridge_modules": "Bridge modules",
   "certification.foundation": "Foundation certification",
   "certification.department": "Department certification",
 };
@@ -43,6 +44,15 @@ export function summariseSetting(key: string, value: Json | unknown): string {
           .filter(isRecord)
           .map((section) => `${section.name} ${section.max ?? "no max"}${section.counts_in_total ? "" : " (not counted)"}`)
           .join("; ");
+      }
+      break;
+    case "placement.bridge_modules":
+      if (isRecord(value.modules)) {
+        const parts = Object.entries(value.modules).map(([domain, codes]) => {
+          const list = Array.isArray(codes) ? codes.join(", ") : "";
+          return `${domain}: ${list || "none"}`;
+        });
+        return parts.join("; ");
       }
       break;
     case "certification.foundation":

@@ -45,5 +45,7 @@ async function SettingsData() {
     updatedAt: row.updated_at,
     updatedBy: row.profiles ? row.profiles.full_name?.trim() || row.profiles.email : null,
   }));
-  return <SettingsScreen settings={settings} />;
+  const { data: modules } = await supabase.from("modules").select("code").order("code");
+  const moduleCodes = (modules ?? []).map((row) => row.code);
+  return <SettingsScreen settings={settings} moduleCodes={moduleCodes} />;
 }

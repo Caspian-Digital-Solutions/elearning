@@ -48,6 +48,8 @@ export function SettingForm({
       return <BandsForm initial={initial} onChange={onChange} />;
     case "placement.week0_sections":
       return <SectionsForm initial={initial} onChange={onChange} />;
+    case "placement.bridge_modules":
+      return <BridgeModulesForm initial={initial} onChange={onChange} />;
     case "certification.foundation":
       return <FoundationForm initial={initial} onChange={onChange} />;
     case "certification.department":
@@ -378,6 +380,60 @@ function DepartmentForm({ initial, onChange }: { initial: Json; onChange: OnChan
         onChange({ ...base, live_use_weeks_required: toNumber(value) });
       }}
     />
+  );
+}
+
+const domainCodes = ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"];
+
+function BridgeModulesForm({ initial, onChange }: { initial: Json; onChange: OnChange }) {
+  const base = asObject(initial);
+  const modulesMap = asObject(base.modules);
+  const [rows, setRows] = useState(() =>
+    domainCodes.map((code) => ({
+      domain: code,
+      text: Array.isArray(modulesMap[code])
+        ? (modulesMap[code] as unknown[]).filter((v) => typeof v === "string").join(", ")
+        : "",
+    })),
+  );
+
+  function emit(next: typeof rows) {
+    setRows(next);
+    const modules: JsonObject = {};
+    for (const row of next) {
+      const codes = row.text
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean);
+      if (codes.length > 0) {
+        modules[row.domain] = codes;
+      }
+    }
+    onChange({ ...base, modules });
+  }
+
+  return (
+    <fieldset className="space-y-3">
+      <legend className="font-medium">Bridge modules by domain</legend>
+      <p className="text-sm text-muted-foreground">
+        For Practitioner placements, domains below the bridge threshold suggest these modules. Separate codes with commas.
+      </p>
+      {rows.map((row, index) => (
+        <div key={row.domain} className="space-y-1">
+          <Label>{row.domain}</Label>
+          <Input
+            value={row.text}
+            placeholder="F1, F2"
+            onChange={(event) => {
+              const next = rows.map((entry, position) =>
+                position === index ? { ...entry, text: event.target.value } : entry,
+              );
+              emit(next);
+            }}
+          />
+        </div>
+      ))}
+    </fieldset>
   );
 }
 

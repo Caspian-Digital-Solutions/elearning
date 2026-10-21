@@ -9,17 +9,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PageListRow, UpdateListRow } from "@/lib/content/queries";
 import type { LessonListRow } from "@/lib/lessons/queries";
 import { LessonImportDialog } from "@/app/(app)/trainer/(restricted)/content/lesson-import-dialog";
+import { AssessmentImportDialog } from "@/app/(app)/trainer/(restricted)/content/assessment-import-dialog";
+import { AssessmentPreviewDialog } from "@/app/(app)/trainer/(restricted)/content/assessment-preview-dialog";
+import type { TrainerAssessmentListRow } from "@/lib/assessments/queries";
+import { publishAssessment } from "@/app/(app)/trainer/(restricted)/content/assessment-actions";
 
 export function ContentScreen({
   pages,
   updates,
   lessons,
+  assessments,
   defaultTab = "pages",
 }: {
   pages: PageListRow[];
   updates: UpdateListRow[];
   lessons: LessonListRow[];
-  defaultTab?: "pages" | "updates" | "lessons";
+  assessments: TrainerAssessmentListRow[];
+  defaultTab?: "pages" | "updates" | "lessons" | "assessments";
 }) {
   return (
     <div className="space-y-6">
@@ -32,6 +38,7 @@ export function ContentScreen({
           <TabsTrigger value="pages">Help pages</TabsTrigger>
           <TabsTrigger value="updates">What changed</TabsTrigger>
           <TabsTrigger value="lessons">Lessons</TabsTrigger>
+          <TabsTrigger value="assessments">Assessments</TabsTrigger>
         </TabsList>
         <TabsContent value="pages" className="space-y-4">
           <div className="flex justify-end">
@@ -135,6 +142,60 @@ export function ContentScreen({
               )}
             />
           )}
+        </TabsContent>
+        <TabsContent value="assessments" className="space-y-4">
+          <div className="flex justify-end">
+            <AssessmentImportDialog />
+          </div>
+          <DataTable
+            rowKey="id"
+            columns={[
+              { key: "code", header: "Code" },
+              { key: "title", header: "Title" },
+              { key: "typeLabel", header: "Type" },
+              { key: "version", header: "Version" },
+              { key: "statusLabel", header: "Status" },
+              { key: "sampleLabel", header: "Sample" },
+              { key: "itemCount", header: "Items" },
+              { key: "attemptCount", header: "Attempts" },
+            ]}
+            rows={assessments.map((row) => ({
+              id: row.id,
+              code: row.code,
+              title: row.title,
+              typeLabel: row.typeLabel,
+              version: String(row.version),
+              statusLabel: row.statusLabel,
+              sampleLabel: row.isSample ? "Yes" : "No",
+              itemCount: String(row.itemCount),
+              attemptCount: String(row.attemptCount),
+            }))}
+            caption="Assessments"
+            exportFileName="assessments.csv"
+            filters={[{ key: "statusLabel", label: "Status" }, { key: "typeLabel", label: "Type" }]}
+            rowActions={(row) => (
+              <div className="flex flex-wrap gap-1">
+                <AssessmentPreviewDialog assessmentId={row.id} />
+                {row.statusLabel === "Draft" ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() =>
+                      void publishAssessment({ id: row.id, changeNote: "Published from content screen." }).then(
+                        (result) => {
+                          if (result.ok) {
+                            window.location.reload();
+                          }
+                        },
+                      )
+                    }
+                  >
+                    Publish
+                  </Button>
+                ) : null}
+              </div>
+            )}
+          />
         </TabsContent>
       </Tabs>
     </div>

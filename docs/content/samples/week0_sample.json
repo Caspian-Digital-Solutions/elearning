@@ -1,0 +1,398 @@
+{
+  "assessment": {
+    "code": "week0",
+    "title": "SAMPLE Week 0 — not for real use",
+    "type": "placement",
+    "instructions_md": "This is a **sample** Week 0 assessment for platform testing only. Answers are fictional. Allow about two hours; you may pause and return.",
+    "time_guide_min": 120,
+    "is_sample": true
+  },
+  "sections": [
+    {
+      "code": "knowledge",
+      "title": "Knowledge",
+      "max_score": 25,
+      "counts_in_total": true,
+      "instructions_md": "Multiple-choice and profile questions. Profile answers are not scored."
+    },
+    {
+      "code": "prompting",
+      "title": "Prompting",
+      "max_score": 25,
+      "counts_in_total": true,
+      "instructions_md": "Show how you would prompt Claude for a realistic task."
+    },
+    {
+      "code": "department",
+      "title": "Department task",
+      "max_score": 25,
+      "counts_in_total": true,
+      "instructions_md": "You will see one practical task for your department."
+    },
+    {
+      "code": "safety",
+      "title": "Safety and judgement",
+      "max_score": 15,
+      "counts_in_total": true,
+      "instructions_md": "Choose the safest response and explain your reasoning where asked."
+    },
+    {
+      "code": "workflow",
+      "title": "Workflow",
+      "max_score": 10,
+      "counts_in_total": true,
+      "instructions_md": "Describe how AI fits into your day-to-day work."
+    },
+    {
+      "code": "technical",
+      "title": "Technical supplement (optional)",
+      "max_score": null,
+      "counts_in_total": false,
+      "instructions_md": "Optional. Does not count toward your placement total."
+    }
+  ],
+  "rubrics": [
+    {
+      "ref": "R-PROMPT-1",
+      "title": "Prompting practical (sample)",
+      "criteria": [
+        {
+          "name": "Context and constraints",
+          "max_score": 8,
+          "levels": [
+            { "score": 0, "descriptor": "Missing audience, task or limits." },
+            { "score": 4, "descriptor": "Some context; gaps remain." },
+            { "score": 8, "descriptor": "Clear audience, task and constraints." }
+          ]
+        },
+        {
+          "name": "Structure and clarity",
+          "max_score": 9,
+          "levels": [
+            { "score": 0, "descriptor": "Hard to follow." },
+            { "score": 5, "descriptor": "Readable with minor issues." },
+            { "score": 9, "descriptor": "Well structured and unambiguous." }
+          ]
+        },
+        {
+          "name": "Verification step",
+          "max_score": 8,
+          "levels": [
+            { "score": 0, "descriptor": "No plan to check output." },
+            { "score": 4, "descriptor": "Vague check mentioned." },
+            { "score": 8, "descriptor": "Concrete verification step included." }
+          ]
+        }
+      ]
+    },
+    {
+      "ref": "R-DEPT-TASK",
+      "title": "Department practical (sample)",
+      "criteria": [
+        {
+          "name": "Task fit",
+          "max_score": 10,
+          "levels": [
+            { "score": 0, "descriptor": "Off brief." },
+            { "score": 5, "descriptor": "Partly on brief." },
+            { "score": 10, "descriptor": "Fully on brief for the department." }
+          ]
+        },
+        {
+          "name": "Responsible use",
+          "max_score": 8,
+          "levels": [
+            { "score": 0, "descriptor": "Ignores data or approval rules." },
+            { "score": 4, "descriptor": "Some safeguards." },
+            { "score": 8, "descriptor": "Follows fictional client-safe rules." }
+          ]
+        },
+        {
+          "name": "Usable output",
+          "max_score": 7,
+          "levels": [
+            { "score": 0, "descriptor": "Not usable without rework." },
+            { "score": 4, "descriptor": "Needs edits." },
+            { "score": 7, "descriptor": "Ready for fictional next step." }
+          ]
+        }
+      ]
+    },
+    {
+      "ref": "R-SAFETY-ST",
+      "title": "Safety short response (sample)",
+      "criteria": [
+        {
+          "name": "Judgement",
+          "max_score": 5,
+          "levels": [
+            { "score": 0, "descriptor": "Unsafe or unclear." },
+            { "score": 3, "descriptor": "Mostly safe; thin reasoning." },
+            { "score": 5, "descriptor": "Safe choice with clear reasoning." }
+          ]
+        }
+      ]
+    },
+    {
+      "ref": "R-WORKFLOW-ST",
+      "title": "Workflow short response (sample)",
+      "criteria": [
+        {
+          "name": "Realistic workflow",
+          "max_score": 6,
+          "levels": [
+            { "score": 0, "descriptor": "Not grounded in real work." },
+            { "score": 3, "descriptor": "Partially realistic." },
+            { "score": 6, "descriptor": "Concrete, realistic steps." }
+          ]
+        },
+        {
+          "name": "Human oversight",
+          "max_score": 4,
+          "levels": [
+            { "score": 0, "descriptor": "No human check described." },
+            { "score": 2, "descriptor": "Vague oversight." },
+            { "score": 4, "descriptor": "Clear human review point." }
+          ]
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "ref": "P01",
+      "section": "knowledge",
+      "type": "profile",
+      "domain": "C1",
+      "points": 0,
+      "prompt_md": "Which tools do you use for work-related AI today? (Select all that apply.)",
+      "options": [
+        { "id": "chatgpt", "text": "Personal ChatGPT account", "points": 0 },
+        { "id": "claude", "text": "Approved Claude workspace", "points": 0 },
+        { "id": "none", "text": "None yet", "points": 0 }
+      ]
+    },
+    {
+      "ref": "P02",
+      "section": "knowledge",
+      "type": "profile",
+      "domain": "C4",
+      "points": 0,
+      "prompt_md": "Have you completed the fictional agency data-rules briefing?",
+      "options": [
+        { "id": "yes", "text": "Yes", "points": 0 },
+        { "id": "no", "text": "Not yet", "points": 0 }
+      ]
+    },
+    {
+      "ref": "P03",
+      "section": "knowledge",
+      "type": "profile",
+      "domain": "C9",
+      "points": 0,
+      "prompt_md": "Roughly how many hours per week do you spend on repeatable copy tasks?",
+      "options": [
+        { "id": "lt2", "text": "Under 2 hours", "points": 0 },
+        { "id": "2to5", "text": "2–5 hours", "points": 0 },
+        { "id": "gt5", "text": "More than 5 hours", "points": 0 }
+      ]
+    },
+    {
+      "ref": "K01",
+      "section": "knowledge",
+      "type": "choice",
+      "domain": "C1",
+      "difficulty": 1,
+      "points": 5,
+      "prompt_md": "What is a **token** in the context of large language models?",
+      "options": [
+        { "id": "a", "text": "A secret API password", "points": 0 },
+        { "id": "b", "text": "A chunk of text the model reads or writes", "points": 5 },
+        { "id": "c", "text": "A type of computer virus", "points": 0 }
+      ],
+      "explanation_md": "Models process text as tokens (pieces of words)."
+    },
+    {
+      "ref": "K02",
+      "section": "knowledge",
+      "type": "choice",
+      "domain": "C3",
+      "difficulty": 2,
+      "points": 5,
+      "prompt_md": "You need to quote a statistic in a blog post. What is the best first step?",
+      "options": [
+        { "id": "a", "text": "Ask Claude for the number and paste it", "points": 0 },
+        { "id": "b", "text": "Verify against a primary or client-approved source", "points": 5 },
+        { "id": "c", "text": "Use the highest number to sound impressive", "points": 0 }
+      ],
+      "explanation_md": "Always trace figures to an approved source."
+    },
+    {
+      "ref": "K03",
+      "section": "knowledge",
+      "type": "choice",
+      "domain": "C4",
+      "difficulty": 2,
+      "points": 5,
+      "prompt_md": "A colleague pastes a **fictional** client name into a public chatbot. What do you do?",
+      "options": [
+        { "id": "a", "text": "Ignore it", "points": 0 },
+        { "id": "b", "text": "Remind them to remove client identifiers and use approved tools", "points": 5 },
+        { "id": "c", "text": "Screenshot and share externally", "points": 0 }
+      ]
+    },
+    {
+      "ref": "K04",
+      "section": "knowledge",
+      "type": "choice",
+      "domain": "C6",
+      "difficulty": 2,
+      "points": 5,
+      "prompt_md": "When should you attach a **Project** knowledge file in Claude?",
+      "options": [
+        { "id": "a", "text": "Whenever you want the model to guess policies", "points": 0 },
+        { "id": "b", "text": "When stable reference material should ground answers", "points": 3 },
+        { "id": "c", "text": "Only when the file contains live client PII", "points": 0 },
+        { "id": "d", "text": "When stable reference material should ground answers (full credit)", "points": 5 }
+      ],
+      "explanation_md": "Partial credit option b; best answer is d."
+    },
+    {
+      "ref": "K05",
+      "section": "knowledge",
+      "type": "choice",
+      "domain": "C2",
+      "difficulty": 3,
+      "points": 5,
+      "prompt_md": "Which prompt addition most improves **first-draft** quality for a brief?",
+      "options": [
+        { "id": "a", "text": "Write something good", "points": 0 },
+        { "id": "b", "text": "Audience, format, tone and constraints", "points": 5 },
+        { "id": "c", "text": "Make it longer", "points": 1 }
+      ],
+      "explanation_md": "Structure beats vague instructions."
+    },
+    {
+      "ref": "PR01",
+      "section": "prompting",
+      "type": "practical",
+      "domain": "C2",
+      "difficulty": 2,
+      "points": 25,
+      "response_format": "prompt_and_output",
+      "rubric": "R-PROMPT-1",
+      "prompt_md": "Draft a prompt (and show fictional output) to turn bullet notes into a client-ready email summary. Use the **Acme Widgets** fictional brand only.",
+      "model_answer_md": "Prompt names role, audience, tone, length, and a verification step. Output is clearly labelled as fictional.",
+      "marking_notes_md": "Do not penalise brand names that are clearly fictional."
+    },
+    {
+      "ref": "D-CONTENT",
+      "section": "department",
+      "type": "practical",
+      "department": "content",
+      "domain": "C2",
+      "difficulty": 2,
+      "points": 25,
+      "response_format": "prompt_and_output",
+      "rubric": "R-DEPT-TASK",
+      "prompt_md": "Write a prompt to repurpose a fictional blog outline into three LinkedIn posts. Include an editor approval step.",
+      "model_answer_md": "Shows structured prompt and three distinct post drafts with approval note.",
+      "marking_notes_md": "Content boundary: nothing publishes without editor sign-off."
+    },
+    {
+      "ref": "D-CREATIVE",
+      "section": "department",
+      "type": "practical",
+      "department": "creative",
+      "domain": "C3",
+      "difficulty": 2,
+      "points": 25,
+      "response_format": "prompt_and_output",
+      "rubric": "R-DEPT-TASK",
+      "prompt_md": "Describe how you would use Claude for **copy** for a fictional campaign mood board — not final visuals.",
+      "model_answer_md": "Copy-only; references human designer for visuals.",
+      "marking_notes_md": "Creative boundary: Claude does not produce final visuals."
+    },
+    {
+      "ref": "D-PERF",
+      "section": "department",
+      "type": "practical",
+      "department": "performance",
+      "domain": "C3",
+      "difficulty": 2,
+      "points": 25,
+      "response_format": "prompt_and_output",
+      "rubric": "R-DEPT-TASK",
+      "prompt_md": "Explain how you would summarise fictional export metrics for a weekly performance email without inventing figures.",
+      "model_answer_md": "Requires pasted metrics and traceable sources.",
+      "marking_notes_md": "Performance boundary: no figure without an export."
+    },
+    {
+      "ref": "S01",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C4",
+      "difficulty": 2,
+      "points": 5,
+      "prompt_md": "May you paste **real** employee performance reviews into a public AI tool?",
+      "options": [
+        { "id": "a", "text": "Yes, if you delete names later", "points": 0 },
+        { "id": "b", "text": "No — use approved tools and redact identifiers", "points": 5 }
+      ]
+    },
+    {
+      "ref": "S02",
+      "section": "safety",
+      "type": "choice",
+      "domain": "C4",
+      "difficulty": 2,
+      "points": 5,
+      "prompt_md": "A model gives a confident medical claim for a health client. What is safest?",
+      "options": [
+        { "id": "a", "text": "Publish immediately", "points": 0 },
+        { "id": "b", "text": "Escalate for human expert review", "points": 5 },
+        { "id": "c", "text": "Add more adjectives", "points": 0 }
+      ]
+    },
+    {
+      "ref": "S03",
+      "section": "safety",
+      "type": "short_text",
+      "domain": "C4",
+      "difficulty": 2,
+      "points": 5,
+      "response_format": "text",
+      "rubric": "R-SAFETY-ST",
+      "prompt_md": "In one or two sentences, how would you handle a request to put **fictional** client secrets into a shared chat?",
+      "model_answer_md": "Decline, use approved tooling, escalate if unsure.",
+      "marking_notes_md": "Look for escalation and no client data in shared chats."
+    },
+    {
+      "ref": "W01",
+      "section": "workflow",
+      "type": "short_text",
+      "domain": "C9",
+      "difficulty": 2,
+      "points": 10,
+      "response_format": "text",
+      "rubric": "R-WORKFLOW-ST",
+      "prompt_md": "Describe one repeatable task you could speed up with AI and where a human would still review the result.",
+      "model_answer_md": "Names task, tool boundary, and review step.",
+      "marking_notes_md": "Accept any realistic fictional workflow."
+    },
+    {
+      "ref": "T01",
+      "section": "technical",
+      "type": "choice",
+      "domain": "C7",
+      "difficulty": 3,
+      "points": 5,
+      "prompt_md": "(Optional) What does an API **rate limit** usually protect against?",
+      "options": [
+        { "id": "a", "text": "Too many requests in a short time", "points": 5 },
+        { "id": "b", "text": "Grammar mistakes", "points": 0 }
+      ],
+      "explanation_md": "Rate limits throttle excessive calls."
+    }
+  ]
+}

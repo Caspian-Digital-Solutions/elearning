@@ -49,7 +49,13 @@ const columns: DataColumn<SettingRow>[] = [
   { key: "changedAt", header: "When", sortKey: "changedAtSort" },
 ];
 
-export function SettingsScreen({ settings }: { settings: SettingRecord[] }) {
+export function SettingsScreen({
+  settings,
+  moduleCodes,
+}: {
+  settings: SettingRecord[];
+  moduleCodes: string[];
+}) {
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const editing = settings.find((setting) => setting.key === editingKey) ?? null;
   const current = useMemo(
@@ -89,7 +95,13 @@ export function SettingsScreen({ settings }: { settings: SettingRecord[] }) {
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditingKey(null)}>
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
           {editing ? (
-            <SettingEditor key={editing.key} setting={editing} current={current} onClose={() => setEditingKey(null)} />
+            <SettingEditor
+              key={editing.key}
+              setting={editing}
+              current={current}
+              moduleCodes={moduleCodes}
+              onClose={() => setEditingKey(null)}
+            />
           ) : null}
         </DialogContent>
       </Dialog>
@@ -100,10 +112,12 @@ export function SettingsScreen({ settings }: { settings: SettingRecord[] }) {
 function SettingEditor({
   setting,
   current,
+  moduleCodes,
   onClose,
 }: {
   setting: SettingRecord;
   current: Record<string, Json>;
+  moduleCodes: string[];
   onClose: () => void;
 }) {
   const id = useId();
@@ -121,7 +135,7 @@ function SettingEditor({
     if (draftError) {
       problems.push(draftError);
     } else {
-      const result = checkSetting(setting.key, draft, current);
+      const result = checkSetting(setting.key, draft, current, moduleCodes);
       if (result.ok) checked = result.value;
       else problems.push(...result.errors);
     }

@@ -73,6 +73,331 @@ export type Database = {
           },
         ];
       };
+      assessment_item_keys: {
+        Row: {
+          created_at: string;
+          explanation_md: string | null;
+          id: string;
+          item_id: string;
+          marking_notes_md: string | null;
+          model_answer_md: string | null;
+          option_points: NonNullable<Json>;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          explanation_md?: string | null;
+          id?: string;
+          item_id: string;
+          marking_notes_md?: string | null;
+          model_answer_md?: string | null;
+          option_points?: NonNullable<Json>;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          explanation_md?: string | null;
+          id?: string;
+          item_id?: string;
+          marking_notes_md?: string | null;
+          model_answer_md?: string | null;
+          option_points?: NonNullable<Json>;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assessment_item_keys_item_id_fkey";
+            columns: ["item_id"];
+            isOneToOne: true;
+            referencedRelation: "assessment_items";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      assessment_items: {
+        Row: {
+          assessment_id: string;
+          created_at: string;
+          department_id: string | null;
+          difficulty: number | null;
+          domain_id: string | null;
+          id: string;
+          options: NonNullable<Json>;
+          points: number;
+          prompt_md: string;
+          ref: string;
+          response_format:
+            Database["public"]["Enums"]["response_format"] | null;
+          rubric_id: string | null;
+          section_id: string;
+          sort_order: number;
+          type: Database["public"]["Enums"]["item_type"];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assessment_id: string;
+          created_at?: string;
+          department_id?: string | null;
+          difficulty?: number | null;
+          domain_id?: string | null;
+          id?: string;
+          options?: NonNullable<Json>;
+          points?: number;
+          prompt_md?: string;
+          ref: string;
+          response_format?:
+            Database["public"]["Enums"]["response_format"] | null;
+          rubric_id?: string | null;
+          section_id: string;
+          sort_order?: number;
+          type: Database["public"]["Enums"]["item_type"];
+          updated_at?: string;
+        };
+        Update: {
+          assessment_id?: string;
+          created_at?: string;
+          department_id?: string | null;
+          difficulty?: number | null;
+          domain_id?: string | null;
+          id?: string;
+          options?: NonNullable<Json>;
+          points?: number;
+          prompt_md?: string;
+          ref?: string;
+          response_format?:
+            Database["public"]["Enums"]["response_format"] | null;
+          rubric_id?: string | null;
+          section_id?: string;
+          sort_order?: number;
+          type?: Database["public"]["Enums"]["item_type"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assessment_items_assessment_id_fkey";
+            columns: ["assessment_id"];
+            isOneToOne: false;
+            referencedRelation: "assessments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assessment_items_department_id_fkey";
+            columns: ["department_id"];
+            isOneToOne: false;
+            referencedRelation: "departments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assessment_items_domain_id_fkey";
+            columns: ["domain_id"];
+            isOneToOne: false;
+            referencedRelation: "competency_domains";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assessment_items_rubric_id_fkey";
+            columns: ["rubric_id"];
+            isOneToOne: false;
+            referencedRelation: "rubrics";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assessment_items_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "assessment_sections";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      assessment_sections: {
+        Row: {
+          assessment_id: string;
+          code: string;
+          counts_in_total: boolean;
+          created_at: string;
+          id: string;
+          instructions_md: string;
+          max_score: number | null;
+          sort_order: number;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assessment_id: string;
+          code: string;
+          counts_in_total?: boolean;
+          created_at?: string;
+          id?: string;
+          instructions_md?: string;
+          max_score?: number | null;
+          sort_order?: number;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          assessment_id?: string;
+          code?: string;
+          counts_in_total?: boolean;
+          created_at?: string;
+          id?: string;
+          instructions_md?: string;
+          max_score?: number | null;
+          sort_order?: number;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assessment_sections_assessment_id_fkey";
+            columns: ["assessment_id"];
+            isOneToOne: false;
+            referencedRelation: "assessments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      assessments: {
+        Row: {
+          code: string;
+          created_at: string;
+          id: string;
+          instructions_md: string;
+          is_sample: boolean;
+          module_id: string | null;
+          pass_mark: number | null;
+          published_at: string | null;
+          published_by: string | null;
+          status: Database["public"]["Enums"]["content_status"];
+          time_guide_min: number | null;
+          title: string;
+          type: Database["public"]["Enums"]["assessment_type"];
+          updated_at: string;
+          version: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          created_at?: string;
+          id?: string;
+          instructions_md?: string;
+          is_sample?: boolean;
+          module_id?: string | null;
+          pass_mark?: number | null;
+          published_at?: string | null;
+          published_by?: string | null;
+          status?: Database["public"]["Enums"]["content_status"];
+          time_guide_min?: number | null;
+          title: string;
+          type: Database["public"]["Enums"]["assessment_type"];
+          updated_at?: string;
+          version?: number;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          id?: string;
+          instructions_md?: string;
+          is_sample?: boolean;
+          module_id?: string | null;
+          pass_mark?: number | null;
+          published_at?: string | null;
+          published_by?: string | null;
+          status?: Database["public"]["Enums"]["content_status"];
+          time_guide_min?: number | null;
+          title?: string;
+          type?: Database["public"]["Enums"]["assessment_type"];
+          updated_at?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assessments_module_id_fkey";
+            columns: ["module_id"];
+            isOneToOne: false;
+            referencedRelation: "modules";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assessments_published_by_fkey";
+            columns: ["published_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      attempts: {
+        Row: {
+          allowed_by: string | null;
+          assessment_id: string;
+          created_at: string;
+          data_declaration: boolean;
+          id: string;
+          meta: NonNullable<Json>;
+          seconds_active: number | null;
+          started_at: string;
+          status: Database["public"]["Enums"]["attempt_status"];
+          submitted_at: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          allowed_by?: string | null;
+          assessment_id: string;
+          created_at?: string;
+          data_declaration?: boolean;
+          id?: string;
+          meta?: NonNullable<Json>;
+          seconds_active?: number | null;
+          started_at?: string;
+          status?: Database["public"]["Enums"]["attempt_status"];
+          submitted_at?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          allowed_by?: string | null;
+          assessment_id?: string;
+          created_at?: string;
+          data_declaration?: boolean;
+          id?: string;
+          meta?: NonNullable<Json>;
+          seconds_active?: number | null;
+          started_at?: string;
+          status?: Database["public"]["Enums"]["attempt_status"];
+          submitted_at?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "attempts_allowed_by_fkey";
+            columns: ["allowed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "attempts_assessment_id_fkey";
+            columns: ["assessment_id"];
+            isOneToOne: false;
+            referencedRelation: "assessments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "attempts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       audit_log: {
         Row: {
           action: string;
@@ -750,6 +1075,95 @@ export type Database = {
           },
         ];
       };
+      placement_results: {
+        Row: {
+          attempt_id: string;
+          bridges: string[];
+          confirmed_at: string | null;
+          confirmed_by: string | null;
+          confirmed_stream: Database["public"]["Enums"]["stream_type"] | null;
+          created_at: string;
+          domain_percentages: NonNullable<Json>;
+          gates_failed: string[];
+          id: string;
+          override_reason: string | null;
+          portfolio_reviewed: boolean;
+          required_domain_flags: string[];
+          section_scores: NonNullable<Json>;
+          settings_snapshot: NonNullable<Json>;
+          suggested_band: string | null;
+          suggested_stream: Database["public"]["Enums"]["stream_type"] | null;
+          total: number;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attempt_id: string;
+          bridges?: string[];
+          confirmed_at?: string | null;
+          confirmed_by?: string | null;
+          confirmed_stream?: Database["public"]["Enums"]["stream_type"] | null;
+          created_at?: string;
+          domain_percentages?: NonNullable<Json>;
+          gates_failed?: string[];
+          id?: string;
+          override_reason?: string | null;
+          portfolio_reviewed?: boolean;
+          required_domain_flags?: string[];
+          section_scores?: NonNullable<Json>;
+          settings_snapshot?: NonNullable<Json>;
+          suggested_band?: string | null;
+          suggested_stream?: Database["public"]["Enums"]["stream_type"] | null;
+          total?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          attempt_id?: string;
+          bridges?: string[];
+          confirmed_at?: string | null;
+          confirmed_by?: string | null;
+          confirmed_stream?: Database["public"]["Enums"]["stream_type"] | null;
+          created_at?: string;
+          domain_percentages?: NonNullable<Json>;
+          gates_failed?: string[];
+          id?: string;
+          override_reason?: string | null;
+          portfolio_reviewed?: boolean;
+          required_domain_flags?: string[];
+          section_scores?: NonNullable<Json>;
+          settings_snapshot?: NonNullable<Json>;
+          suggested_band?: string | null;
+          suggested_stream?: Database["public"]["Enums"]["stream_type"] | null;
+          total?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "placement_results_attempt_id_fkey";
+            columns: ["attempt_id"];
+            isOneToOne: true;
+            referencedRelation: "attempts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "placement_results_confirmed_by_fkey";
+            columns: ["confirmed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "placement_results_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           cohort_id: string | null;
@@ -819,6 +1233,207 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      response_scores: {
+        Row: {
+          auto_score: number | null;
+          comment_md: string | null;
+          created_at: string;
+          criterion_scores: Json | null;
+          id: string;
+          marked_at: string | null;
+          marked_by: string | null;
+          marker_score: number | null;
+          response_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          auto_score?: number | null;
+          comment_md?: string | null;
+          created_at?: string;
+          criterion_scores?: Json | null;
+          id?: string;
+          marked_at?: string | null;
+          marked_by?: string | null;
+          marker_score?: number | null;
+          response_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          auto_score?: number | null;
+          comment_md?: string | null;
+          created_at?: string;
+          criterion_scores?: Json | null;
+          id?: string;
+          marked_at?: string | null;
+          marked_by?: string | null;
+          marker_score?: number | null;
+          response_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "response_scores_marked_by_fkey";
+            columns: ["marked_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "response_scores_response_id_fkey";
+            columns: ["response_id"];
+            isOneToOne: true;
+            referencedRelation: "responses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      responses: {
+        Row: {
+          answer: NonNullable<Json>;
+          attempt_id: string;
+          created_at: string;
+          id: string;
+          item_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answer?: NonNullable<Json>;
+          attempt_id: string;
+          created_at?: string;
+          id?: string;
+          item_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          answer?: NonNullable<Json>;
+          attempt_id?: string;
+          created_at?: string;
+          id?: string;
+          item_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "responses_attempt_id_fkey";
+            columns: ["attempt_id"];
+            isOneToOne: false;
+            referencedRelation: "attempts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "responses_item_id_fkey";
+            columns: ["item_id"];
+            isOneToOne: false;
+            referencedRelation: "assessment_items";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      rubric_criteria: {
+        Row: {
+          created_at: string;
+          id: string;
+          max_score: number;
+          name: string;
+          rubric_id: string;
+          sort_order: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          max_score: number;
+          name: string;
+          rubric_id: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          max_score?: number;
+          name?: string;
+          rubric_id?: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rubric_criteria_rubric_id_fkey";
+            columns: ["rubric_id"];
+            isOneToOne: false;
+            referencedRelation: "rubrics";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      rubric_levels: {
+        Row: {
+          created_at: string;
+          criterion_id: string;
+          descriptor: string;
+          id: string;
+          score: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          criterion_id: string;
+          descriptor: string;
+          id?: string;
+          score: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          criterion_id?: string;
+          descriptor?: string;
+          id?: string;
+          score?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rubric_levels_criterion_id_fkey";
+            columns: ["criterion_id"];
+            isOneToOne: false;
+            referencedRelation: "rubric_criteria";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      rubrics: {
+        Row: {
+          created_at: string;
+          id: string;
+          ref: string;
+          title: string;
+          updated_at: string;
+          version: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          ref: string;
+          title: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          ref?: string;
+          title?: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Relationships: [];
       };
       stages: {
         Row: {
@@ -922,6 +1537,36 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      _calculate_placement_internal: {
+        Args: { p_attempt_id: string };
+        Returns: {
+          attempt_id: string;
+          bridges: string[];
+          confirmed_at: string | null;
+          confirmed_by: string | null;
+          confirmed_stream: Database["public"]["Enums"]["stream_type"] | null;
+          created_at: string;
+          domain_percentages: NonNullable<Json>;
+          gates_failed: string[];
+          id: string;
+          override_reason: string | null;
+          portfolio_reviewed: boolean;
+          required_domain_flags: string[];
+          section_scores: NonNullable<Json>;
+          settings_snapshot: NonNullable<Json>;
+          suggested_band: string | null;
+          suggested_stream: Database["public"]["Enums"]["stream_type"] | null;
+          total: number;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "placement_results";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       admin_set_role: {
         Args: {
           new_role: Database["public"]["Enums"]["app_role"];
@@ -935,7 +1580,88 @@ export type Database = {
         Args: { key: string; new_value: Json; reason: string };
         Returns: undefined;
       };
+      allow_retake: {
+        Args: { p_assessment_id: string; p_reason: string; p_user_id: string };
+        Returns: undefined;
+      };
+      attempt_item_applies: {
+        Args: {
+          p_department_match_id: string;
+          p_item: Omit<
+            Database["public"]["Tables"]["assessment_items"]["Row"],
+            Database["public"]["Tables"]["assessment_items"]["ComputedFields"]
+          >;
+          p_section_code: string;
+          p_user_department_id: string;
+        };
+        Returns: boolean;
+      };
+      calculate_placement: {
+        Args: { p_attempt_id: string };
+        Returns: {
+          attempt_id: string;
+          bridges: string[];
+          confirmed_at: string | null;
+          confirmed_by: string | null;
+          confirmed_stream: Database["public"]["Enums"]["stream_type"] | null;
+          created_at: string;
+          domain_percentages: NonNullable<Json>;
+          gates_failed: string[];
+          id: string;
+          override_reason: string | null;
+          portfolio_reviewed: boolean;
+          required_domain_flags: string[];
+          section_scores: NonNullable<Json>;
+          settings_snapshot: NonNullable<Json>;
+          suggested_band: string | null;
+          suggested_stream: Database["public"]["Enums"]["stream_type"] | null;
+          total: number;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "placement_results";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       can_view_user: { Args: { target: string }; Returns: boolean };
+      confirm_placement: {
+        Args: {
+          p_attempt_id: string;
+          p_portfolio_reviewed?: boolean;
+          p_reason?: string;
+          p_stream: Database["public"]["Enums"]["stream_type"];
+        };
+        Returns: {
+          attempt_id: string;
+          bridges: string[];
+          confirmed_at: string | null;
+          confirmed_by: string | null;
+          confirmed_stream: Database["public"]["Enums"]["stream_type"] | null;
+          created_at: string;
+          domain_percentages: NonNullable<Json>;
+          gates_failed: string[];
+          id: string;
+          override_reason: string | null;
+          portfolio_reviewed: boolean;
+          required_domain_flags: string[];
+          section_scores: NonNullable<Json>;
+          settings_snapshot: NonNullable<Json>;
+          suggested_band: string | null;
+          suggested_stream: Database["public"]["Enums"]["stream_type"] | null;
+          total: number;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "placement_results";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       current_app_role: {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
@@ -973,6 +1699,14 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
+      resolve_department_item_department_id: {
+        Args: { p_assessment_id: string; p_user_department_id: string };
+        Returns: string;
+      };
+      response_effective_score: {
+        Args: { p_response_id: string };
+        Returns: number;
+      };
       restore_revision: {
         Args: {
           p_id: string;
@@ -980,6 +1714,31 @@ export type Database = {
           p_type: Database["public"]["Enums"]["content_type"];
         };
         Returns: undefined;
+      };
+      save_mark: {
+        Args: {
+          p_comment_md?: string;
+          p_criterion_scores: Json;
+          p_response_id: string;
+        };
+        Returns: {
+          auto_score: number | null;
+          comment_md: string | null;
+          created_at: string;
+          criterion_scores: Json | null;
+          id: string;
+          marked_at: string | null;
+          marked_by: string | null;
+          marker_score: number | null;
+          response_id: string;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "response_scores";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
       search_help_pages: {
         Args: { p_query: string };
@@ -1004,6 +1763,52 @@ export type Database = {
           to: "pages";
           isOneToOne: false;
           isSetofReturn: true;
+        };
+      };
+      start_attempt: {
+        Args: { p_assessment_id: string };
+        Returns: {
+          allowed_by: string | null;
+          assessment_id: string;
+          created_at: string;
+          data_declaration: boolean;
+          id: string;
+          meta: NonNullable<Json>;
+          seconds_active: number | null;
+          started_at: string;
+          status: Database["public"]["Enums"]["attempt_status"];
+          submitted_at: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "attempts";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      submit_attempt: {
+        Args: { p_attempt_id: string; p_data_declaration: boolean };
+        Returns: {
+          allowed_by: string | null;
+          assessment_id: string;
+          created_at: string;
+          data_declaration: boolean;
+          id: string;
+          meta: NonNullable<Json>;
+          seconds_active: number | null;
+          started_at: string;
+          status: Database["public"]["Enums"]["attempt_status"];
+          submitted_at: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "attempts";
+          isOneToOne: true;
+          isSetofReturn: false;
         };
       };
       trainer_update_profiles: {
@@ -1034,12 +1839,17 @@ export type Database = {
     };
     Enums: {
       app_role: "learner" | "champion" | "manager" | "trainer" | "admin";
+      assessment_type: "placement" | "quiz" | "safety_quiz" | "capstone";
+      attempt_status:
+        "in_progress" | "submitted" | "marking" | "marked" | "confirmed";
       content_status: "draft" | "published" | "archived";
       content_type: "page" | "update" | "lesson" | "module";
+      item_type: "profile" | "choice" | "short_text" | "practical";
       lesson_kind: "lesson" | "recording" | "worked_example";
       plan_status:
         "required" | "optional" | "tested_out" | "bridge" | "not_applicable";
       progress_scope_type: "self" | "department" | "all";
+      response_format: "text" | "prompt_and_output" | "link";
       specialist_pathway_type: "business" | "builder" | "technical";
       stream_type:
         "foundation" | "practitioner" | "practitioner_fast_track" | "champion";
@@ -1174,8 +1984,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["learner", "champion", "manager", "trainer", "admin"],
+      assessment_type: ["placement", "quiz", "safety_quiz", "capstone"],
+      attempt_status: [
+        "in_progress",
+        "submitted",
+        "marking",
+        "marked",
+        "confirmed",
+      ],
       content_status: ["draft", "published", "archived"],
       content_type: ["page", "update", "lesson", "module"],
+      item_type: ["profile", "choice", "short_text", "practical"],
       lesson_kind: ["lesson", "recording", "worked_example"],
       plan_status: [
         "required",
@@ -1185,6 +2004,7 @@ export const Constants = {
         "not_applicable",
       ],
       progress_scope_type: ["self", "department", "all"],
+      response_format: ["text", "prompt_and_output", "link"],
       specialist_pathway_type: ["business", "builder", "technical"],
       stream_type: [
         "foundation",

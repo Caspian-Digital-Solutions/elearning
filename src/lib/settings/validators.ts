@@ -15,6 +15,7 @@ export const knownSettingKeys = [
   "placement.gates",
   "placement.bands",
   "placement.week0_sections",
+  "placement.bridge_modules",
   "certification.foundation",
   "certification.department",
 ] as const;
@@ -191,6 +192,41 @@ export function checkBands(value: unknown): CheckResult<PlacementBands> {
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value: { ...parsed.data, bands } };
 }
 
+// Bridge modules -----------------------------------------------------------
+
+const bridgeModulesSchema = z.looseObject({
+  modules: z.record(
+    z.string(),
+    z.array(z.string().trim().min(1, { error: "Every module code must be non-empty." })),
+    { error: "List module codes for each domain." },
+  ),
+});
+
+export type PlacementBridgeModulesSetting = z.infer<typeof bridgeModulesSchema>;
+
+export function checkBridgeModules(
+  value: unknown,
+  moduleCodes: readonly string[],
+): CheckResult<PlacementBridgeModulesSetting> {
+  const parsed = bridgeModulesSchema.safeParse(value);
+  if (!parsed.success) {
+    return { ok: false, errors: zodErrors(parsed.error) };
+  }
+  const errors: string[] = [];
+  const knownModules = new Set(moduleCodes.map((code) => code.toUpperCase()));
+  for (const [domain, codes] of Object.entries(parsed.data.modules)) {
+    if (!/^C[1-9]$/.test(domain)) {
+      errors.push(`Domain "${domain}" must be a competency code from C1 to C9.`);
+    }
+    for (const code of codes) {
+      if (!knownModules.has(code.toUpperCase())) {
+        errors.push(`Module "${code}" for ${domain} is not in the programme.`);
+      }
+    }
+  }
+  return errors.length > 0 ? { ok: false, errors } : { ok: true, value: parsed.data };
+}
+
 // Certification ------------------------------------------------------------
 
 const foundationSchema = z.looseObject({
@@ -224,7 +260,12 @@ export function checkDepartmentCertification(value: unknown): CheckResult<Depart
  * Checks a new value for any setting. `current` holds the saved values of the
  * other settings, so related settings stay consistent (gates against section maxima).
  */
-export function checkSetting(key: string, value: unknown, current: Record<string, unknown>): CheckResult<Json> {
+export function checkSetting(
+  key: string,
+  value: unknown,
+  current: Record<string, unknown>,
+  moduleCodes?: readonly string[],
+): CheckResult<Json> {
   const asJson = (result: CheckResult<unknown>): CheckResult<Json> =>
     result.ok ? { ok: true, value: value as Json } : result;
 
@@ -235,6 +276,11 @@ export function checkSetting(key: string, value: unknown, current: Record<string
       return asJson(checkBands(value));
     case "placement.week0_sections":
       return asJson(checkWeek0Sections(value, current["placement.gates"]));
+    case "placement.bridge_modules":
+      if (!moduleCodes?.length) {
+        return { ok: false, errors: ["Module codes could not be loaded to validate bridge modules."] };
+      }
+      return asJson(checkBridgeModules(value, moduleCodes));
     case "certification.foundation":
       return asJson(checkFoundationCertification(value));
     case "certification.department":

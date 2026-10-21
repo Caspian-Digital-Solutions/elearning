@@ -39,7 +39,12 @@ export async function saveSetting(input: SaveSettingInput): Promise<ActionResult
     return { ok: false, error: "That setting does not exist." };
   }
   const current = Object.fromEntries(rows.map((row) => [row.key, row.value]));
-  const check = checkSetting(parsed.data.key, parsed.data.value, current);
+  let moduleCodes: string[] | undefined;
+  if (parsed.data.key === "placement.bridge_modules") {
+    const { data: modules } = await supabase.from("modules").select("code");
+    moduleCodes = (modules ?? []).map((row) => row.code);
+  }
+  const check = checkSetting(parsed.data.key, parsed.data.value, current, moduleCodes);
   if (!check.ok) {
     return { ok: false, error: check.errors.join(" ") };
   }
