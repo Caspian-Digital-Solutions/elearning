@@ -168,3 +168,13 @@ Private bucket `content-images`. Row-level security on `storage.objects`: any au
 ## Automated proof
 
 `npm run test:rls` signs in as synthetic people ("Test Learner Content", "Test Manager Creative" and so on) inside one database transaction per test, checks these rules, and rolls everything back. Cases include Prompt 03 and 04 rules, `tests/rls/content-editor.test.ts`, `tests/rls/lessons-images.test.ts`, and `tests/rls/assessment-placement.test.ts` (keys, attempts, placement confirm). It needs `SUPABASE_DB_URL` (the dev database) in `.env.local`.
+
+### Access matrix sweep (Prompt 11a)
+
+`tests/rls/access-matrix-sweep.test.ts` runs the cases in `tests/rls/fixtures/access-matrix-cases.ts` (signed-out, inactive, learner, champion, manager, trainer, admin). Regenerate `docs/security/ACCESS_MATRIX.md` with `npm run security:matrix` after editing the fixture.
+
+### Launch readiness (Prompt 11a)
+
+- **Rate limits:** `check_rate_limit` RPC; see `tests/rls/rate-limit.test.ts`.
+- **Leavers:** `admin_mark_leaver`, `profiles.left_at`; see `tests/rls/leavers.test.ts`.
+- **Admin events:** `admin_log_event` for personal data export audit rows.

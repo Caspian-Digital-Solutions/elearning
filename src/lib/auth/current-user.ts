@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { after, connection } from "next/server";
 import type { AppRole } from "@/config/navigation";
 import { readDevPreviewRole } from "@/lib/env";
+import { blockTestAccountInProduction } from "@/lib/security/production-content";
 import { createClient } from "@/lib/supabase/server";
 import type { CurrentUser } from "@/lib/auth/types";
 
@@ -29,12 +30,16 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const { data: profile, error } = await supabase
     .from("profiles")
     .select(
-      "id, email, full_name, role, progress_scope, department_id, stream, is_active, last_seen_at, updates_seen_at, departments ( name )",
+      "id, email, full_name, role, progress_scope, department_id, stream, is_active, is_test_account, last_seen_at, updates_seen_at, departments ( name )",
     )
     .eq("id", userId)
     .maybeSingle();
 
   if (error || !profile || !profile.is_active) {
+    return null;
+  }
+
+  if (blockTestAccountInProduction(profile.is_test_account)) {
     return null;
   }
 

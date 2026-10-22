@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { authorise } from "@/lib/auth";
 import { databaseMessage, notAllowed, type ActionResult } from "@/lib/actions/result";
+import { blockSampleContentInProduction } from "@/lib/security/production-content";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/types/database";
 
@@ -18,6 +20,15 @@ export async function startAssessmentAttempt(assessmentId: string): Promise<Acti
     return { ok: false, error: notAllowed };
   }
   const supabase = await createClient();
+  const { data: assessment } = await supabase
+    .from("assessments")
+    .select("is_sample")
+    .eq("id", assessmentId)
+    .maybeSingle();
+  const sampleBlock = blockSampleContentInProduction(Boolean(assessment?.is_sample));
+  if (sampleBlock) {
+    return { ok: false, error: sampleBlock };
+  }
   const { data, error } = await supabase.rpc("start_attempt", { p_assessment_id: assessmentId });
   if (error || !data) {
     return { ok: false, error: databaseMessage(error, "The attempt could not be started.") };
@@ -28,12 +39,17 @@ export async function startAssessmentAttempt(assessmentId: string): Promise<Acti
 export async function saveAssessmentResponse(
   input: z.input<typeof saveResponseInput>,
 ): Promise<ActionResult> {
-  if (!(await authorise(["learner", "champion", "manager", "trainer", "admin"]))) {
+  const user = await authorise(["learner", "champion", "manager", "trainer", "admin"]);
+  if (!user) {
     return { ok: false, error: notAllowed };
   }
   const parsed = saveResponseInput.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "The answer could not be saved." };
+  }
+  const limited = await enforceRateLimit("assessment.save", user.id);
+  if (limited) {
+    return { ok: false, error: limited };
   }
   const supabase = await createClient();
   const { error } = await supabase.from("responses").upsert(
@@ -55,10 +71,27 @@ export async function submitAssessmentAttempt(input: {
   dataDeclaration: boolean;
   code: string;
 }): Promise<ActionResult> {
-  if (!(await authorise(["learner", "champion", "manager", "trainer", "admin"]))) {
+  const user = await authorise(["learner", "champion", "manager", "trainer", "admin"]);
+  if (!user) {
     return { ok: false, error: notAllowed };
   }
+  const limited = await enforceRateLimit("assessment.submit", user.id);
+  if (limited) {
+    return { ok: false, error: limited };
+  }
   const supabase = await createClient();
+  const { data: attempt } = await supabase
+    .from("attempts")
+    .select("assessment_id, assessments ( is_sample )")
+    .eq("id", input.attemptId)
+    .maybeSingle();
+  const isSample = Boolean(
+    attempt && typeof attempt.assessments === "object" && attempt.assessments?.is_sample,
+  );
+  const sampleBlock = blockSampleContentInProduction(isSample);
+  if (sampleBlock) {
+    return { ok: false, error: sampleBlock };
+  }
   const { error } = await supabase.rpc("submit_attempt", {
     p_attempt_id: input.attemptId,
     p_data_declaration: input.dataDeclaration,

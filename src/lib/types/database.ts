@@ -887,14 +887,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "cohort_id": string | null,"created_at": string,"department_id": string | null,"email": string,"full_name": string | null,"id": string,"is_active": boolean,"is_test_account": boolean,"last_seen_at": string | null,"progress_scope": Database["public"]['Enums']["progress_scope_type"],"role": Database["public"]['Enums']["app_role"],"specialist_pathway": Database["public"]['Enums']["specialist_pathway_type"] | null,"stream": Database["public"]['Enums']["stream_type"] | null,"updated_at": string,"updates_seen_at": string | null
+                    "cohort_id": string | null,"created_at": string,"department_id": string | null,"email": string,"full_name": string | null,"id": string,"is_active": boolean,"is_test_account": boolean,"last_seen_at": string | null,"left_at": string | null,"progress_scope": Database["public"]['Enums']["progress_scope_type"],"role": Database["public"]['Enums']["app_role"],"specialist_pathway": Database["public"]['Enums']["specialist_pathway_type"] | null,"stream": Database["public"]['Enums']["stream_type"] | null,"updated_at": string,"updates_seen_at": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email": string,"full_name"?: string | null,"id": string,"is_active"?: boolean,"is_test_account"?: boolean,"last_seen_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string,"updates_seen_at"?: string | null
+                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email": string,"full_name"?: string | null,"id": string,"is_active"?: boolean,"is_test_account"?: boolean,"last_seen_at"?: string | null,"left_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string,"updates_seen_at"?: string | null
                   }
                   Update: {
-                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email"?: string,"full_name"?: string | null,"id"?: string,"is_active"?: boolean,"is_test_account"?: boolean,"last_seen_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string,"updates_seen_at"?: string | null
+                    "cohort_id"?: string | null,"created_at"?: string,"department_id"?: string | null,"email"?: string,"full_name"?: string | null,"id"?: string,"is_active"?: boolean,"is_test_account"?: boolean,"last_seen_at"?: string | null,"left_at"?: string | null,"progress_scope"?: Database["public"]['Enums']["progress_scope_type"],"role"?: Database["public"]['Enums']["app_role"],"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"] | null,"stream"?: Database["public"]['Enums']["stream_type"] | null,"updated_at"?: string,"updates_seen_at"?: string | null
                   }
                   Relationships: [
                     {
@@ -1414,6 +1414,12 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"admin_log_event":
+{ Args: { "p_event": string,"p_reason": string,"p_row_id": string,"p_table_name": string }; Returns: undefined
+                           },
+"admin_mark_leaver":
+{ Args: { "p_reason": string,"p_user_id": string }; Returns: undefined
+                           },
 "admin_set_role":
 { Args: { "new_role": Database["public"]['Enums']["app_role"],"new_scope": Database["public"]['Enums']["progress_scope_type"],"reason": string,"user_id": string }; Returns: undefined
                            },
@@ -1431,6 +1437,9 @@ isOneToOne: false
                            },
 "attempt_item_applies":
 { Args: { "p_department_match_id": string,"p_item": Omit<Database["public"]['Tables']["assessment_items"]['Row'], Database["public"]['Tables']["assessment_items"]['ComputedFields']>,"p_section_code": string,"p_user_department_id": string }; Returns: boolean
+                           },
+"check_rate_limit":
+{ Args: { "p_action_key": string,"p_bucket_key": string,"p_max_events": number,"p_window_seconds": number }; Returns: boolean
                            },
 "calculate_placement":
 { Args: { "p_attempt_id": string }; Returns: {

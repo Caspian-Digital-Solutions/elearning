@@ -13,9 +13,9 @@ export async function AcknowledgementBanner() {
   }
   return (
     <div className="border-b border-amber-700/30 bg-amber-50 px-4 py-3 text-sm text-heading md:px-8">
-      The data rules have been updated.{" "}
-      <Link href="/help/data-rules" className="font-medium text-accent-strong underline underline-offset-2">
-        Read and confirm them.
+      You need to read and confirm an updated help page (for example data rules or the privacy notice).{" "}
+      <Link href="/help" className="font-medium text-accent-strong underline underline-offset-2">
+        Open Help
       </Link>
     </div>
   );

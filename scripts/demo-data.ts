@@ -11,7 +11,12 @@ import { stdin as input, stdout as output } from "node:process";
 import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../src/lib/types/database";
-import { assertDevProjectRef, projectRefFromSupabaseUrl, readYesFromArgv } from "./demo-data-guard";
+import {
+  assertDevProjectRef,
+  assertNotProductionAppEnv,
+  projectRefFromSupabaseUrl,
+  readYesFromArgv,
+} from "./demo-data-guard";
 
 const DEMO_COHORT_NAME = "Demo cohort (Prompt 10)";
 const DEMO_EMAIL_DOMAIN = "caspiands.com";
@@ -166,6 +171,11 @@ async function seedDemo(admin: ReturnType<typeof createClient<Database>>) {
 
 async function main() {
   loadEnvFile();
+  const prodGuard = assertNotProductionAppEnv();
+  if (!prodGuard.ok) {
+    console.error(prodGuard.message);
+    process.exit(1);
+  }
   const url = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
   const secret = requireEnv("SUPABASE_SECRET_KEY");
   const devRef = requireEnv("DEV_PROJECT_REF");

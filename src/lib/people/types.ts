@@ -16,6 +16,7 @@ export type PersonRecord = {
   /** The profile is created on the person's first Google sign-in. */
   firstSignInAt: string;
   lastSeenAt: string | null;
+  leftAt: string | null;
 };
 
 export type DepartmentOption = {

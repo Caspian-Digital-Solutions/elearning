@@ -16,7 +16,9 @@
     "db:seed:generate": "tsx scripts/generate-seed.ts",
     "db:check": "tsx scripts/db-check.ts",
     "demo:seed": "tsx scripts/demo-data.ts seed",
-    "demo:clear": "tsx scripts/demo-data.ts clear"
+    "demo:clear": "tsx scripts/demo-data.ts clear",
+    "export:snapshot": "tsx scripts/export-snapshot.ts",
+    "security:matrix": "tsx scripts/generate-access-matrix.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -25,6 +27,7 @@
     "@types/turndown": "^5.0.6",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.0",
+    "fflate": "^0.8.3",
     "lucide-react": "^1.59.0",
     "next": "16.4.2",
     "next-themes": "^0.4.6",

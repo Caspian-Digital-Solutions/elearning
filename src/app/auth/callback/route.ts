@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { classifyCallbackError, type SignInErrorCode } from "@/lib/auth/sign-in-errors";
+import { clientIpBucket, enforceRateLimit } from "@/lib/security/rate-limit";
+import { blockTestAccountInProduction } from "@/lib/security/production-content";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -9,6 +11,11 @@ import { createClient } from "@/lib/supabase/server";
  */
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
+
+  const rateLimited = await enforceRateLimit("auth.callback", clientIpBucket(request));
+  if (rateLimited) {
+    return toLogin(url, "failed");
+  }
 
   const providerError = classifyCallbackError(url.searchParams);
   if (providerError) {
@@ -28,6 +35,18 @@ export async function GET(request: NextRequest) {
 
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims?.sub) {
+    return toLogin(url, "failed");
+  }
+
+  const userId = data.claims.sub;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_test_account")
+    .eq("id", userId)
+    .maybeSingle();
+  const testBlock = blockTestAccountInProduction(Boolean(profile?.is_test_account));
+  if (testBlock) {
+    await supabase.auth.signOut();
     return toLogin(url, "failed");
   }
 

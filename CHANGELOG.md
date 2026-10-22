@@ -2,6 +2,8 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-22 | 11a | Launch readiness: security headers, rate limits (`check_rate_limit`), `APP_ENV=production` guards, privacy help page, leavers and retention admin UI, personal data ZIP export (CSVs; submission files listed only), access matrix sweep tests, guides, `docs/security/*`, `docs/PRODUCTION_CUTOVER.md`. Migration `20261028100000_launch_readiness.sql`. |
+| 2026-10-22 | 10b | Progress page per-tab errors; `connection()` for signed-in prerender; Supabase `getClaims()` on server client. |
 | 2026-10-22 | 10 | Progress views and demo data: `progress_*` SQL views, `/progress` role-based tabs and person detail, `src/lib/progress/*`, `scripts/demo-data.ts` with `DEV_PROJECT_REF` guard, review fixes (assessment card labels, settings audit metadata, audit fold at 8 fields). Migration `20261027100000_progress_views.sql`. |
 | 2026-10-22 | 09 | Assignments and marking (DL-028): module assignments with link/file/text hand-in, private `submissions` storage, trainer marking queue with double-mark moderation, learner feedback release, `marking.*` admin settings, Content › Assignments import/editor, My path Week 5 test-out links to published assignment. Migration `20261026100000_assignments_and_marking.sql`. |
 | 2026-10-21 | 08b | Test-outs per programme architecture (DL-027): `test_out_pending` plan status, `plan.stream_rules` required and `test_outs` lists, `apply_test_out_result` and `submit_attempt` hook, My path Test-out section and fast-track Week 5 note, Admin settings validation and forms, SAMPLE `week1-testout` JSON and seed script. Migration `20261025100000_test_outs_dl027.sql`. |

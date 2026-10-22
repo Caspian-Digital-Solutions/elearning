@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { databaseMessage, type ActionResult } from "@/lib/actions/result";
+import { blockSampleContentInProduction } from "@/lib/security/production-content";
+import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { isAllowedSubmissionLink } from "@/lib/assignments/validators";
 import { createAssignmentsClient } from "@/lib/supabase/assignments-client";
 
@@ -16,7 +18,11 @@ const submitInput = z.strictObject({
 });
 
 export async function submitAssignment(input: z.input<typeof submitInput>): Promise<ActionResult> {
-  await requireUser();
+  const user = await requireUser();
+  const limited = await enforceRateLimit("assignment.submit", user.id);
+  if (limited) {
+    return { ok: false, error: limited };
+  }
   const parsed = submitInput.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "Check the form and confirm the declaration." };
@@ -26,6 +32,15 @@ export async function submitAssignment(input: z.input<typeof submitInput>): Prom
   }
 
   const supabase = await createAssignmentsClient();
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("is_sample")
+    .eq("id", parsed.data.assignmentId)
+    .maybeSingle();
+  const sampleBlock = blockSampleContentInProduction(Boolean(assignment?.is_sample));
+  if (sampleBlock) {
+    return { ok: false, error: sampleBlock };
+  }
   const { error } = await supabase.rpc("submit_assignment", {
     p_assignment_id: parsed.data.assignmentId,
     p_link_url: parsed.data.linkUrl ?? undefined,
@@ -48,8 +63,21 @@ export async function prepareSubmissionUpload(
   mimeType: string,
   byteSize: number,
 ): Promise<ActionResult<{ path: string }>> {
-  await requireUser();
+  const user = await requireUser();
+  const limited = await enforceRateLimit("assignment.upload", user.id);
+  if (limited) {
+    return { ok: false, error: limited };
+  }
   const supabase = await createAssignmentsClient();
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("is_sample")
+    .eq("id", assignmentId)
+    .maybeSingle();
+  const sampleBlock = blockSampleContentInProduction(Boolean(assignment?.is_sample));
+  if (sampleBlock) {
+    return { ok: false, error: sampleBlock };
+  }
   const { data, error } = await supabase.rpc("upload_submission_file", {
     p_assignment_id: assignmentId,
     p_filename: fileName,

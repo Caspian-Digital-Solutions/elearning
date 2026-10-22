@@ -36,3 +36,14 @@ export function assertDevProjectRef(
 export function readYesFromArgv(argv: readonly string[]): boolean {
   return argv.includes("--yes");
 }
+
+export function assertNotProductionAppEnv(): { ok: true } | { ok: false; message: string } {
+  const appEnv = process.env.APP_ENV?.trim().toLowerCase();
+  if (appEnv === "production") {
+    return {
+      ok: false,
+      message: "Refusing to run: APP_ENV is production. Demo scripts are development-only.",
+    };
+  }
+  return { ok: true };
+}

@@ -9,7 +9,7 @@ export async function loadPeople(): Promise<PersonRecord[]> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, email, full_name, role, progress_scope, department_id, stream, specialist_pathway, cohort_id, is_active, is_test_account, created_at, last_seen_at, departments ( name ), cohorts ( name )",
+      "id, email, full_name, role, progress_scope, department_id, stream, specialist_pathway, cohort_id, is_active, is_test_account, created_at, last_seen_at, left_at, departments ( name ), cohorts ( name )",
     )
     .eq("is_test_account", false)
     .order("full_name", { ascending: true, nullsFirst: false })
@@ -32,6 +32,7 @@ export async function loadPeople(): Promise<PersonRecord[]> {
     isActive: row.is_active,
     firstSignInAt: row.created_at,
     lastSeenAt: row.last_seen_at,
+    leftAt: row.left_at,
   }));
 }
 
