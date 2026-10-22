@@ -20,6 +20,7 @@ import {
 import { blockForStream } from "@/lib/plan/stream-rules";
 import { planStreamRulesFromSetting } from "@/lib/plan/stream-rules-setting";
 import type { PlanStatus, TestOutRule } from "@/lib/plan/types";
+import { findPublishedAssignmentByCode } from "@/lib/assignments/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export type PlanModuleRow = {
@@ -202,8 +203,56 @@ async function loadTestOutCards(
     const modulesLabel = moduleCodesLabel(testOut.modules);
 
     if (testOut.via === "assignment") {
-      if (testOut.code === "week5" && result === "pending") {
+      const assignmentId = await findPublishedAssignmentByCode(testOut.source_code);
+      if (testOut.code === "week5" && result === "pending" && !assignmentId) {
         week5TestOutNote = `Week 5 test-out: submit a prompt workflow (available from Week 5)`;
+      }
+      if (result === "passed") {
+        const reason = rows.find((row) => testOut.modules.includes(row.code))?.reason;
+        testOuts.push({
+          code: testOut.code,
+          week: testOut.week,
+          moduleCodes: testOut.modules,
+          dueDateLabel,
+          href: assignmentId ? `/assignments/${assignmentId}` : null,
+          attemptsLeft: null,
+          kind: "passed",
+          headline: `Week ${testOut.week} test-out passed`,
+          detail: reason
+            ? `${reason} — ${modulesLabel} moved to You may skip`
+            : `${modulesLabel} moved to You may skip`,
+        });
+        continue;
+      }
+      if (result === "failed") {
+        const reason = rows.find((row) => testOut.modules.includes(row.code))?.reason;
+        testOuts.push({
+          code: testOut.code,
+          week: testOut.week,
+          moduleCodes: testOut.modules,
+          dueDateLabel,
+          href: assignmentId ? `/assignments/${assignmentId}` : null,
+          attemptsLeft: 0,
+          kind: "failed",
+          headline: `Week ${testOut.week} test-out not passed`,
+          detail: reason
+            ? `${reason} — ${modulesLabel} are now part of your plan with due dates`
+            : `${modulesLabel} are now part of your plan with due dates`,
+        });
+        continue;
+      }
+      if (result === "pending" && assignmentId) {
+        testOuts.push({
+          code: testOut.code,
+          week: testOut.week,
+          moduleCodes: testOut.modules,
+          dueDateLabel,
+          href: `/assignments/${assignmentId}`,
+          attemptsLeft: null,
+          kind: "active",
+          headline: `Pass the Week ${testOut.week} test-out by ${dueDateLabel ?? `week ${testOut.week}`} to skip ${modulesLabel}`,
+          detail: "Submit your prompt workflow assignment",
+        });
       }
       continue;
     }

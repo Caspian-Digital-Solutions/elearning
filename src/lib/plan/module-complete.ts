@@ -4,6 +4,8 @@ import {
   quizHasPassMark,
   quizPassed,
 } from "@/lib/assessments/quiz-status";
+import { assignmentMarkPassed } from "@/lib/assignments/validators";
+import type { ModuleAssignmentRequirement } from "@/lib/assignments/types";
 
 export type PublishedLesson = {
   id: string;
@@ -34,6 +36,26 @@ export function allPublishedLessonsComplete(
   return published.every((lesson) => done.has(lesson.id));
 }
 
+export function assignmentRequirementSatisfied(requirement: ModuleAssignmentRequirement): boolean {
+  if (requirement.releasedTotal === null) {
+    return false;
+  }
+  return assignmentMarkPassed(
+    requirement.releasedTotal,
+    requirement.maxTotal,
+    requirement.passMarkPct,
+  );
+}
+
+export function assignmentsSatisfied(
+  requirements: readonly ModuleAssignmentRequirement[],
+): boolean {
+  if (requirements.length === 0) {
+    return true;
+  }
+  return requirements.every((requirement) => assignmentRequirementSatisfied(requirement));
+}
+
 export function moduleQuizSatisfied(quiz: ModuleQuizState | null): boolean {
   if (!quiz) {
     return true;
@@ -51,8 +73,13 @@ export function isModuleComplete(
   lessons: readonly PublishedLesson[],
   progress: readonly LessonProgressRow[],
   quiz: ModuleQuizState | null,
+  assignments: readonly ModuleAssignmentRequirement[] = [],
 ): boolean {
-  return allPublishedLessonsComplete(lessons, progress) && moduleQuizSatisfied(quiz);
+  return (
+    allPublishedLessonsComplete(lessons, progress) &&
+    moduleQuizSatisfied(quiz) &&
+    assignmentsSatisfied(assignments)
+  );
 }
 
 export function moduleQuizOutcomeLabel(quiz: ModuleQuizState): string | null {

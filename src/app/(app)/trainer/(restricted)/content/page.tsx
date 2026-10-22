@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { loadTrainerPages, loadTrainerUpdates } from "@/lib/content/queries";
 import { loadTrainerLessons } from "@/lib/lessons/queries";
 import { loadTrainerAssessments } from "@/lib/assessments/queries";
+import { loadTrainerAssignments } from "@/lib/assignments/queries";
 import { ContentScreen } from "@/app/(app)/trainer/(restricted)/content/content-screen";
 
 export const metadata: Metadata = {
@@ -16,20 +17,24 @@ export default async function Page({
 }) {
   await requireRole(["trainer", "admin"]);
   const { tab } = await searchParams;
-  const [pages, updates, lessons, assessments] = await Promise.all([
+  const [pages, updates, lessons, assessments, assignments] = await Promise.all([
     loadTrainerPages(),
     loadTrainerUpdates(),
     loadTrainerLessons(),
     loadTrainerAssessments(),
+    loadTrainerAssignments(),
   ]);
   const defaultTab =
-    tab === "lessons" || tab === "updates" || tab === "assessments" ? tab : "pages";
+    tab === "lessons" || tab === "updates" || tab === "assessments" || tab === "assignments"
+      ? tab
+      : "pages";
   return (
     <ContentScreen
       pages={pages}
       updates={updates}
       lessons={lessons}
       assessments={assessments}
+      assignments={assignments}
       defaultTab={defaultTab}
     />
   );

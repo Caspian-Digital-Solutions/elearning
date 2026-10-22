@@ -9,6 +9,9 @@ export const settingNames: Record<string, string> = {
   "plan.stream_rules": "Plan stream rules",
   "certification.foundation": "Foundation certification",
   "certification.department": "Department certification",
+  "marking.double_mark_sample_pct": "Double-mark sample %",
+  "marking.difference_threshold_pct": "Marking difference threshold %",
+  "marking.target_working_days": "Marking target working days",
 };
 
 export function settingName(key: string): string {
@@ -69,6 +72,11 @@ export function summariseSetting(key: string, value: Json | unknown): string {
       }`;
     case "certification.department":
       return `${value.live_use_weeks_required} weeks of live use`;
+    case "marking.double_mark_sample_pct":
+    case "marking.difference_threshold_pct":
+      return `${value}%`;
+    case "marking.target_working_days":
+      return `${value} working days (Malaysia)`;
   }
   const text = JSON.stringify(value);
   return text.length > 120 ? `${text.slice(0, 117)}...` : text;

@@ -59,6 +59,11 @@ export function SettingForm({
       return <FoundationForm initial={initial} onChange={onChange} />;
     case "certification.department":
       return <DepartmentForm initial={initial} onChange={onChange} />;
+    case "marking.double_mark_sample_pct":
+    case "marking.difference_threshold_pct":
+      return <MarkingPctForm initial={initial} onChange={onChange} />;
+    case "marking.target_working_days":
+      return <MarkingDaysForm initial={initial} onChange={onChange} />;
     default:
       return <JsonForm initial={initial} onChange={onChange} />;
   }
@@ -772,6 +777,41 @@ function PlanStreamRulesForm({
         </div>
       ))}
     </fieldset>
+  );
+}
+
+function MarkingPctForm({ initial, onChange }: { initial: Json; onChange: OnChange }) {
+  const [value, setValue] = useState(toText(initial));
+  return (
+    <NumberField
+      label="Percentage"
+      hint="Whole number from 0 to 100."
+      min={0}
+      max={100}
+      value={value}
+      onChange={(next) => {
+        setValue(next);
+        const num = toNumber(next);
+        onChange(num, num === null || Number.isNaN(num) ? "Enter a whole number from 0 to 100." : undefined);
+      }}
+    />
+  );
+}
+
+function MarkingDaysForm({ initial, onChange }: { initial: Json; onChange: OnChange }) {
+  const [value, setValue] = useState(toText(initial));
+  return (
+    <NumberField
+      label="Working days"
+      hint="Used for queue display (Malaysia Mon–Fri)."
+      min={1}
+      value={value}
+      onChange={(next) => {
+        setValue(next);
+        const num = toNumber(next);
+        onChange(num, num === null || Number.isNaN(num) ? "Enter a whole number of at least 1." : undefined);
+      }}
+    />
   );
 }
 

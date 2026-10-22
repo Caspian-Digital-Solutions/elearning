@@ -2,7 +2,7 @@
 
 Plain-English version of the row-level security (RLS) rules in `supabase/migrations/20261020090006_row_level_security.sql` and `supabase/migrations/20261020130001_users_roles_settings.sql`. RLS is a rule inside the database that decides, row by row, who can read or change data. It applies even if a page has a bug. Every table has RLS switched on.
 
-Last updated: Prompt 08b, 21 Oct 2026 (test-outs DL-027, `test_out_pending`, `apply_test_out_result`, learner plan generation, cohort calendar, `plan.stream_rules`, sample attempt discard).
+Last updated: Prompt 09, 22 Oct 2026 (assignments, submissions, reviews, double-marking, `marking.*` settings, DL-028).
 
 ## Words used below
 
@@ -44,9 +44,14 @@ Last updated: Prompt 08b, 21 Oct 2026 (test-outs DL-027, `test_out_pending`, `ap
 | `responses` | Same as attempts | Owner insert/update while attempt `in_progress`; trainer and admin read all. |
 | `response_scores` | Trainer and admin read and write. You read your own only **after** placement is confirmed (Week 0 result page). **Managers: no access.** | Written by `submit_attempt` (auto) or `save_mark` (trainer/admin). |
 | `placement_results` | Trainer and admin. You read your own only **after** confirmation. **Managers: no access** (they may see your confirmed **stream** on `profiles` only). | Rows created/updated by `calculate_placement` and `confirm_placement` (trainer/admin). |
+| `assignments` | Published: staff (learners see brief and rubric for hand-in). Draft or archived: trainer, admin. | Trainer, admin (draft save, import, publish via `publish_content`). |
+| `submissions` | Your own rows. Trainer and admin see all. Champion sees only rows assigned in `review_assignments`. **Managers: no access.** | Owner inserts via `submit_assignment`; owner may `withdraw_submission` while allowed. Trainers change status through marking RPCs. |
+| `reviews` | Trainer and admin see all kinds. You see **released** primary or final marks on your own work only — never `double_mark`. | `save_review` (trainer/admin primary or final; assigned champion double-mark only). |
+| `review_assignments` | Assigned champion sees own rows; trainer and admin see all. | `assign_double_marks` (trainer/admin). |
+| Private `submissions` storage objects | Owner path; trainer/admin all; champion only when assigned to that submission's file. | Owner upload via validated path; reads use signed URLs through the app. |
 | `audit_log` | Admin only | Nobody directly. Only the automatic recorder writes rows, with the reason given for the change when there is one. Nobody can change or remove a row: not admins, and not the server's secret key. |
 
-Champions have learner rights in these tables. Their marking rights arrive with the assignment tables in Prompt 09.
+Champions may mark assigned assignment submissions (double-mark) in addition to learner rights above.
 
 ## Backed by a database guard, not only a policy
 
@@ -97,6 +102,12 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 | `submit_attempt(attempt_id, data_declaration)` | Owner of the attempt | Locks answers; auto-scores choice items from keys; sets status to marking or marked. For published quizzes whose `code` matches a stream test-out with `via = assessment`, calls `apply_test_out_result` for that learner after scoring. | Not owner; missing data declaration on Week 0; no department item set. |
 | `apply_test_out_result(user_id, test_out_code)` | **Service role only** (invoked from `submit_attempt` or server jobs) | After a test-out quiz is scored, sets gated modules to `tested_out` on pass or `required` with Foundation due weeks when attempts are exhausted. | Not callable by learners or trainers directly (`authenticated` has no execute). |
 | `save_mark(response_id, criterion_scores, comment_md)` | Active trainer or admin | Saves rubric marks for one response. | Wrong role; scores above criterion maxima. |
+| `submit_assignment(assignment_id, link, file_path, text, declaration)` | Owner | Creates or updates your hand-in attempt. | Missing declaration; disallowed link host; wrong submission types. |
+| `upload_submission_file(assignment_id, file_name, mime, size)` | Owner | Returns your storage path for upload before submit. | Invalid file type or size. |
+| `save_review(submission_id, kind, scores, feedback)` | Trainer/admin (primary/final); assigned champion (`double_mark`) | Stores rubric marks. | Wrong kind for role; incomplete scores. |
+| `request_resubmission(submission_id, feedback)` | Trainer or admin | Sets `resubmit_requested` and shares primary feedback. | No primary mark. |
+| `release_feedback(submission_id)` | Trainer or admin | Releases winning mark to learner; may call `apply_test_out_result` for assignment test-outs. | Pending double-mark or missing final when over threshold. |
+| `assign_double_marks(assignment_id)` | Trainer or admin | Samples primary-marked submissions per department for champions. | Wrong role. |
 | `calculate_placement(attempt_id)` | Active trainer or admin | Computes suggested stream, gates, bridges from current settings; stores a settings snapshot. | Not fully marked; wrong role. |
 | `confirm_placement(attempt_id, stream, reason, portfolio_reviewed)` | Active trainer or admin | Confirms stream on `placement_results`, updates `profiles.stream`, and calls `generate_learner_plan` for that person. | Override without reason; Champion without portfolio reviewed. |
 | `generate_learner_plan(user_id)` | Active trainer or admin | Rebuilds non-override `learner_plan` rows from stream, bridges and `plan.stream_rules` (required, optional, `test_outs`, tested_out). Bridge rows beat `test_out_pending` on the same module. Keeps overrides and rows already updated by a test-out result. | Person has no stream; setting missing. |
@@ -111,9 +122,10 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 
 ## Screens and who can use them
 
-- **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*`, `/trainer/content/updates/*`, `/trainer/content/lessons/*`, `/trainer/content/modules/[code]`, assessments import/preview): trainers and admins. Help pages, What changed, Lessons and Assessments lists; Markdown editor with image upload; history; module overview editor and lesson reorder.
+- **Trainer › Content** (`/trainer/content`, editors under `/trainer/content/pages/*`, `/trainer/content/updates/*`, `/trainer/content/lessons/*`, `/trainer/content/modules/[code]`, `/trainer/content/assignments/*`, assessments import/preview): trainers and admins. Help pages, What changed, Lessons, Assessments and Assignments lists; Markdown editor with image upload; history; module overview editor and lesson reorder.
 - **Assessments** (`/assessments`, `/assessments/[code]`): active staff with a department. Published assessments only. The learner API never returns `assessment_item_keys` or option points.
-- **Trainer › Marking** (`/trainer/marking`): trainers and admins (Week 0 tab in Prompt 07). Champions gain assignment marking in Prompt 09.
+- **Trainer › Marking** (`/trainer/marking`): trainers, admins and champions (Week 0; Assignments queue; Moderation for trainers/admins).
+- **Assignments** (`/assignments`, `/assignments/[id]`): active staff with a department; hand-in and released feedback only.
 - **My path** (`/my-path`): all signed-in staff with a department. Shows Week 0 status, then the personalised plan (this week, bridges, **test-out** gates, overdue, skip, done) when placement is confirmed. `test_out_pending` modules count as required until the test-out is passed.
 - **Trainer › Placements** (`/trainer/placements`, heading “Assessments and placements”): trainers and admins. Week 0 placements (calculate, confirm, retake, plan-built date), discard in-progress **sample** Week 0 attempts, **Quiz results** tab, and **Question check** per quiz.
 - **Trainer › Users — Plan tab**: trainers and admins. Per-person plan grid, override status with reason, rebuild plan (keeps overrides).

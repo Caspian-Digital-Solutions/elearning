@@ -153,6 +153,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"assignments": {
+                  Row: {
+                    "brief_md": string,"code": string,"created_at": string,"department_id": string | null,"id": string,"is_sample": boolean,"is_test_out": boolean,"module_id": string,"pass_mark_pct": number,"published_at": string | null,"published_by": string | null,"rubric_id": string,"status": Database["public"]['Enums']["content_status"],"submission_types": (string)[],"title": string,"updated_at": string,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "brief_md"?: string,"code": string,"created_at"?: string,"department_id"?: string | null,"id"?: string,"is_sample"?: boolean,"is_test_out"?: boolean,"module_id": string,"pass_mark_pct": number,"published_at"?: string | null,"published_by"?: string | null,"rubric_id": string,"status"?: Database["public"]['Enums']["content_status"],"submission_types"?: (string)[],"title": string,"updated_at"?: string,"version"?: number
+                  }
+                  Update: {
+                    "brief_md"?: string,"code"?: string,"created_at"?: string,"department_id"?: string | null,"id"?: string,"is_sample"?: boolean,"is_test_out"?: boolean,"module_id"?: string,"pass_mark_pct"?: number,"published_at"?: string | null,"published_by"?: string | null,"rubric_id"?: string,"status"?: Database["public"]['Enums']["content_status"],"submission_types"?: (string)[],"title"?: string,"updated_at"?: string,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "assignments_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assignments_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "modules"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assignments_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assignments_rubric_id_fkey"
+      columns: ["rubric_id"]
+isOneToOne: false
+      referencedRelation: "rubrics"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"attempts": {
                   Row: {
                     "allowed_by": string | null,"assessment_id": string,"created_at": string,"data_declaration": boolean,"id": string,"item_ids": (string)[],"meta": NonNullable<Json>,"passed": boolean | null,"percentage": number | null,"seconds_active": number | null,"started_at": string,"status": Database["public"]['Enums']["attempt_status"],"submitted_at": string | null,"updated_at": string,"user_id": string
@@ -625,6 +663,58 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"review_assignments": {
+                  Row: {
+                    "assigned_at": string,"completed_at": string | null,"created_at": string,"id": string,"kind": Database["public"]['Enums']["review_kind"],"reviewer_id": string,"submission_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assigned_at"?: string,"completed_at"?: string | null,"created_at"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["review_kind"],"reviewer_id": string,"submission_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "assigned_at"?: string,"completed_at"?: string | null,"created_at"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["review_kind"],"reviewer_id"?: string,"submission_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "review_assignments_reviewer_id_fkey"
+      columns: ["reviewer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "review_assignments_submission_id_fkey"
+      columns: ["submission_id"]
+isOneToOne: false
+      referencedRelation: "submissions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"reviews": {
+                  Row: {
+                    "created_at": string,"criterion_scores": NonNullable<Json>,"feedback_md": string | null,"id": string,"kind": Database["public"]['Enums']["review_kind"],"max_total": number,"released_at": string | null,"reviewer_id": string,"submission_id": string,"total": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"criterion_scores"?: NonNullable<Json>,"feedback_md"?: string | null,"id"?: string,"kind": Database["public"]['Enums']["review_kind"],"max_total"?: number,"released_at"?: string | null,"reviewer_id": string,"submission_id": string,"total"?: number,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"criterion_scores"?: NonNullable<Json>,"feedback_md"?: string | null,"id"?: string,"kind"?: Database["public"]['Enums']["review_kind"],"max_total"?: number,"released_at"?: string | null,"reviewer_id"?: string,"submission_id"?: string,"total"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "reviews_reviewer_id_fkey"
+      columns: ["reviewer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reviews_submission_id_fkey"
+      columns: ["submission_id"]
+isOneToOne: false
+      referencedRelation: "submissions"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"rubric_criteria": {
                   Row: {
                     "created_at": string,"id": string,"max_score": number,"name": string,"rubric_id": string,"sort_order": number,"updated_at": string
@@ -693,6 +783,32 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"submissions": {
+                  Row: {
+                    "assignment_id": string,"attempt_no": number,"created_at": string,"data_declaration": boolean,"file_path": string | null,"id": string,"link_url": string | null,"status": Database["public"]['Enums']["submission_status"],"submitted_at": string,"text_md": string | null,"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assignment_id": string,"attempt_no": number,"created_at"?: string,"data_declaration": boolean,"file_path"?: string | null,"id"?: string,"link_url"?: string | null,"status"?: Database["public"]['Enums']["submission_status"],"submitted_at"?: string,"text_md"?: string | null,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "assignment_id"?: string,"attempt_no"?: number,"created_at"?: string,"data_declaration"?: boolean,"file_path"?: string | null,"id"?: string,"link_url"?: string | null,"status"?: Database["public"]['Enums']["submission_status"],"submitted_at"?: string,"text_md"?: string | null,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "submissions_assignment_id_fkey"
+      columns: ["assignment_id"]
+isOneToOne: false
+      referencedRelation: "assignments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "submissions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"updates": {
                   Row: {
                     "action_due": string | null,"action_required": boolean,"action_text": string | null,"body_md": string,"created_at": string,"id": string,"published_at": string | null,"published_by": string | null,"slug": string | null,"status": Database["public"]['Enums']["content_status"],"title": string,"tools": (string)[],"updated_at": string,"version": number
@@ -747,8 +863,20 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"_champion_assigned_submission":
+{ Args: { "p_submission_id": string }; Returns: boolean
+                           },
+"_champion_saved_double_mark":
+{ Args: { "p_submission_id": string }; Returns: boolean
+                           },
 "_correct_option_id_from_points":
 { Args: { "p_option_points": Json }; Returns: string
+                           },
+"_is_allowed_submission_link":
+{ Args: { "p_url": string }; Returns: boolean
+                           },
+"_marking_setting_int":
+{ Args: { "p_suffix": string }; Returns: number
                            },
 "_option_text_from_options":
 { Args: { "p_option_id": string,"p_options": Json }; Returns: string
@@ -765,6 +893,29 @@ isOneToOne: false
 "_plan_test_out_week_for_module":
 { Args: { "p_module_code": string,"p_rules": Json,"p_stream": Database["public"]['Enums']["stream_type"] }; Returns: number
                            },
+"_rubric_max_total":
+{ Args: { "p_rubric_id": string }; Returns: number
+                           },
+"_submission_released_winning_review":
+{ Args: { "p_submission_id": string }; Returns: {
+              "created_at": string,
+"criterion_scores": NonNullable<Json>,
+"feedback_md": string | null,
+"id": string,
+"kind": Database["public"]['Enums']["review_kind"],
+"max_total": number,
+"released_at": string | null,
+"reviewer_id": string,
+"submission_id": string,
+"total": number,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "reviews"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "admin_set_role":
 { Args: { "new_role": Database["public"]['Enums']["app_role"],"new_scope": Database["public"]['Enums']["progress_scope_type"],"reason": string,"user_id": string }; Returns: undefined
                            },
@@ -776,6 +927,9 @@ isOneToOne: false
                            },
 "apply_test_out_result":
 { Args: { "p_test_out_code": string,"p_user_id": string }; Returns: undefined
+                           },
+"assign_double_marks":
+{ Args: { "p_assignment_id": string }; Returns: Json
                            },
 "attempt_item_applies":
 { Args: { "p_department_match_id": string,"p_item": Omit<Database["public"]['Tables']["assessment_items"]['Row'], Database["public"]['Tables']["assessment_items"]['ComputedFields']>,"p_section_code": string,"p_user_department_id": string }; Returns: boolean
@@ -910,9 +1064,51 @@ isOneToOne: false
 "record_last_seen":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
+"release_feedback":
+{ Args: { "p_submission_id": string }; Returns: {
+              "assignment_id": string,
+"attempt_no": number,
+"created_at": string,
+"data_declaration": boolean,
+"file_path": string | null,
+"id": string,
+"link_url": string | null,
+"status": Database["public"]['Enums']["submission_status"],
+"submitted_at": string,
+"text_md": string | null,
+"updated_at": string,
+"user_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "submissions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "reorder_lessons":
 { Args: { "p_lesson_ids": (string)[],"p_module_id": string }; Returns: undefined
                            },
+"request_resubmission":
+{ Args: { "p_feedback_md": string,"p_submission_id": string }; Returns: {
+              "assignment_id": string,
+"attempt_no": number,
+"created_at": string,
+"data_declaration": boolean,
+"file_path": string | null,
+"id": string,
+"link_url": string | null,
+"status": Database["public"]['Enums']["submission_status"],
+"submitted_at": string,
+"text_md": string | null,
+"updated_at": string,
+"user_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "submissions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "require_trainer_or_admin":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
@@ -941,6 +1137,26 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "response_scores"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"save_review":
+{ Args: { "p_criterion_scores": Json,"p_feedback_md"?: string,"p_kind": Database["public"]['Enums']["review_kind"],"p_submission_id": string }; Returns: {
+              "created_at": string,
+"criterion_scores": NonNullable<Json>,
+"feedback_md": string | null,
+"id": string,
+"kind": Database["public"]['Enums']["review_kind"],
+"max_total": number,
+"released_at": string | null,
+"reviewer_id": string,
+"submission_id": string,
+"total": number,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "reviews"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -991,6 +1207,27 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"submit_assignment":
+{ Args: { "p_assignment_id": string,"p_data_declaration"?: boolean,"p_file_path"?: string,"p_link_url"?: string,"p_text_md"?: string }; Returns: {
+              "assignment_id": string,
+"attempt_no": number,
+"created_at": string,
+"data_declaration": boolean,
+"file_path": string | null,
+"id": string,
+"link_url": string | null,
+"status": Database["public"]['Enums']["submission_status"],
+"submitted_at": string,
+"text_md": string | null,
+"updated_at": string,
+"user_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "submissions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "submit_attempt":
 { Args: { "p_attempt_id": string,"p_data_declaration": boolean }; Returns: {
               "allowed_by": string | null,
@@ -1023,10 +1260,34 @@ isOneToOne: false
                            },
 "update_module_overview":
 { Args: { "p_body_md": string,"p_change_note": string,"p_module_id": string }; Returns: number
-                           }
+                           },
+"upload_submission_file":
+{ Args: { "p_assignment_id": string,"p_byte_size": number,"p_filename": string,"p_mime_type": string }; Returns: string
+                           },
+"withdraw_submission":
+{ Args: { "p_submission_id": string }; Returns: {
+              "assignment_id": string,
+"attempt_no": number,
+"created_at": string,
+"data_declaration": boolean,
+"file_path": string | null,
+"id": string,
+"link_url": string | null,
+"status": Database["public"]['Enums']["submission_status"],
+"submitted_at": string,
+"text_md": string | null,
+"updated_at": string,
+"user_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "submissions"
+        isOneToOne: true
+        isSetofReturn: false
+      } }
           }
           Enums: {
-            "app_role": "learner"|"champion"|"manager"|"trainer"|"admin","assessment_type": "placement"|"quiz"|"safety_quiz"|"capstone","attempt_status": "in_progress"|"submitted"|"marking"|"marked"|"confirmed","content_status": "draft"|"published"|"archived","content_type": "page"|"update"|"lesson"|"module","item_type": "profile"|"choice"|"short_text"|"practical","lesson_kind": "lesson"|"recording"|"worked_example","plan_status": "required"|"optional"|"tested_out"|"bridge"|"not_applicable"|"test_out_pending","progress_scope_type": "self"|"department"|"all","response_format": "text"|"prompt_and_output"|"link","specialist_pathway_type": "business"|"builder"|"technical","stream_type": "foundation"|"practitioner"|"practitioner_fast_track"|"champion"
+            "app_role": "learner"|"champion"|"manager"|"trainer"|"admin","assessment_type": "placement"|"quiz"|"safety_quiz"|"capstone","attempt_status": "in_progress"|"submitted"|"marking"|"marked"|"confirmed","content_status": "draft"|"published"|"archived","content_type": "page"|"update"|"lesson"|"module"|"assignment","item_type": "profile"|"choice"|"short_text"|"practical","lesson_kind": "lesson"|"recording"|"worked_example","plan_status": "required"|"optional"|"tested_out"|"bridge"|"not_applicable"|"test_out_pending","progress_scope_type": "self"|"department"|"all","response_format": "text"|"prompt_and_output"|"link","review_kind": "primary"|"double_mark"|"final","specialist_pathway_type": "business"|"builder"|"technical","stream_type": "foundation"|"practitioner"|"practitioner_fast_track"|"champion","submission_status": "submitted"|"in_review"|"returned"|"resubmit_requested"|"withdrawn"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1146,7 +1407,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["learner", "champion", "manager", "trainer", "admin"],"assessment_type": ["placement", "quiz", "safety_quiz", "capstone"],"attempt_status": ["in_progress", "submitted", "marking", "marked", "confirmed"],"content_status": ["draft", "published", "archived"],"content_type": ["page", "update", "lesson", "module"],"item_type": ["profile", "choice", "short_text", "practical"],"lesson_kind": ["lesson", "recording", "worked_example"],"plan_status": ["required", "optional", "tested_out", "bridge", "not_applicable", "test_out_pending"],"progress_scope_type": ["self", "department", "all"],"response_format": ["text", "prompt_and_output", "link"],"specialist_pathway_type": ["business", "builder", "technical"],"stream_type": ["foundation", "practitioner", "practitioner_fast_track", "champion"]
+            "app_role": ["learner", "champion", "manager", "trainer", "admin"],"assessment_type": ["placement", "quiz", "safety_quiz", "capstone"],"attempt_status": ["in_progress", "submitted", "marking", "marked", "confirmed"],"content_status": ["draft", "published", "archived"],"content_type": ["page", "update", "lesson", "module", "assignment"],"item_type": ["profile", "choice", "short_text", "practical"],"lesson_kind": ["lesson", "recording", "worked_example"],"plan_status": ["required", "optional", "tested_out", "bridge", "not_applicable", "test_out_pending"],"progress_scope_type": ["self", "department", "all"],"response_format": ["text", "prompt_and_output", "link"],"review_kind": ["primary", "double_mark", "final"],"specialist_pathway_type": ["business", "builder", "technical"],"stream_type": ["foundation", "practitioner", "practitioner_fast_track", "champion"],"submission_status": ["submitted", "in_review", "returned", "resubmit_requested", "withdrawn"]
           }
         }
 } as const

@@ -12,20 +12,25 @@ import { LessonImportDialog } from "@/app/(app)/trainer/(restricted)/content/les
 import { AssessmentImportDialog } from "@/app/(app)/trainer/(restricted)/content/assessment-import-dialog";
 import { AssessmentPreviewDialog } from "@/app/(app)/trainer/(restricted)/content/assessment-preview-dialog";
 import type { TrainerAssessmentListRow } from "@/lib/assessments/queries";
+import type { TrainerAssignmentListRow } from "@/lib/assignments/queries";
 import { publishAssessment } from "@/app/(app)/trainer/(restricted)/content/assessment-actions";
+import { AssignmentImportDialog } from "@/app/(app)/trainer/(restricted)/content/assignment-import-dialog";
+import { publishAssignment } from "@/app/(app)/trainer/(restricted)/content/assignment-actions";
 
 export function ContentScreen({
   pages,
   updates,
   lessons,
   assessments,
+  assignments,
   defaultTab = "pages",
 }: {
   pages: PageListRow[];
   updates: UpdateListRow[];
   lessons: LessonListRow[];
   assessments: TrainerAssessmentListRow[];
-  defaultTab?: "pages" | "updates" | "lessons" | "assessments";
+  assignments: TrainerAssignmentListRow[];
+  defaultTab?: "pages" | "updates" | "lessons" | "assessments" | "assignments";
 }) {
   return (
     <div className="space-y-6">
@@ -39,6 +44,7 @@ export function ContentScreen({
           <TabsTrigger value="updates">What changed</TabsTrigger>
           <TabsTrigger value="lessons">Lessons</TabsTrigger>
           <TabsTrigger value="assessments">Assessments</TabsTrigger>
+          <TabsTrigger value="assignments">Assignments</TabsTrigger>
         </TabsList>
         <TabsContent value="pages" className="space-y-4">
           <div className="flex justify-end">
@@ -196,6 +202,66 @@ export function ContentScreen({
                           }
                         },
                       )
+                    }
+                  >
+                    Publish
+                  </Button>
+                ) : null}
+              </div>
+            )}
+          />
+        </TabsContent>
+        <TabsContent value="assignments" className="space-y-4">
+          <div className="flex flex-wrap justify-end gap-2">
+            <AssignmentImportDialog />
+            <Button render={<Link href="/trainer/content/assignments/new" />}>New assignment</Button>
+          </div>
+          <DataTable
+            rowKey="id"
+            columns={[
+              { key: "code", header: "Code" },
+              { key: "title", header: "Title" },
+              { key: "moduleCode", header: "Module" },
+              { key: "passMarkPct", header: "Pass mark" },
+              { key: "submissionTypes", header: "Submission types", wrap: true },
+              { key: "departmentCode", header: "Department" },
+              { key: "version", header: "Version" },
+              { key: "statusLabel", header: "Status" },
+              { key: "testOutLabel", header: "Test-out" },
+            ]}
+            rows={assignments.map((row) => ({
+              id: row.id,
+              code: row.code,
+              title: row.title,
+              moduleCode: row.moduleCode,
+              passMarkPct: row.passMarkPct,
+              submissionTypes: row.submissionTypes,
+              departmentCode: row.departmentCode,
+              version: String(row.version),
+              statusLabel: row.statusLabel,
+              testOutLabel: row.isTestOut ? "Yes" : "No",
+            }))}
+            caption="Assignments"
+            exportFileName="assignments-content.csv"
+            filters={[{ key: "statusLabel", label: "Status" }, { key: "moduleCode", label: "Module" }]}
+            rowActions={(row) => (
+              <div className="flex flex-wrap gap-1">
+                <Button variant="outline" size="sm" render={<Link href={`/trainer/content/assignments/${row.id}`} />}>
+                  Edit
+                </Button>
+                {row.statusLabel === "Draft" ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() =>
+                      void publishAssignment({
+                        id: row.id,
+                        changeNote: "Published from content screen.",
+                      }).then((result) => {
+                        if (result.ok) {
+                          window.location.reload();
+                        }
+                      })
                     }
                   >
                     Publish

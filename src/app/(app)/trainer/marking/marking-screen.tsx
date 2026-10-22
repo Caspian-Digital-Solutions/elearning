@@ -14,7 +14,13 @@ import type { MarkingQueueRow } from "@/lib/assessments/queries";
 import { formatDateTime } from "@/lib/format";
 import { loadMarkingDetail, saveMark, type MarkingDetail } from "@/app/(app)/trainer/marking/marking-actions";
 
-export function MarkingScreen({ initialQueue }: { initialQueue: MarkingQueueRow[] }) {
+export function MarkingScreen({
+  initialQueue,
+  embedded = false,
+}: {
+  initialQueue: MarkingQueueRow[];
+  embedded?: boolean;
+}) {
   const [hideNames, setHideNames] = useState(true);
   const [sectionFilter, setSectionFilter] = useState("");
   const [markedFilter, setMarkedFilter] = useState<"all" | "unmarked" | "marked">("unmarked");
@@ -85,10 +91,12 @@ export function MarkingScreen({ initialQueue }: { initialQueue: MarkingQueueRow[
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Marking queue"
-        purpose="Mark Week 0 written and practical responses. Names are hidden by default."
-      />
+      {embedded ? null : (
+        <PageHeader
+          title="Marking queue"
+          purpose="Mark Week 0 written and practical responses. Names are hidden by default."
+        />
+      )}
       <div className="flex flex-wrap items-end gap-4">
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={hideNames} onChange={(e) => setHideNames(e.target.checked)} />

@@ -1,0 +1,59 @@
+{
+  "assignments": [
+    {
+      "code": "week5-testout",
+      "title": "SAMPLE Week 5 test-out — not for real use",
+      "module_code": "p1",
+      "brief_md": "Submit evidence of a **prompt workflow** you would use for a fictional client scenario: a **Claude chat link** and/or an uploaded **file** (PDF or Markdown). Use sample data only. This SAMPLE gates P1/P2 test-out on dev when stream rules use `via: assignment` and `source_code: week5-testout`.",
+      "rubric_ref": "R-W5-TESTOUT-SAMPLE",
+      "submission_types": ["link", "file"],
+      "pass_mark_pct": 70,
+      "is_test_out": true,
+      "is_sample": true
+    }
+  ],
+  "rubrics": [
+    {
+      "ref": "R-W5-TESTOUT-SAMPLE",
+      "title": "SAMPLE Week 5 workflow test-out",
+      "criteria": [
+        {
+          "name": "Workflow clarity",
+          "max_score": 5,
+          "levels": [
+            { "score": 0, "descriptor": "No coherent workflow" },
+            { "score": 3, "descriptor": "Partial steps" },
+            { "score": 5, "descriptor": "Clear end-to-end workflow" }
+          ]
+        },
+        {
+          "name": "Prompt craft",
+          "max_score": 5,
+          "levels": [
+            { "score": 0, "descriptor": "Generic or missing prompts" },
+            { "score": 3, "descriptor": "Adequate prompts" },
+            { "score": 5, "descriptor": "Strong, reusable prompts" }
+          ]
+        },
+        {
+          "name": "Review and verification",
+          "max_score": 5,
+          "levels": [
+            { "score": 0, "descriptor": "No human review described" },
+            { "score": 3, "descriptor": "Some review" },
+            { "score": 5, "descriptor": "Explicit verification steps" }
+          ]
+        },
+        {
+          "name": "Safety and data handling",
+          "max_score": 5,
+          "levels": [
+            { "score": 0, "descriptor": "Real client or personal data" },
+            { "score": 3, "descriptor": "Mostly safe" },
+            { "score": 5, "descriptor": "Sample/fictional data only" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -25,6 +25,9 @@ export const knownSettingKeys = [
   "plan.stream_rules",
   "certification.foundation",
   "certification.department",
+  "marking.double_mark_sample_pct",
+  "marking.difference_threshold_pct",
+  "marking.target_working_days",
 ] as const;
 
 export type KnownSettingKey = (typeof knownSettingKeys)[number];
@@ -356,6 +359,33 @@ export function checkDepartmentCertification(value: unknown): CheckResult<Depart
   return parsed.success ? { ok: true, value: parsed.data } : { ok: false, errors: zodErrors(parsed.error) };
 }
 
+const markingPctSchema = percentage("Sample percentage");
+const markingThresholdSchema = percentage("Difference threshold");
+const markingDaysSchema = wholeNumber("Target working days").min(1, {
+  error: "Target working days must be at least 1.",
+});
+
+export function checkMarkingDoubleMarkSamplePct(value: unknown): CheckResult<number> {
+  const parsed = markingPctSchema.safeParse(
+    typeof value === "number" ? value : Number(typeof value === "string" ? value : NaN),
+  );
+  return parsed.success ? { ok: true, value: parsed.data } : { ok: false, errors: zodErrors(parsed.error) };
+}
+
+export function checkMarkingDifferenceThresholdPct(value: unknown): CheckResult<number> {
+  const parsed = markingThresholdSchema.safeParse(
+    typeof value === "number" ? value : Number(typeof value === "string" ? value : NaN),
+  );
+  return parsed.success ? { ok: true, value: parsed.data } : { ok: false, errors: zodErrors(parsed.error) };
+}
+
+export function checkMarkingTargetWorkingDays(value: unknown): CheckResult<number> {
+  const parsed = markingDaysSchema.safeParse(
+    typeof value === "number" ? value : Number(typeof value === "string" ? value : NaN),
+  );
+  return parsed.success ? { ok: true, value: parsed.data } : { ok: false, errors: zodErrors(parsed.error) };
+}
+
 // Any setting --------------------------------------------------------------
 
 /**
@@ -392,6 +422,12 @@ export function checkSetting(
       return asJson(checkFoundationCertification(value));
     case "certification.department":
       return asJson(checkDepartmentCertification(value));
+    case "marking.double_mark_sample_pct":
+      return asJson(checkMarkingDoubleMarkSamplePct(value));
+    case "marking.difference_threshold_pct":
+      return asJson(checkMarkingDifferenceThresholdPct(value));
+    case "marking.target_working_days":
+      return asJson(checkMarkingTargetWorkingDays(value));
     default:
       return value === undefined ? { ok: false, errors: ["The new value is empty."] } : { ok: true, value: value as Json };
   }

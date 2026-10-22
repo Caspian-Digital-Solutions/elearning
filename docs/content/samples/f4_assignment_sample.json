@@ -1,0 +1,59 @@
+{
+  "assignments": [
+    {
+      "code": "f4-prompt-practical",
+      "title": "SAMPLE F4 rubric-marked prompt — not for real use",
+      "module_code": "f4",
+      "brief_md": "Complete a fictional campaign brief using an approved AI workspace. Submit a **Claude chat link** or paste your prompt and model output as **text**. Use only sample data — no client names or personal information.",
+      "rubric_ref": "R-F4-PROMPT-SAMPLE",
+      "submission_types": ["link", "text"],
+      "pass_mark_pct": 60,
+      "is_test_out": false,
+      "is_sample": true
+    }
+  ],
+  "rubrics": [
+    {
+      "ref": "R-F4-PROMPT-SAMPLE",
+      "title": "SAMPLE F4 prompt practical",
+      "criteria": [
+        {
+          "name": "Context and audience",
+          "max_score": 5,
+          "levels": [
+            { "score": 0, "descriptor": "Missing or vague context" },
+            { "score": 3, "descriptor": "Some context; audience unclear" },
+            { "score": 5, "descriptor": "Clear fictional context and audience" }
+          ]
+        },
+        {
+          "name": "Task instruction",
+          "max_score": 5,
+          "levels": [
+            { "score": 0, "descriptor": "No clear task" },
+            { "score": 3, "descriptor": "Task present but incomplete" },
+            { "score": 5, "descriptor": "Specific, actionable task" }
+          ]
+        },
+        {
+          "name": "Output quality",
+          "max_score": 5,
+          "levels": [
+            { "score": 0, "descriptor": "Unusable or off-brief" },
+            { "score": 3, "descriptor": "Usable with gaps" },
+            { "score": 5, "descriptor": "Meets brief with sensible structure" }
+          ]
+        },
+        {
+          "name": "Safety and data handling",
+          "max_score": 5,
+          "levels": [
+            { "score": 0, "descriptor": "Sensitive or client-like data included" },
+            { "score": 3, "descriptor": "Mostly safe; minor issues" },
+            { "score": 5, "descriptor": "Clearly fictional/sample data only" }
+          ]
+        }
+      ]
+    }
+  ]
+}

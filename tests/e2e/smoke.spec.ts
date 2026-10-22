@@ -7,13 +7,14 @@ test("a signed-out visit to My path lands on the sign-in page", async ({ page })
 });
 
 test("a signed-out visit to any other page also lands on the sign-in page", async ({ page }) => {
-  for (const path of ["/", "/trainer/marking", "/admin/settings", "/setup-pending"]) {
+  for (const path of ["/", "/trainer/marking", "/assignments", "/admin/settings", "/setup-pending"]) {
     await page.goto(path);
     await expect(page).toHaveURL(/\/login$/);
   }
 });
 
 for (const path of [
+  "/assignments",
   "/help",
   "/help/data-rules",
   "/what-changed",
@@ -36,6 +37,14 @@ for (const path of [
     await expect(page.getByRole("button", { name: "Sign in with Google" })).toBeVisible();
   });
 }
+
+test("a signed-out request for a submission file gets the sign-in page, not file bytes", async ({ page }) => {
+  const response = await page.goto(
+    "/submission-file/00000000-0000-4000-8000-000000000001/00000000-0000-4000-8000-000000000002/sample.pdf",
+  );
+  await expect(page).toHaveURL(/\/login$/);
+  expect(response?.headers()["content-type"] ?? "").not.toMatch(/application\/pdf/);
+});
 
 test("a signed-out request for the audit log export gets the sign-in page, not data", async ({ page }) => {
   await page.goto("/admin/audit/export");
