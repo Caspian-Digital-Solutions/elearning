@@ -2,7 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { after } from "next/server";
+import { after, connection } from "next/server";
 import type { AppRole } from "@/config/navigation";
 import { readDevPreviewRole } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
@@ -18,6 +18,7 @@ const lastSeenInterval = 60 * 60 * 1000;
  * Reads cookies, so callers must sit inside a <Suspense> boundary.
  */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
+  await connection();
   const supabase = await createClient();
   const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
   const userId = claimsData?.claims?.sub;

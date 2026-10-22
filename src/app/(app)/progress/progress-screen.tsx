@@ -103,6 +103,7 @@ export function ProgressScreen({
   onIncludeTestAccountsChange,
   canOpenPerson,
   showTrainerMarks,
+  tabErrors,
 }: {
   mode: "self" | "manager" | "trainer";
   people: ProgressPeopleTableRow[];
@@ -115,7 +116,19 @@ export function ProgressScreen({
   onIncludeTestAccountsChange?: (value: boolean) => void;
   canOpenPerson: boolean;
   showTrainerMarks: boolean;
+  tabErrors?: Partial<Record<"people" | "departments" | "modules" | "weekly" | "myPlan", string>>;
 }) {
+  function tabNotice(tab: keyof NonNullable<typeof tabErrors>) {
+    const message = tabErrors?.[tab];
+    if (!message) {
+      return null;
+    }
+    return (
+      <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+        {message}
+      </p>
+    );
+  }
   const [hiddenMarkColumns, setHiddenMarkColumns] = useState(
     () => new Set(trainerMarkColumns.map((column) => column.key)),
   );
@@ -249,6 +262,7 @@ export function ProgressScreen({
 
       {mode === "self" ? (
         <TabsContent value="my" className="space-y-6">
+          {tabNotice("myPlan")}
           {mySummary ? (
             <DataTable
               columns={[
@@ -289,6 +303,7 @@ export function ProgressScreen({
       ) : null}
 
       <TabsContent value="people" className="space-y-3">
+        {tabNotice("people")}
         {showTrainerMarks ? (
           <div className="flex flex-wrap gap-2">
             <Label className="sr-only">Mark columns</Label>
@@ -337,6 +352,7 @@ export function ProgressScreen({
 
       {mode === "manager" || mode === "trainer" ? (
         <TabsContent value="departments">
+          {tabNotice("departments")}
           <DataTable
             columns={[
               { key: "department", header: "Department" },
@@ -356,6 +372,7 @@ export function ProgressScreen({
 
       {mode === "trainer" ? (
         <TabsContent value="modules">
+          {tabNotice("modules")}
           <DataTable
             columns={moduleColumns}
             rows={moduleRows}
@@ -367,6 +384,7 @@ export function ProgressScreen({
 
       {mode === "trainer" ? (
         <TabsContent value="weekly">
+          {tabNotice("weekly")}
           <DataTable
             columns={[
               { key: "cohort", header: "Cohort" },

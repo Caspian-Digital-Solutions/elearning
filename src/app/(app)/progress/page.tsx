@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { sections } from "@/config/navigation";
 import { noteLastSeen, requireUser } from "@/lib/auth";
 import { progressTabsForUser } from "@/lib/progress/access";
+import { loadProgressSection } from "@/lib/progress/load-section";
 import {
   loadMyProgressPlan,
   loadProgressDepartments,
@@ -43,7 +44,7 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
   const departmentScope =
     mode === "manager" && user.progressScope === "department" ? user.departmentId : null;
 
-  const [people, departments, modules, weekly, myPlan] = await Promise.all([
+  const peopleResult = await loadProgressSection("people", () =>
     mode === "self"
       ? loadProgressPeopleRows({
           includeTestAccounts: false,
@@ -55,11 +56,50 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
           trainerView: showTrainerMarks,
           departmentId: mode === "manager" ? departmentScope : undefined,
         }),
-    mode === "self" ? Promise.resolve([]) : loadProgressDepartments(),
-    mode === "trainer" ? loadProgressModules(showTrainerMarks) : Promise.resolve([]),
-    mode === "trainer" ? loadProgressWeeklyActivity() : Promise.resolve([]),
-    mode === "self" ? loadMyProgressPlan(user.id) : Promise.resolve(null),
-  ]);
+  );
+
+  const departmentsResult =
+    mode === "self"
+      ? { ok: true as const, data: [] }
+      : await loadProgressSection("departments", () => loadProgressDepartments());
+
+  const modulesResult =
+    mode === "trainer"
+      ? await loadProgressSection("modules", () => loadProgressModules(showTrainerMarks))
+      : { ok: true as const, data: [] };
+
+  const weeklyResult =
+    mode === "trainer"
+      ? await loadProgressSection("weekly", () => loadProgressWeeklyActivity())
+      : { ok: true as const, data: [] };
+
+  const myPlanResult =
+    mode === "self"
+      ? await loadProgressSection("myPlan", () => loadMyProgressPlan(user.id))
+      : { ok: true as const, data: null };
+
+  const people = peopleResult.ok ? peopleResult.data : [];
+  const departments = departmentsResult.ok ? departmentsResult.data : [];
+  const modules = modulesResult.ok ? modulesResult.data : [];
+  const weekly = weeklyResult.ok ? weeklyResult.data : [];
+  const myPlan = myPlanResult.ok ? myPlanResult.data : null;
+
+  const tabErrors: Partial<Record<"people" | "departments" | "modules" | "weekly" | "myPlan", string>> = {};
+  if (!peopleResult.ok) {
+    tabErrors.people = peopleResult.message;
+  }
+  if (!departmentsResult.ok) {
+    tabErrors.departments = departmentsResult.message;
+  }
+  if (!modulesResult.ok) {
+    tabErrors.modules = modulesResult.message;
+  }
+  if (!weeklyResult.ok) {
+    tabErrors.weekly = weeklyResult.message;
+  }
+  if (!myPlanResult.ok) {
+    tabErrors.myPlan = myPlanResult.message;
+  }
 
   const mySummary = mode === "self" ? (people[0] ?? null) : null;
   const planModules = myPlan
@@ -94,6 +134,7 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
       includeTestAccounts={includeTestAccounts}
       canOpenPerson={canOpenPerson}
       showTrainerMarks={showTrainerMarks}
+      tabErrors={tabErrors}
     />
   );
 }

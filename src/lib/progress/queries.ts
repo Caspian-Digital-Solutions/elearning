@@ -8,6 +8,7 @@ import { loadMyPathState, type MyPathPlanView } from "@/lib/plan/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatCount } from "@/lib/progress/format-count";
+import { logProgressQueryFailure } from "@/lib/progress/load-section";
 import { countOverdueModules } from "@/lib/progress/overdue";
 import type {
   ProgressDepartmentRow,
@@ -149,6 +150,7 @@ export async function loadProgressPeopleRows(options: {
   }
   const { data, error } = await query;
   if (error) {
+    logProgressQueryFailure("people", error);
     throw new Error("Could not load progress people.");
   }
 
@@ -229,6 +231,7 @@ export async function loadProgressDepartments(): Promise<ProgressDepartmentRow[]
     .select("*")
     .order("department_name");
   if (error) {
+    logProgressQueryFailure("departments", error);
     throw new Error("Could not load department progress.");
   }
   return (data ?? []) as ProgressDepartmentRow[];
@@ -238,6 +241,7 @@ export async function loadProgressModules(includeTrainerColumns: boolean): Promi
   const supabase = await createClient();
   const { data, error } = await progressFrom(supabase, "progress_module_summary").select("*").order("module_code");
   if (error) {
+    logProgressQueryFailure("modules", error);
     throw new Error("Could not load module progress.");
   }
   const rows = (data ?? []) as ProgressModuleRow[];
@@ -259,6 +263,7 @@ export async function loadProgressWeeklyActivity(): Promise<ProgressWeeklyRow[]>
     .order("cohort_name")
     .order("programme_week");
   if (error) {
+    logProgressQueryFailure("weekly", error);
     throw new Error("Could not load weekly activity.");
   }
   return (data ?? []) as ProgressWeeklyRow[];

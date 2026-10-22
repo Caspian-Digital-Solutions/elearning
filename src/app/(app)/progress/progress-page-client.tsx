@@ -17,6 +17,7 @@ export function ProgressPageClient(props: {
   includeTestAccounts: boolean;
   canOpenPerson: boolean;
   showTrainerMarks: boolean;
+  tabErrors?: Partial<Record<"people" | "departments" | "modules" | "weekly" | "myPlan", string>>;
 }) {
   const router = useRouter();
   return (
