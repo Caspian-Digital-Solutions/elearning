@@ -2,6 +2,7 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-22 | 10 | Progress views and demo data: `progress_*` SQL views, `/progress` role-based tabs and person detail, `src/lib/progress/*`, `scripts/demo-data.ts` with `DEV_PROJECT_REF` guard, review fixes (assessment card labels, settings audit metadata, audit fold at 8 fields). Migration `20261027100000_progress_views.sql`. |
 | 2026-10-22 | 09 | Assignments and marking (DL-028): module assignments with link/file/text hand-in, private `submissions` storage, trainer marking queue with double-mark moderation, learner feedback release, `marking.*` admin settings, Content › Assignments import/editor, My path Week 5 test-out links to published assignment. Migration `20261026100000_assignments_and_marking.sql`. |
 | 2026-10-21 | 08b | Test-outs per programme architecture (DL-027): `test_out_pending` plan status, `plan.stream_rules` required and `test_outs` lists, `apply_test_out_result` and `submit_attempt` hook, My path Test-out section and fast-track Week 5 note, Admin settings validation and forms, SAMPLE `week1-testout` JSON and seed script. Migration `20261025100000_test_outs_dl027.sql`. |
 | 2026-10-21 | 08 | My path and learner plan: cohort `week0_start_date` and `cohort_breaks`, `generate_learner_plan` on placement confirm, overrides and `plan.stream_rules` setting, `/my-path` UI, trainer Plan tab and cohort calendar editor, discard in-progress SAMPLE Week 0 attempts. Migration `20261024100000_learner_plan_and_cohort_calendar.sql`. |

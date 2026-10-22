@@ -41,6 +41,18 @@ export type Database = {
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "app_settings_updated_by_fkey"
+      columns: ["updated_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "app_settings_updated_by_fkey"
+      columns: ["updated_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"assessment_item_keys": {
@@ -87,6 +99,24 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "departments"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assessment_items_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "assessment_items_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "assessment_items_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
     },{
       foreignKeyName: "assessment_items_domain_id_fkey"
       columns: ["domain_id"]
@@ -146,11 +176,29 @@ isOneToOne: false
       referencedRelation: "modules"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "assessments_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "progress_module_summary"
+      referencedColumns: ["module_id"]
+    },{
       foreignKeyName: "assessments_published_by_fkey"
       columns: ["published_by"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assessments_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "assessments_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"assignments": {
@@ -172,17 +220,53 @@ isOneToOne: false
       referencedRelation: "departments"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "assignments_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "assignments_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "assignments_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
+    },{
       foreignKeyName: "assignments_module_id_fkey"
       columns: ["module_id"]
 isOneToOne: false
       referencedRelation: "modules"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "assignments_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "progress_module_summary"
+      referencedColumns: ["module_id"]
+    },{
       foreignKeyName: "assignments_published_by_fkey"
       columns: ["published_by"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assignments_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "assignments_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     },{
       foreignKeyName: "assignments_rubric_id_fkey"
       columns: ["rubric_id"]
@@ -210,6 +294,18 @@ isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "attempts_allowed_by_fkey"
+      columns: ["allowed_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "attempts_allowed_by_fkey"
+      columns: ["allowed_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
       foreignKeyName: "attempts_assessment_id_fkey"
       columns: ["assessment_id"]
 isOneToOne: false
@@ -221,6 +317,18 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "attempts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "attempts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"audit_log": {
@@ -255,6 +363,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "cohorts"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cohort_breaks_cohort_id_fkey"
+      columns: ["cohort_id"]
+isOneToOne: false
+      referencedRelation: "progress_weekly_activity"
+      referencedColumns: ["cohort_id"]
     }
                   ]
                 },"cohorts": {
@@ -303,6 +417,18 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "content_drafts_updated_by_fkey"
+      columns: ["updated_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "content_drafts_updated_by_fkey"
+      columns: ["updated_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"content_revisions": {
@@ -323,6 +449,18 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "content_revisions_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "content_revisions_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"department_domain_requirements": {
@@ -343,6 +481,24 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "departments"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "department_domain_requirements_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "department_domain_requirements_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "department_domain_requirements_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
     },{
       foreignKeyName: "department_domain_requirements_domain_id_fkey"
       columns: ["domain_id"]
@@ -369,6 +525,24 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "departments"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "departments_parent_id_fkey"
+      columns: ["parent_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "departments_parent_id_fkey"
+      columns: ["parent_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "departments_parent_id_fkey"
+      columns: ["parent_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
     }
                   ]
                 },"learner_plan": {
@@ -390,8 +564,32 @@ isOneToOne: false
       referencedRelation: "modules"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "learner_plan_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "progress_module_summary"
+      referencedColumns: ["module_id"]
+    },{
       foreignKeyName: "learner_plan_set_by_fkey"
       columns: ["set_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "learner_plan_set_by_fkey"
+      columns: ["set_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "learner_plan_set_by_fkey"
+      columns: ["set_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "learner_plan_user_id_fkey"
+      columns: ["user_id"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
@@ -399,8 +597,14 @@ isOneToOne: false
       foreignKeyName: "learner_plan_user_id_fkey"
       columns: ["user_id"]
 isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "learner_plan_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"lesson_progress": {
@@ -427,6 +631,18 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "lesson_progress_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "lesson_progress_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"lessons": {
@@ -448,11 +664,29 @@ isOneToOne: false
       referencedRelation: "modules"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "lessons_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "progress_module_summary"
+      referencedColumns: ["module_id"]
+    },{
       foreignKeyName: "lessons_published_by_fkey"
       columns: ["published_by"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "lessons_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "lessons_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"module_domains": {
@@ -479,6 +713,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "modules"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "module_domains_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "progress_module_summary"
+      referencedColumns: ["module_id"]
     }
                   ]
                 },"modules": {
@@ -525,6 +765,18 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "page_acknowledgements_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "page_acknowledgements_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"pages": {
@@ -546,11 +798,35 @@ isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "pages_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "pages_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
       foreignKeyName: "pages_published_by_fkey"
       columns: ["published_by"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pages_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "pages_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"placement_results": {
@@ -578,11 +854,35 @@ isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "placement_results_confirmed_by_fkey"
+      columns: ["confirmed_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "placement_results_confirmed_by_fkey"
+      columns: ["confirmed_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
       foreignKeyName: "placement_results_user_id_fkey"
       columns: ["user_id"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "placement_results_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "placement_results_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"profiles": {
@@ -604,11 +904,35 @@ isOneToOne: false
       referencedRelation: "cohorts"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "profiles_cohort_id_fkey"
+      columns: ["cohort_id"]
+isOneToOne: false
+      referencedRelation: "progress_weekly_activity"
+      referencedColumns: ["cohort_id"]
+    },{
       foreignKeyName: "profiles_department_id_fkey"
       columns: ["department_id"]
 isOneToOne: false
       referencedRelation: "departments"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "profiles_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "profiles_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "profiles_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
     }
                   ]
                 },"response_scores": {
@@ -629,6 +953,18 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "response_scores_marked_by_fkey"
+      columns: ["marked_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "response_scores_marked_by_fkey"
+      columns: ["marked_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     },{
       foreignKeyName: "response_scores_response_id_fkey"
       columns: ["response_id"]
@@ -682,6 +1018,18 @@ isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "review_assignments_reviewer_id_fkey"
+      columns: ["reviewer_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "review_assignments_reviewer_id_fkey"
+      columns: ["reviewer_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
       foreignKeyName: "review_assignments_submission_id_fkey"
       columns: ["submission_id"]
 isOneToOne: false
@@ -707,6 +1055,18 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reviews_reviewer_id_fkey"
+      columns: ["reviewer_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "reviews_reviewer_id_fkey"
+      columns: ["reviewer_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     },{
       foreignKeyName: "reviews_submission_id_fkey"
       columns: ["submission_id"]
@@ -807,6 +1167,18 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "submissions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "submissions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 },"updates": {
@@ -827,12 +1199,88 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "updates_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "updates_published_by_fkey"
+      columns: ["published_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
     }
                   ]
                 }
           }
           Views: {
-            [_ in never]: never
+            "progress_department_summary": {
+                  Row: {
+                    "active_last_7_days": number | null,"data_rules_confirmed_count": number | null,"department_id": string | null,"department_name": string | null,"people": number | null,"required_modules_done_sum": number | null,"required_modules_total_sum": number | null,"stream_champion": number | null,"stream_foundation": number | null,"stream_practitioner": number | null,"stream_practitioner_fast_track": number | null,"week0_confirmed": number | null,"week0_in_progress": number | null,"week0_not_started": number | null,"week0_submitted": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
+                },"progress_module_summary": {
+                  Row: {
+                    "assignment_returned": number | null,"assignment_submissions": number | null,"lesson_completions": number | null,"median_working_days_to_return": number | null,"module_code": string | null,"module_id": string | null,"module_title": string | null,"people_done": number | null,"people_required": number | null,"quiz_attempts": number | null,"quiz_passes": number | null,"resubmit_requested": number | null,"test_out_pending": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
+                },"progress_person_public": {
+                  Row: {
+                    "assignments_returned": number | null,"assignments_submitted": number | null,"bridge_modules_done": number | null,"bridge_modules_total": number | null,"cohort_id": string | null,"cohort_name": string | null,"data_rules_confirmed": boolean | null,"data_rules_version": number | null,"department_id": string | null,"department_name": string | null,"is_test_account": boolean | null,"last_seen_at": string | null,"lessons_completed": number | null,"person_name": string | null,"quizzes_completed": number | null,"quizzes_passed": number | null,"required_modules_done": number | null,"required_modules_total": number | null,"stream": string | null,"test_out_status": string | null,"user_id": string | null,"week0_status": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "profiles_cohort_id_fkey"
+      columns: ["cohort_id"]
+isOneToOne: false
+      referencedRelation: "cohorts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "profiles_cohort_id_fkey"
+      columns: ["cohort_id"]
+isOneToOne: false
+      referencedRelation: "progress_weekly_activity"
+      referencedColumns: ["cohort_id"]
+    }
+                  ]
+                },"progress_person_trainer": {
+                  Row: {
+                    "assignment_marks_summary": string | null,"assignments_returned": number | null,"assignments_submitted": number | null,"bridge_modules_done": number | null,"bridge_modules_total": number | null,"cohort_id": string | null,"cohort_name": string | null,"data_rules_confirmed": boolean | null,"data_rules_version": number | null,"department_id": string | null,"department_name": string | null,"is_test_account": boolean | null,"last_seen_at": string | null,"lessons_completed": number | null,"person_name": string | null,"quiz_best_summary": string | null,"quizzes_completed": number | null,"quizzes_passed": number | null,"required_modules_done": number | null,"required_modules_total": number | null,"stream": string | null,"test_out_status": string | null,"user_id": string | null,"week0_status": string | null,"week0_total": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "profiles_cohort_id_fkey"
+      columns: ["cohort_id"]
+isOneToOne: false
+      referencedRelation: "cohorts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "profiles_cohort_id_fkey"
+      columns: ["cohort_id"]
+isOneToOne: false
+      referencedRelation: "progress_weekly_activity"
+      referencedColumns: ["cohort_id"]
+    }
+                  ]
+                },"progress_weekly_activity": {
+                  Row: {
+                    "assignments_submitted": number | null,"cohort_id": string | null,"cohort_name": string | null,"feedback_released": number | null,"lessons_completed": number | null,"people_active": number | null,"programme_week": number | null,"quizzes_submitted": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
+                }
           }
           Functions: {
             "_calculate_placement_internal":
@@ -892,6 +1340,56 @@ isOneToOne: false
                            },
 "_plan_test_out_week_for_module":
 { Args: { "p_module_code": string,"p_rules": Json,"p_stream": Database["public"]['Enums']["stream_type"] }; Returns: number
+                           },
+"_progress_break_covers_date":
+{ Args: { "p_cohort_id": string,"p_ymd": string }; Returns: boolean
+                           },
+"_progress_module_complete":
+{ Args: { "p_module_id": string,"p_user_id": string }; Returns: boolean
+                           },
+"_progress_monday_of_week":
+{ Args: { "p_ymd": string }; Returns: string
+                           },
+"_progress_person_assignment_counts":
+{ Args: { "p_user_id": string }; Returns: {
+              "assignments_returned": number,"assignments_submitted": number
+            }[]
+                           },
+"_progress_person_plan_counts":
+{ Args: { "p_user_id": string }; Returns: {
+              "bridge_modules_done": number,"bridge_modules_total": number,"required_modules_done": number,"required_modules_total": number
+            }[]
+                           },
+"_progress_person_quiz_counts":
+{ Args: { "p_user_id": string }; Returns: {
+              "quizzes_completed": number,"quizzes_passed": number
+            }[]
+                           },
+"_progress_person_test_out_status":
+{ Args: { "p_user_id": string }; Returns: string
+                           },
+"_progress_person_week0_status":
+{ Args: { "p_user_id": string }; Returns: string
+                           },
+"_progress_programme_week_range":
+{ Args: { "p_cohort_id": string,"p_programme_week": number,"p_week0_start": string }; Returns: {
+              "week_friday": string,"week_monday": string
+            }[]
+                           },
+"_progress_require_can_view_user":
+{ Args: { "p_user_id": string }; Returns: undefined
+                           },
+"_progress_trainer_assignment_marks_summary":
+{ Args: { "p_user_id": string }; Returns: string
+                           },
+"_progress_trainer_quiz_summary":
+{ Args: { "p_user_id": string }; Returns: string
+                           },
+"_progress_trainer_week0_total":
+{ Args: { "p_user_id": string }; Returns: string
+                           },
+"_progress_working_days_malaysia":
+{ Args: { "p_end": string,"p_start": string }; Returns: number
                            },
 "_rubric_max_total":
 { Args: { "p_rubric_id": string }; Returns: number
@@ -962,6 +1460,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"can_view_department":
+{ Args: { "p_department_id": string }; Returns: boolean
+                           },
 "can_view_user":
 { Args: { "target": string }; Returns: boolean
                            },

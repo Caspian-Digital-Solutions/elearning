@@ -14,6 +14,15 @@ The pages and the menu are in place, and sign-in works with CDS Google accounts 
 
 Production staff URL: https://ailearning.devteam-cds.tech
 
+### Demo progress data (development only)
+
+After setting `DEV_PROJECT_REF` in `.env.local` to your dev Supabase project ref (the subdomain before `.supabase.co`):
+
+- `npm run demo:seed` — creates about twelve demo learners (`is_test_account`) across departments; asks for `yes` before writing.
+- `npm run demo:clear` — deletes every `is_test_account` profile (and cascaded data); asks for `yes`.
+
+Do not run these against production. See [docs/10-demo-clear.md](docs/10-demo-clear.md) in the Project store for the exact clear SQL.
+
 ### Screenshot and E2E test accounts
 
 For signed-in Playwright runs, use the fixed accounts created by `npx tsx scripts/ensure-test-accounts.ts` (Test Learner / Test Trainer at `test-*-screenshots@caspiands.com`). They are marked `is_test_account` on `profiles` and are excluded from trainer user counts, placements lists, and quiz analytics. The script uses the Supabase Admin API; it does not delete these users mid-run.

@@ -28,6 +28,7 @@ export type SettingRecord = {
   note: string | null;
   updatedAt: string;
   updatedBy: string | null;
+  auditReason: string | null;
 };
 
 type SettingRow = {
@@ -38,6 +39,7 @@ type SettingRow = {
   changedBy: string;
   changedAt: string;
   changedAtSort: string;
+  auditReason: string;
 };
 
 const columns: DataColumn<SettingRow>[] = [
@@ -47,6 +49,7 @@ const columns: DataColumn<SettingRow>[] = [
   { key: "note", header: "Note", wrap: true },
   { key: "changedBy", header: "Last changed by" },
   { key: "changedAt", header: "When", sortKey: "changedAtSort" },
+  { key: "auditReason", header: "Reason", wrap: true },
 ];
 
 export function SettingsScreen({
@@ -73,6 +76,7 @@ export function SettingsScreen({
         changedBy: setting.updatedBy ?? "Initial value",
         changedAt: formatDateTime(setting.updatedAt),
         changedAtSort: setting.updatedAt,
+        auditReason: setting.auditReason ?? "",
       })),
     [settings],
   );

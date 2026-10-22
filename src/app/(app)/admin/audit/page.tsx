@@ -61,7 +61,7 @@ function ChangeList({ entry }: { entry: AuditEntry }) {
       ))}
     </ul>
   );
-  if (entry.action === "Changed" || entry.changes.length <= 4) {
+  if (entry.action === "Changed" || entry.changes.length <= 8) {
     return list;
   }
   return (

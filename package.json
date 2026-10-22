@@ -14,7 +14,9 @@
     "db:types": "supabase gen types typescript --linked --schema public > src/lib/types/database.ts",
     "db:types:local": "supabase gen types typescript --local --schema public > src/lib/types/database.ts",
     "db:seed:generate": "tsx scripts/generate-seed.ts",
-    "db:check": "tsx scripts/db-check.ts"
+    "db:check": "tsx scripts/db-check.ts",
+    "demo:seed": "tsx scripts/demo-data.ts seed",
+    "demo:clear": "tsx scripts/demo-data.ts clear"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

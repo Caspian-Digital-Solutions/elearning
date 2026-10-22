@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authorise } from "@/lib/auth";
 import type { Json } from "@/lib/settings/validators";
+import { loadSettingsAuditMeta } from "@/lib/settings/audit-meta";
 import { createClient } from "@/lib/supabase/server";
 import { SettingsScreen, type SettingRecord } from "./settings-screen";
 
@@ -37,14 +38,20 @@ async function SettingsData() {
   if (error) {
     throw new Error("Could not load settings.");
   }
-  const settings: SettingRecord[] = data.map((row) => ({
-    key: row.key,
-    // Values read back from jsonb never hold undefined, which the generated type allows.
-    value: row.value as Json,
-    note: row.note,
-    updatedAt: row.updated_at,
-    updatedBy: row.profiles ? row.profiles.full_name?.trim() || row.profiles.email : null,
-  }));
+  const keys = data.map((row) => row.key);
+  const auditByKey = await loadSettingsAuditMeta(keys);
+  const settings: SettingRecord[] = data.map((row) => {
+    const audit = auditByKey.get(row.key);
+    return {
+      key: row.key,
+      // Values read back from jsonb never hold undefined, which the generated type allows.
+      value: row.value as Json,
+      note: row.note,
+      updatedAt: audit?.changedAt ?? row.updated_at,
+      updatedBy: audit?.changedBy ?? (row.profiles ? row.profiles.full_name?.trim() || row.profiles.email : null),
+      auditReason: audit?.reason ?? null,
+    };
+  });
   const { data: modules } = await supabase.from("modules").select("code").order("code");
   const moduleCodes = (modules ?? []).map((row) => row.code);
   return <SettingsScreen settings={settings} moduleCodes={moduleCodes} />;

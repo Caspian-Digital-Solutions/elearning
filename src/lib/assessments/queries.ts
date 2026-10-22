@@ -18,6 +18,9 @@ import {
 } from "@/lib/assessments/quiz-status";
 import { formatDateTime } from "@/lib/format";
 import { markdownSnippet } from "@/lib/markdown-snippet";
+import { defaultPlanStreamRules } from "@/lib/plan/stream-rules";
+import { planStreamRulesFromSetting } from "@/lib/plan/stream-rules-setting";
+import type { PlanStreamRules } from "@/lib/plan/types";
 import { streamNames, type Stream } from "@/lib/people/labels";
 import { createClient } from "@/lib/supabase/server";
 import type { AttemptStatus } from "@/lib/types/database-assessments";
@@ -41,10 +44,48 @@ export type ModuleQuizCard = {
   moduleCode: string;
   type: "quiz" | "safety_quiz";
   passMarkPct: number | null;
+  maxAttempts: number | null;
   statusLabel: string;
   href: string;
   canStart: boolean;
 };
+
+function attemptsPhrase(maxAttempts: number | null): string {
+  if (maxAttempts === null) {
+    return "Unlimited attempts";
+  }
+  if (maxAttempts === 1) {
+    return "1 attempt";
+  }
+  return `${maxAttempts} attempts`;
+}
+
+function testOutWeekByAssessmentSource(rules: PlanStreamRules): Map<string, number> {
+  const map = new Map<string, number>();
+  for (const stream of ["foundation", "practitioner", "practitioner_fast_track", "champion"] as const) {
+    for (const rule of rules[stream].test_outs) {
+      if (rule.via === "assessment") {
+        map.set(rule.source_code, rule.week);
+      }
+    }
+  }
+  return map;
+}
+
+export function formatLearnerQuizInstructionsSnippet(
+  quiz: Pick<ModuleQuizCard, "code" | "type" | "passMarkPct" | "maxAttempts">,
+  testOutWeek: number | undefined,
+): string {
+  const pass = quiz.passMarkPct ?? 0;
+  const attempts = attemptsPhrase(quiz.maxAttempts);
+  if (testOutWeek !== undefined) {
+    return `Week ${testOutWeek} test-out — ${pass}% to pass, ${attempts}`;
+  }
+  if (quiz.type === "safety_quiz") {
+    return `Safety quiz — ${pass}% to pass, ${attempts}`;
+  }
+  return `Quiz — ${pass}% to pass, ${attempts}`;
+}
 
 export type TrainerAssessmentListRow = {
   id: string;
@@ -139,6 +180,14 @@ export async function loadLearnerAssessmentCards(userId: string): Promise<Learne
     });
   }
 
+  const [{ data: streamRulesRow }, { data: moduleRows }] = await Promise.all([
+    supabase.from("app_settings").select("value").eq("key", "plan.stream_rules").maybeSingle(),
+    supabase.from("modules").select("code"),
+  ]);
+  const moduleCodes = (moduleRows ?? []).map((row) => row.code);
+  const streamRules = planStreamRulesFromSetting(streamRulesRow?.value ?? {}, moduleCodes) ?? defaultPlanStreamRules;
+  const testOutWeeks = testOutWeekByAssessmentSource(streamRules);
+
   const quizCards = await loadPublishedQuizzesForLearner(userId);
   for (const quiz of quizCards) {
     cards.push({
@@ -146,9 +195,7 @@ export async function loadLearnerAssessmentCards(userId: string): Promise<Learne
       title: quiz.title,
       type: quiz.type,
       timeGuideMin: null,
-      instructionsSnippet: quiz.type === "safety_quiz"
-        ? `Safety quiz — ${quiz.passMarkPct ?? 0}% to pass`
-        : "5-question check",
+      instructionsSnippet: formatLearnerQuizInstructionsSnippet(quiz, testOutWeeks.get(quiz.code)),
       statusLabel: quiz.statusLabel,
       href: quiz.href,
       assessmentId: quiz.assessmentId,
@@ -811,6 +858,7 @@ export async function loadPublishedQuizzesForLearner(userId: string): Promise<Mo
       moduleCode: moduleRow?.code ?? "—",
       type: quiz.type as "quiz" | "safety_quiz",
       passMarkPct: quiz.pass_mark_pct,
+      maxAttempts: quiz.max_attempts,
       statusLabel,
       href: `/assessments/${quiz.code}`,
       canStart,

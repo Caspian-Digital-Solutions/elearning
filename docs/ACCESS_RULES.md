@@ -133,9 +133,15 @@ Most change functions run as the signed-in person (`security invoker`), so the r
 - **Content images** (`/content-image/...`): signed-in staff only. The app redirects to a short-lived signed URL for objects in the private `content-images` bucket (`lessons/{id}/…` or `pages/{id}/…`). Learners never receive a permanent public storage URL.
 - **Rules and help** (`/help`, `/help/[slug]`): all signed-in staff with access. Published pages only; search uses published text.
 - **What changed** (`/what-changed`, `/what-changed/[slug]`): all signed-in staff. Opening the feed clears the sidebar unread badge for that person.
+- **Progress** (`/progress`, `/progress/person/[id]`): all signed-in staff. **Learners and champions (scope self):** “My progress” with their own counts and week-by-week modules (marks visible on their own row). **Managers (scope department):** People and Department tabs for their department only; no mark columns. **Trainers and admins:** People, Departments, Modules and Weekly activity; mark columns via the column picker; optional “Include test accounts”. Person detail is read-only; managers may open people in their department only. Data comes from `progress_*` views (`security_invoker`); test accounts are excluded unless trainers tick Include test accounts.
 - **Trainer › Users** (`/trainer/users`): trainers and admins. Counts, the people table, the edit panel, bulk changes and the Cohorts tab. Role and scope are shown read-only.
 - **Admin › Roles** (`/admin/roles`), **Admin › Settings** (`/admin/settings`), **Admin › Audit log** (`/admin/audit`, and its CSV export at `/admin/audit/export`): admins only.
 - Each page checks the role on the server, each server action checks the real role again before calling the database (a preview role never counts), and the database checks a third time.
+
+## Assumptions in Prompt 10
+
+- **Managers** never see Week 0 totals, quiz percentages or assignment marks on `/progress` (DL-022). Trainers and admins may show those columns from `progress_person_trainer`.
+- **`npm run demo:seed` / `demo:clear`:** development only; both require `DEV_PROJECT_REF` to match `NEXT_PUBLIC_SUPABASE_URL` and an interactive `yes` (or `--yes`). Clear runs `delete from public.profiles where is_test_account = true` (see Project store `docs/10-demo-clear.md`).
 
 ## Assumptions in Prompt 07
 
