@@ -188,6 +188,13 @@ export const sections = {
     builtInPrompt: "04",
     emptyDetail: "Changes to roles, marks, and settings are listed here.",
   },
+  system: {
+    title: "System",
+    purpose: "Environment, database ref, and migration head for cut-over checks.",
+    phase: 1,
+    builtInPrompt: "11b",
+    emptyDetail: "Deployment facts appear here.",
+  },
 } as const satisfies Record<string, Section>;
 
 export type SectionKey = keyof typeof sections;
@@ -358,6 +365,14 @@ export const navigation: readonly NavItem[] = [
     roles: admins,
     group: "admin",
     section: "audit",
+  },
+  {
+    label: "System",
+    href: "/admin/system",
+    icon: Wrench,
+    roles: admins,
+    group: "admin",
+    section: "system",
   },
 ];
 

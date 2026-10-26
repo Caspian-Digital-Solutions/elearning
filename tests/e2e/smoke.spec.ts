@@ -30,6 +30,7 @@ for (const path of [
   "/admin/roles",
   "/admin/settings",
   "/admin/audit",
+  "/admin/system",
   "/progress",
 ]) {
   test(`a signed-out visit to ${path} lands on the sign-in page`, async ({ page }) => {

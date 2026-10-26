@@ -34,10 +34,13 @@ Bharg, the product owner, is **not a developer**. So:
 10. Use current Supabase conventions: publishable key (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`), `proxy.ts` (not `middleware.ts`), `getClaims()` for auth checks. Do not copy older tutorials that use the anon key or `middleware.ts`.
 
 ## Working method
+- **Branch:** implement on **`develop`**; release by merging to **`main`** per `docs/RUNBOOK.md`. Do not commit prompt work directly to `main` unless Bharg asks for a hotfix.
 - Work in small steps. One prompt from `docs/prompts/` at a time.
 - Database changes only through new numbered files in `supabase/migrations/`. Never edit a migration that has already been applied; add a new one.
+- After database changes, run **`npm run db:push:dev`** on the development project only. Use **`npm run db:push:prod`** only when Bharg is releasing to production and can type the production project ref when the script asks.
+- **Never** run `npm run db:push:prod`, `npm run db:check:prod`, `scripts/promote-content.ts` (real run), or `scripts/compare-rls-policies.ts` without Bharg typing the production ref. Do not run `demo:seed` or `demo:clear` on the live academy database.
 - After database changes, regenerate types into `src/lib/types/database.ts`.
-- Before saying a task is done, run: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`. Report the result honestly. If something fails, say so and fix it.
+- Before saying a task is done, run: `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:rls`, `npm run test:e2e`, `npm run build`. Report the result honestly. If something fails, say so and fix it.
 - At the end of each prompt, update `docs/BUILD_PLAN.md` (status, date, notes) and add a line to `CHANGELOG.md`.
 - If a requirement is unclear, state your assumption in the plan, mark it "ASSUMPTION", and continue. Ask only if the answer changes what gets built.
 - Never delete data, drop tables or reset the database without Bharg typing an explicit yes.
@@ -53,8 +56,11 @@ British English. Short, direct sentences. No exclamation marks, no emoji, no "Aw
 
 ## Commands
 - `npm run dev` — run locally at http://localhost:3000
-- `npm run lint` · `npm run typecheck` · `npm test` · `npm run test:e2e` · `npm run build`
-- `npx supabase db push` — apply new migrations to the linked Supabase project
+- `npm run lint` · `npm run typecheck` · `npm test` · `npm run test:rls` · `npm run test:e2e` · `npm run build`
+- `npm run db:push:dev` · `npm run db:push:prod` (prod asks you to type the ref)
+- `npm run db:check:dev` · `npm run db:check:prod` (prod read-only; type the ref)
+- `npx tsx scripts/promote-content.ts --dry-run` — cut-over content preview (dev → prod)
+- `npx tsx scripts/compare-rls-policies.ts` — dev vs prod RLS names (read-only)
 - `npm run db:types` — regenerate database types
 
 <!-- BEGIN:nextjs-agent-rules -->

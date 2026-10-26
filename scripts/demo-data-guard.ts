@@ -2,15 +2,9 @@
  * Shared safety checks for demo seed/clear scripts (dev project ref only).
  */
 
-export function projectRefFromSupabaseUrl(url: string): string | null {
-  try {
-    const host = new URL(url).hostname;
-    const match = /^([a-z0-9]+)\.supabase\.co$/i.exec(host);
-    return match ? match[1] : null;
-  } catch {
-    return null;
-  }
-}
+import { projectRefFromSupabaseUrl } from "../src/lib/supabase/project-ref";
+
+export { projectRefFromSupabaseUrl };
 
 export function assertDevProjectRef(
   databaseUrl: string,

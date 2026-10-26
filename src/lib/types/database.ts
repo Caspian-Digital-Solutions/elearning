@@ -1670,6 +1670,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"platform_migration_head":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
 "search_help_pages":
 { Args: { "p_query": string }; Returns: {
               "body_md": string,

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { DevelopmentRibbon } from "@/components/layout/development-ribbon";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { fontVariables } from "@/lib/fonts";
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           >
             Skip to content
           </a>
+          <DevelopmentRibbon />
           {children}
           <Toaster />
         </TooltipProvider>

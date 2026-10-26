@@ -2,6 +2,7 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-26 | 11b | Production cut-over **tooling** (no prod project yet): `develop` workflow, DEVELOPMENT ribbon, `/admin/system`, `db:push:dev`/`db:push:prod`, `db:check:dev`/`db:check:prod`, `promote-content.ts`, `compare-rls-policies.ts`, `docs/RUNBOOK.md`, DL-029. Migration `20261029110000_platform_migration_head.sql`. |
 | 2026-10-22 | 11a | Launch readiness: security headers, rate limits (`check_rate_limit`), `APP_ENV=production` guards, privacy help page, leavers and retention admin UI, personal data ZIP export (CSVs; submission files listed only), access matrix sweep tests, guides, `docs/security/*`, `docs/PRODUCTION_CUTOVER.md`. Migration `20261028100000_launch_readiness.sql`. |
 | 2026-10-22 | 10b | Progress page per-tab errors; `connection()` for signed-in prerender; Supabase `getClaims()` on server client. |
 | 2026-10-22 | 10 | Progress views and demo data: `progress_*` SQL views, `/progress` role-based tabs and person detail, `src/lib/progress/*`, `scripts/demo-data.ts` with `DEV_PROJECT_REF` guard, review fixes (assessment card labels, settings audit metadata, audit fold at 8 fields). Migration `20261027100000_progress_views.sql`. |
