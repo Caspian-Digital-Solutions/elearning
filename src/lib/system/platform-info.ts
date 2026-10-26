@@ -1,6 +1,7 @@
 import "server-only";
 
 import { readAppEnv, isProductionAppEnv } from "@/lib/app-env";
+import { isPreLaunchDatabase, preLaunchEnvironmentLabel } from "@/lib/system/pre-launch";
 import { projectRefFromSupabaseUrl } from "@/lib/supabase/project-ref";
 import { readServerEnv } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -37,8 +38,10 @@ export async function loadPlatformInfo(): Promise<PlatformInfo> {
     // Migration RPC may not be applied yet on this database.
   }
 
+  const environment = isPreLaunchDatabase() ? preLaunchEnvironmentLabel() : readAppEnv();
+
   return {
-    environment: readAppEnv(),
+    environment,
     projectRef: ref,
     projectRefShort: shortRef(ref),
     gitCommit,

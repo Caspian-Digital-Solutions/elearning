@@ -28,6 +28,7 @@ export const knownSettingKeys = [
   "marking.double_mark_sample_pct",
   "marking.difference_threshold_pct",
   "marking.target_working_days",
+  "skills.min_test_cases",
 ] as const;
 
 export type KnownSettingKey = (typeof knownSettingKeys)[number];
@@ -386,6 +387,17 @@ export function checkMarkingTargetWorkingDays(value: unknown): CheckResult<numbe
   return parsed.success ? { ok: true, value: parsed.data } : { ok: false, errors: zodErrors(parsed.error) };
 }
 
+const minTestCasesSchema = wholeNumber("Minimum test cases")
+  .min(1, { error: "Minimum test cases must be at least 1." })
+  .max(50, { error: "Minimum test cases must be at most 50." });
+
+export function checkSkillsMinTestCases(value: unknown): CheckResult<number> {
+  const parsed = minTestCasesSchema.safeParse(
+    typeof value === "number" ? value : Number(typeof value === "string" ? value : NaN),
+  );
+  return parsed.success ? { ok: true, value: parsed.data } : { ok: false, errors: zodErrors(parsed.error) };
+}
+
 // Any setting --------------------------------------------------------------
 
 /**
@@ -428,6 +440,8 @@ export function checkSetting(
       return asJson(checkMarkingDifferenceThresholdPct(value));
     case "marking.target_working_days":
       return asJson(checkMarkingTargetWorkingDays(value));
+    case "skills.min_test_cases":
+      return asJson(checkSkillsMinTestCases(value));
     default:
       return value === undefined ? { ok: false, errors: ["The new value is empty."] } : { ok: true, value: value as Json };
   }

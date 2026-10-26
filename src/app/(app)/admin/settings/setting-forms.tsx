@@ -64,6 +64,8 @@ export function SettingForm({
       return <MarkingPctForm initial={initial} onChange={onChange} />;
     case "marking.target_working_days":
       return <MarkingDaysForm initial={initial} onChange={onChange} />;
+    case "skills.min_test_cases":
+      return <MinTestCasesForm initial={initial} onChange={onChange} />;
     default:
       return <JsonForm initial={initial} onChange={onChange} />;
   }
@@ -810,6 +812,24 @@ function MarkingDaysForm({ initial, onChange }: { initial: Json; onChange: OnCha
         setValue(next);
         const num = toNumber(next);
         onChange(num, num === null || Number.isNaN(num) ? "Enter a whole number of at least 1." : undefined);
+      }}
+    />
+  );
+}
+
+function MinTestCasesForm({ initial, onChange }: { initial: Json; onChange: OnChange }) {
+  const [value, setValue] = useState(toText(initial));
+  return (
+    <NumberField
+      label="Minimum test cases"
+      hint="A Skill version needs at least this many test cases recorded and passed before review."
+      min={1}
+      max={50}
+      value={value}
+      onChange={(next) => {
+        setValue(next);
+        const num = toNumber(next);
+        onChange(num, num === null || Number.isNaN(num) ? "Enter a whole number from 1 to 50." : undefined);
       }}
     />
   );

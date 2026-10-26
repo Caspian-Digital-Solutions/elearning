@@ -781,14 +781,14 @@ isOneToOne: false
                   ]
                 },"pages": {
                   Row: {
-                    "body_md": string,"created_at": string,"id": string,"owner_id": string | null,"published_at": string | null,"published_by": string | null,"requires_acknowledgement": boolean,"review_by": string | null,"slug": string,"sort_order": number,"status": Database["public"]['Enums']["content_status"],"title": string,"updated_at": string,"version": number
+                    "body_md": string,"created_at": string,"id": string,"owner_id": string | null,"published_at": string | null,"published_by": string | null,"acknowledgement_label": string,"requires_acknowledgement": boolean,"review_by": string | null,"slug": string,"sort_order": number,"status": Database["public"]['Enums']["content_status"],"title": string,"updated_at": string,"version": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug": string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title": string,"updated_at"?: string,"version"?: number
+                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"acknowledgement_label"?: string,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug": string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title": string,"updated_at"?: string,"version"?: number
                   }
                   Update: {
-                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug"?: string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title"?: string,"updated_at"?: string,"version"?: number
+                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"acknowledgement_label"?: string,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug"?: string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title"?: string,"updated_at"?: string,"version"?: number
                   }
                   Relationships: [
                     {

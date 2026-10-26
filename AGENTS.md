@@ -35,6 +35,7 @@ Bharg, the product owner, is **not a developer**. So:
 
 ## Working method
 - **Branch:** implement on **`develop`**; release by merging to **`main`** per `docs/RUNBOOK.md`. Do not commit prompt work directly to `main` unless Bharg asks for a hotfix.
+- **Before you commit feature work**, run `git branch --show-current`. If the answer is `main`, stop and move the work to `develop` (or a `cursor/…-f142` branch from `develop`). Do not commit prompts, migrations, or product features on `main`.
 - Work in small steps. One prompt from `docs/prompts/` at a time.
 - Database changes only through new numbered files in `supabase/migrations/`. Never edit a migration that has already been applied; add a new one.
 - After database changes, run **`npm run db:push:dev`** on the development project only. Use **`npm run db:push:prod`** only when Bharg is releasing to production and can type the production project ref when the script asks.

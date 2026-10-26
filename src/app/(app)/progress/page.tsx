@@ -39,6 +39,7 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
   const includeTestAccounts = params.test === "1" || params.test === "true";
   const mode = progressTabsForUser(user);
   const trainerView = mode === "trainer";
+  const staffProgressTabs = mode === "trainer" || mode === "manager";
   const showTrainerMarks = user.actualRole === "trainer" || user.actualRole === "admin";
 
   const departmentScope =
@@ -63,18 +64,16 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
       ? { ok: true as const, data: [] }
       : await loadProgressSection("departments", () => loadProgressDepartments());
 
-  const modulesResult =
-    mode === "trainer"
-      ? await loadProgressSection("modules", () => loadProgressModules(showTrainerMarks))
-      : { ok: true as const, data: [] };
+  const modulesResult = staffProgressTabs
+    ? await loadProgressSection("modules", () => loadProgressModules(showTrainerMarks))
+    : { ok: true as const, data: [] };
 
-  const weeklyResult =
-    mode === "trainer"
-      ? await loadProgressSection("weekly", () => loadProgressWeeklyActivity())
-      : { ok: true as const, data: [] };
+  const weeklyResult = staffProgressTabs
+    ? await loadProgressSection("weekly", () => loadProgressWeeklyActivity())
+    : { ok: true as const, data: [] };
 
   const myPlanResult =
-    mode === "self"
+    mode === "self" || mode === "trainer"
       ? await loadProgressSection("myPlan", () => loadMyProgressPlan(user.id))
       : { ok: true as const, data: null };
 
@@ -101,7 +100,10 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
     tabErrors.myPlan = myPlanResult.message;
   }
 
-  const mySummary = mode === "self" ? (people[0] ?? null) : null;
+  const mySummary =
+    mode === "self" || mode === "trainer"
+      ? (people.find((row) => row.userId === user.id) ?? people[0] ?? null)
+      : null;
   const planModules = myPlan
     ? [
         ...myPlan.thisWeek,

@@ -8,6 +8,7 @@ import {
   checkGates,
   checkReason,
   checkSetting,
+  checkSkillsMinTestCases,
   checkWeek0Sections,
   parseJsonText,
 } from "@/lib/settings/validators";
@@ -189,6 +190,12 @@ describe("certification", () => {
     ]);
     expect(checkFoundationCertification({ ...valid, safety_quiz_pass_pct: -1 }).ok).toBe(false);
     expect(checkFoundationCertification({ ...valid, safety_quiz_must_pass: "yes" }).ok).toBe(false);
+  });
+
+  it("skills min test cases must be 1 to 50", () => {
+    expect(checkSkillsMinTestCases(8).ok).toBe(true);
+    expect(checkSkillsMinTestCases(0).ok).toBe(false);
+    expect(checkSkillsMinTestCases(51).ok).toBe(false);
   });
 
   it("department weeks of live use must be 1 to 12", () => {

@@ -1,8 +1,9 @@
 import { isProductionAppEnv, readAppEnv } from "@/lib/app-env";
+import { isPreLaunchDatabase } from "@/lib/system/pre-launch";
 
-/** Visible on every page when this deployment is not production. */
+/** Visible on preview and local builds (not production pre-launch or cut-over production). */
 export function DevelopmentRibbon() {
-  if (isProductionAppEnv()) {
+  if (isProductionAppEnv() || isPreLaunchDatabase()) {
     return null;
   }
   const env = readAppEnv();

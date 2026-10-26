@@ -8,11 +8,15 @@ import { formatDate } from "@/lib/format";
 
 export function AcknowledgeBox({
   pageId,
+  pageTitle,
   version,
+  label,
   acknowledgedAt,
 }: {
   pageId: string;
+  pageTitle: string;
   version: number;
+  label: string;
   acknowledgedAt: string | null;
 }) {
   const [confirmedAt, setConfirmedAt] = useState(acknowledgedAt);
@@ -28,7 +32,8 @@ export function AcknowledgeBox({
 
   return (
     <div className="rounded-lg border border-border bg-surface p-4">
-      <p className="mb-3 text-sm">I have read and will follow these rules</p>
+      <p className="mb-3 text-sm">{label}</p>
+      <p className="mb-3 text-xs text-muted-foreground">Confirm you have read {pageTitle}.</p>
       <Button
         type="button"
         disabled={pending}

@@ -233,19 +233,23 @@ export function ProgressScreen({
       .sort((left, right) => left.sortKey.localeCompare(right.sortKey, "en", { numeric: true }));
   }, [myPlan]);
 
-  const defaultTab = mode === "self" ? "my" : "people";
+  const defaultTab = mode === "self" || mode === "trainer" ? "my" : "people";
 
   return (
     <Tabs defaultValue={defaultTab}>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <TabsList>
-          {mode === "self" ? <TabsTrigger value="my">My progress</TabsTrigger> : null}
+          {mode === "self" || mode === "trainer" ? <TabsTrigger value="my">My progress</TabsTrigger> : null}
           {mode !== "self" ? <TabsTrigger value="people">People</TabsTrigger> : null}
           {mode === "manager" || mode === "trainer" ? (
             <TabsTrigger value="departments">Department{mode === "trainer" ? "s" : ""}</TabsTrigger>
           ) : null}
-          {mode === "trainer" ? <TabsTrigger value="modules">Modules</TabsTrigger> : null}
-          {mode === "trainer" ? <TabsTrigger value="weekly">Weekly activity</TabsTrigger> : null}
+          {mode === "trainer" || mode === "manager" ? (
+            <TabsTrigger value="modules">Modules</TabsTrigger>
+          ) : null}
+          {mode === "trainer" || mode === "manager" ? (
+            <TabsTrigger value="weekly">Weekly activity</TabsTrigger>
+          ) : null}
         </TabsList>
         {mode === "trainer" && onIncludeTestAccountsChange ? (
           <label className="flex items-center gap-2 text-sm">
@@ -260,7 +264,7 @@ export function ProgressScreen({
         ) : null}
       </div>
 
-      {mode === "self" ? (
+      {mode === "self" || mode === "trainer" ? (
         <TabsContent value="my" className="space-y-6">
           {tabNotice("myPlan")}
           {mySummary ? (
@@ -370,7 +374,7 @@ export function ProgressScreen({
         </TabsContent>
       ) : null}
 
-      {mode === "trainer" ? (
+      {mode === "trainer" || mode === "manager" ? (
         <TabsContent value="modules">
           {tabNotice("modules")}
           <DataTable
@@ -382,7 +386,7 @@ export function ProgressScreen({
         </TabsContent>
       ) : null}
 
-      {mode === "trainer" ? (
+      {mode === "trainer" || mode === "manager" ? (
         <TabsContent value="weekly">
           {tabNotice("weekly")}
           <DataTable

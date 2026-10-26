@@ -28,9 +28,23 @@ Plain-English guide for running the academy on the platform. Screenshots: store 
 - Confirm placement builds the learner plan. **Overrides** need a reason and stay when the plan is regenerated.
 - Test-out quizzes and assignments update plan gates when passed (see programme architecture / DL-027).
 
+## Skills catalogue (Content › Skills)
+
+- Seven **certification** Skills are seeded as **drafts** (no owner) until each department owns one.
+- Add a **version** (instructions text, changelog, test cases). Submit for review needs at least `skills.min_test_cases` passed (default 8).
+- **Approvals queue:** department manager for that Skill’s department **and** a trainer must both approve; either can request changes (returns to draft).
+- **Go live** needs an owner and a live-since date; learners log real use on `/skills/[name]`. **Certification evidence** tab shows counts and whether two weeks of live use is met (Malaysia dates).
+
+## Prompt library (Content › Prompts)
+
+- Import JSON drafts per `docs/content/PROMPT_FORMAT.md`; mark submitted prompts **tested** (test notes + at least three sample tasks) or return with comments.
+- Learners only see **tested** prompts on `/prompt-library`; copy and feedback log ids only — filled placeholder text stays in the browser.
+
+- Managers see usage **counts** only, not individual log lines.
+
 ## Progress
 
-- **People / Departments / Modules / Weekly** tabs; optional **Include test accounts** on dev only.
+- **My progress** is the first tab for trainers and admins, then People / Departments / Modules / Weekly; optional **Include test accounts** on dev only.
 - Managers see counts, not mark columns.
 
 ## When someone is locked out

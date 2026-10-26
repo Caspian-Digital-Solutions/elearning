@@ -43,6 +43,21 @@ afterEach(async () => {
 });
 
 describe("admin_mark_leaver", () => {
+  it("refuses to mark the last active admin as a leaver", async () => {
+    const exists = await client.query(`select proname from pg_proc where proname = 'admin_mark_leaver'`);
+    if (!exists.rowCount) {
+      return;
+    }
+    await expect(
+      db.as(adminId, (query) =>
+        query(`select public.admin_mark_leaver($1, $2)`, [
+          adminId,
+          "Attempting to mark the only admin as a leaver for test",
+        ]),
+      ),
+    ).rejects.toThrow(/cannot mark yourself|last active admin/i);
+  });
+
   it("deactivates the person and sets left_at", async () => {
     const exists = await client.query(`select proname from pg_proc where proname = 'admin_mark_leaver'`);
     if (!exists.rowCount) {

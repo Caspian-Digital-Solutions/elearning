@@ -9,6 +9,7 @@ let learnerA: string;
 let learnerB: string;
 let managerId: string;
 let trainerId: string;
+let adminId: string;
 
 beforeAll(async () => {
   client = await connect();
@@ -44,6 +45,13 @@ beforeEach(async () => {
     fullName: "Prog Trainer",
     department: "content",
     role: "trainer",
+    scope: "all",
+  });
+  adminId = await db.createPerson({
+    key: "prog-ad",
+    fullName: "Prog Admin",
+    department: "content",
+    role: "admin",
     scope: "all",
   });
 });
@@ -91,5 +99,17 @@ describe("progress views access", () => {
       query(`select week0_total, quiz_best_summary from public.progress_person_trainer limit 5`),
     );
     expect(rows.rows.length).toBeGreaterThan(0);
+  });
+
+  it("admin, trainer and manager can read progress_module_summary without 42501", async () => {
+    if (!migrationReady) {
+      return;
+    }
+    for (const actor of [adminId, trainerId, managerId]) {
+      const rows = await db.as(actor, (query) =>
+        query(`select module_code from public.progress_module_summary limit 3`),
+      );
+      expect(rows.rows.length).toBeGreaterThan(0);
+    }
   });
 });

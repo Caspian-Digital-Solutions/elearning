@@ -1,6 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
+import { PreLaunchRibbon } from "@/components/layout/pre-launch-ribbon";
 import { AcknowledgementBanner } from "@/components/layout/acknowledgement-banner";
 import { HideOnHelp } from "@/components/layout/hide-on-help";
 import { noteLastSeen, requireUser } from "@/lib/auth";
@@ -33,7 +34,9 @@ async function SignedInShell({ children }: { children: ReactNode }) {
     badges["/what-changed"] = unread;
   }
   return (
-    <AppShell user={user} badges={Object.keys(badges).length ? badges : undefined}>
+    <>
+      <PreLaunchRibbon user={user} />
+      <AppShell user={user} badges={Object.keys(badges).length ? badges : undefined}>
       <HideOnHelp>
         <Suspense fallback={null}>
           <AcknowledgementBanner />
@@ -41,5 +44,6 @@ async function SignedInShell({ children }: { children: ReactNode }) {
       </HideOnHelp>
       {children}
     </AppShell>
+    </>
   );
 }
