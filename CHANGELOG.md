@@ -2,6 +2,7 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-26 | 13 | Skills catalogue: migration `20261030120000_skills_catalogue.sql` (seven certification Skills as drafts, approvals, usage logs, manager count views), learner `/skills`, trainer Content › Skills tab, `skills.min_test_cases` admin form, Vitest `tests/skills/*`, RLS `tests/rls/skills-catalogue.test.ts`, Playwright `/skills` sign-in. |
 | 2026-10-26 | 12 | Review fixes (privacy acknowledgement label, banner page names, last-admin leaver UI + DB guard, My progress for trainers) and prompt library: migration `20261029120000_prompt_library.sql`, learner `/prompt-library`, trainer Content › Prompts, `docs/content/PROMPT_FORMAT.md`, `scripts/seed-sample-prompts.ts`, Vitest and RLS tests. |
 | 2026-10-22 | 11a | Launch readiness: security headers, rate limits (`check_rate_limit`), `APP_ENV=production` guards, privacy help page, leavers and retention admin UI, personal data ZIP export (CSVs; submission files listed only), access matrix sweep tests, guides, `docs/security/*`, `docs/PRODUCTION_CUTOVER.md`. Migration `20261028100000_launch_readiness.sql`. |
 | 2026-10-22 | 10b | Progress page per-tab errors; `connection()` for signed-in prerender; Supabase `getClaims()` on server client. |

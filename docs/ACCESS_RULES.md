@@ -185,3 +185,11 @@ Private bucket `content-images`. Row-level security on `storage.objects`: any au
 - **Workflow RPCs:** `submit_prompt_for_review`, `mark_prompt_tested`, `retire_prompt`, `return_prompt_with_comments`, `log_prompt_copy`, `give_prompt_feedback` (payload is ids/version/outcome only — never filled prompt text).
 - **Samples:** `APP_ENV=production` blocks SAMPLE titles and `is_sample` prompts; see `tests/security/production-content.test.ts` and `tests/rls/prompt-library.test.ts`.
 - **Admin events:** `admin_log_event` for personal data export audit rows.
+
+### Skills catalogue (Prompt 13)
+
+- **`skills`:** learners read **approved**, **live** and **retired** rows only; champions and the department’s manager see **draft** and **in_review** for their department; owners see their own rows; trainers and admins see all states.
+- **`skill_versions` / `skill_approvals`:** readable when the parent Skill is readable; workflow changes go through RPCs (`save_skill_version`, `submit_skill_for_review`, `decide_skill_approval`, `set_skill_live`, `retire_skill`).
+- **`skill_usage_logs`:** each person inserts and edits their own logs (24 hours); trainers and admins read all; the Skill owner and department manager read logs for that Skill; **managers** otherwise read **counts only** via `skill_usage_manager_counts` (no names or task text).
+- **Setting:** `skills.min_test_cases` (default 8) gates submit-for-review.
+- **Seed:** seven certification Skills are inserted idempotently by migration `20261030120000_skills_catalogue.sql` (not in `supabase/seed.sql`).

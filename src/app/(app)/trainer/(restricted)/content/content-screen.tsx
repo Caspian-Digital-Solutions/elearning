@@ -14,6 +14,9 @@ import { AssessmentPreviewDialog } from "@/app/(app)/trainer/(restricted)/conten
 import type { TrainerAssessmentListRow } from "@/lib/assessments/queries";
 import type { TrainerAssignmentListRow } from "@/lib/assignments/queries";
 import type { TrainerPromptListRow } from "@/lib/prompts/queries";
+import type { DepartmentCertificationRow, SkillApprovalQueueItem, TrainerSkillListRow } from "@/lib/skills/queries";
+import { SkillApprovalPanel } from "@/app/(app)/trainer/(restricted)/content/skill-approval-panel";
+import { SkillCertificationPanel } from "@/app/(app)/trainer/(restricted)/content/skill-certification-panel";
 import { publishAssessment } from "@/app/(app)/trainer/(restricted)/content/assessment-actions";
 import { AssignmentImportDialog } from "@/app/(app)/trainer/(restricted)/content/assignment-import-dialog";
 import { publishAssignment } from "@/app/(app)/trainer/(restricted)/content/assignment-actions";
@@ -29,6 +32,9 @@ export function ContentScreen({
   prompts,
   reviewQueue,
   promptImportCodes,
+  skills,
+  skillApprovalQueue,
+  certificationEvidence,
   championOnly = false,
   defaultTab = "pages",
 }: {
@@ -45,8 +51,11 @@ export function ContentScreen({
     submitter: { full_name: string | null } | null;
   }[];
   promptImportCodes: { departmentCodes: string[]; moduleCodes: string[] };
+  skills: TrainerSkillListRow[];
+  skillApprovalQueue: SkillApprovalQueueItem[];
+  certificationEvidence: DepartmentCertificationRow[];
   championOnly?: boolean;
-  defaultTab?: "pages" | "updates" | "lessons" | "assessments" | "assignments" | "prompts";
+  defaultTab?: "pages" | "updates" | "lessons" | "assessments" | "assignments" | "prompts" | "skills";
 }) {
   return (
     <div className="space-y-6">
@@ -62,6 +71,7 @@ export function ContentScreen({
           {!championOnly ? <TabsTrigger value="assessments">Assessments</TabsTrigger> : null}
           {!championOnly ? <TabsTrigger value="assignments">Assignments</TabsTrigger> : null}
           <TabsTrigger value="prompts">Prompts</TabsTrigger>
+          <TabsTrigger value="skills">Skills</TabsTrigger>
         </TabsList>
         {!championOnly ? (
         <>
@@ -337,6 +347,48 @@ export function ContentScreen({
               )}
             />
           </section>
+        </TabsContent>
+        <TabsContent value="skills" className="space-y-8">
+          {!championOnly ? (
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-heading">Approvals queue</h2>
+            <SkillApprovalPanel items={skillApprovalQueue} />
+          </section>
+          ) : null}
+          <section className="space-y-3">
+            <DataTable
+              rowKey="id"
+              columns={[
+                { key: "name", header: "Name" },
+                { key: "department", header: "Department" },
+                { key: "owner", header: "Owner" },
+                { key: "status", header: "Status" },
+                { key: "version", header: "Version" },
+                { key: "tests", header: "Tests passed / total" },
+                { key: "headApproval", header: "Dept head" },
+                { key: "trainerApproval", header: "Trainer" },
+                { key: "liveSince", header: "Live since" },
+                { key: "usageCount", header: "Uses" },
+                { key: "distinctPeople", header: "People" },
+                { key: "distinctDays", header: "Days with use" },
+              ]}
+              rows={skills}
+              caption="Skills catalogue (trainer view)"
+              exportFileName="skills-trainer.csv"
+              filters={[{ key: "status", label: "Status" }, { key: "department", label: "Department" }]}
+              rowActions={(row) => (
+                <Button variant="outline" size="sm" render={<Link href={`/trainer/content/skills/${row.id}`} />}>
+                  Edit
+                </Button>
+              )}
+            />
+          </section>
+          {!championOnly ? (
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-heading">Department certification evidence</h2>
+            <SkillCertificationPanel rows={certificationEvidence} />
+          </section>
+          ) : null}
         </TabsContent>
       </Tabs>
     </div>

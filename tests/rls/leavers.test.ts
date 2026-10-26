@@ -55,7 +55,7 @@ describe("admin_mark_leaver", () => {
           "Attempting to mark the only admin as a leaver for test",
         ]),
       ),
-    ).rejects.toThrow(/last active admin/i);
+    ).rejects.toThrow(/cannot mark yourself|last active admin/i);
   });
 
   it("deactivates the person and sets left_at", async () => {

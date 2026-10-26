@@ -5,6 +5,11 @@ import { loadTrainerLessons } from "@/lib/lessons/queries";
 import { loadTrainerAssessments } from "@/lib/assessments/queries";
 import { loadTrainerAssignments } from "@/lib/assignments/queries";
 import { loadReviewQueue, loadTrainerPrompts } from "@/lib/prompts/queries";
+import {
+  loadDepartmentCertificationEvidence,
+  loadSkillApprovalQueue,
+  loadTrainerSkills,
+} from "@/lib/skills/queries";
 import { createClient } from "@/lib/supabase/server";
 import { ContentScreen } from "@/app/(app)/trainer/(restricted)/content/content-screen";
 
@@ -34,6 +39,9 @@ export default async function Page({
     reviewQueue,
     departments,
     modules,
+    skills,
+    skillApprovalQueue,
+    certificationEvidence,
   ] = await Promise.all([
     loadTrainerPages(),
     loadTrainerUpdates(),
@@ -44,14 +52,18 @@ export default async function Page({
     loadReviewQueue(),
     supabase.from("departments").select("code"),
     supabase.from("modules").select("code"),
+    loadTrainerSkills(),
+    loadSkillApprovalQueue(),
+    loadDepartmentCertificationEvidence(),
   ]);
   const defaultTab = championOnly
-    ? "prompts"
+    ? tab === "skills" ? "skills" : "prompts"
     : tab === "lessons" ||
         tab === "updates" ||
         tab === "assessments" ||
         tab === "assignments" ||
-        tab === "prompts"
+        tab === "prompts" ||
+        tab === "skills"
       ? tab
       : "pages";
   return (
@@ -73,6 +85,9 @@ export default async function Page({
         departmentCodes: (departments.data ?? []).map((d) => d.code),
         moduleCodes: (modules.data ?? []).map((m) => m.code),
       }}
+      skills={skills}
+      skillApprovalQueue={skillApprovalQueue}
+      certificationEvidence={certificationEvidence}
       defaultTab={defaultTab}
     />
   );

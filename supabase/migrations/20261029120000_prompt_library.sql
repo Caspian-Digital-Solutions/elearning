@@ -165,7 +165,7 @@ comment on view public.prompt_copy_manager_counts is
   'Managers may read copy counts only; no user ids.';
 
 -- Task types setting
-insert into public.app_settings (key, value, description)
+insert into public.app_settings (key, value, note)
 values (
   'library.task_types',
   '["research","drafting","editing","summarising","analysis","reporting","planning","ideation","quality check","meeting notes"]'::jsonb,
