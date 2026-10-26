@@ -12,6 +12,7 @@
 | Credential stuffing on OAuth callback | `auth.callback` rate limit per IP | `tests/rls/rate-limit.test.ts` |
 | Accidental double-submit | Per-user rate limits on submit/save | attempt/assignment actions |
 | Advisor: function search_path | Migration `20261028100000` sets `search_path` on new functions | Supabase db lint |
+| Content-Security-Policy `script-src` includes `'unsafe-inline'` | Any XSS on a page could run arbitrary script in the user’s browser session. Next.js 16 can emit nonce-based CSP headers, but that needs middleware changes, careful handling of inline bootstraps, and regression testing across auth and uploads. **Recommendation:** keep `'unsafe-inline'` for the academy launch; schedule a focused CSP hardening spike after R&D review, with Playwright checks on sign-in and trainer uploads. | `next.config.ts` headers; manual review |
 
 ## Advisor follow-ups
 

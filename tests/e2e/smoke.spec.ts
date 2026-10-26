@@ -31,6 +31,7 @@ for (const path of [
   "/admin/settings",
   "/admin/audit",
   "/progress",
+  "/prompt-library",
 ]) {
   test(`a signed-out visit to ${path} lands on the sign-in page`, async ({ page }) => {
     await page.goto(path);

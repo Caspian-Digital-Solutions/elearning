@@ -26,6 +26,7 @@ const pageDraftInput = z.strictObject({
     .union([z.iso.date(), z.literal("")])
     .transform((v) => v || null),
   requiresAcknowledgement: z.boolean(),
+  acknowledgementLabel: z.string().trim().min(1).max(200).optional(),
   sortOrder: z.number().int().min(0).max(9999),
 });
 
@@ -84,6 +85,8 @@ export async function savePageDraft(input: z.input<typeof pageDraftInput>): Prom
         owner_id: parsed.data.ownerId,
         review_by: parsed.data.reviewBy,
         requires_acknowledgement: parsed.data.requiresAcknowledgement,
+        acknowledgement_label:
+          parsed.data.acknowledgementLabel?.trim() || "I have read and will follow these rules",
       })
       .select("id")
       .single();
@@ -100,6 +103,8 @@ export async function savePageDraft(input: z.input<typeof pageDraftInput>): Prom
         owner_id: parsed.data.ownerId,
         review_by: parsed.data.reviewBy,
         requires_acknowledgement: parsed.data.requiresAcknowledgement,
+        acknowledgement_label:
+          parsed.data.acknowledgementLabel?.trim() || "I have read and will follow these rules",
         ...(!existing?.published_at
           ? { slug: slugCheck.value, title: parsed.data.title }
           : {}),
@@ -115,6 +120,8 @@ export async function savePageDraft(input: z.input<typeof pageDraftInput>): Prom
     owner_id: parsed.data.ownerId,
     review_by: parsed.data.reviewBy,
     requires_acknowledgement: parsed.data.requiresAcknowledgement,
+    acknowledgement_label:
+      parsed.data.acknowledgementLabel?.trim() || "I have read and will follow these rules",
     sort_order: parsed.data.sortOrder,
   };
 

@@ -74,7 +74,7 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
       : { ok: true as const, data: [] };
 
   const myPlanResult =
-    mode === "self"
+    mode === "self" || mode === "trainer"
       ? await loadProgressSection("myPlan", () => loadMyProgressPlan(user.id))
       : { ok: true as const, data: null };
 
@@ -101,7 +101,10 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
     tabErrors.myPlan = myPlanResult.message;
   }
 
-  const mySummary = mode === "self" ? (people[0] ?? null) : null;
+  const mySummary =
+    mode === "self" || mode === "trainer"
+      ? (people.find((row) => row.userId === user.id) ?? people[0] ?? null)
+      : null;
   const planModules = myPlan
     ? [
         ...myPlan.thisWeek,

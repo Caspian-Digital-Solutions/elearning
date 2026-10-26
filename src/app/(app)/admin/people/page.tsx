@@ -30,5 +30,8 @@ async function PeopleData() {
     return null;
   }
   const people = await loadPeople();
-  return <PeopleAdminScreen people={people} currentUserId={user.id} />;
+  const activeAdminCount = people.filter((person) => person.isActive && person.role === "admin").length;
+  return (
+    <PeopleAdminScreen people={people} currentUserId={user.id} activeAdminCount={activeAdminCount} />
+  );
 }

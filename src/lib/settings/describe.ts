@@ -12,6 +12,7 @@ export const settingNames: Record<string, string> = {
   "marking.double_mark_sample_pct": "Double-mark sample %",
   "marking.difference_threshold_pct": "Marking difference threshold %",
   "marking.target_working_days": "Marking target working days",
+  "skills.min_test_cases": "Skills minimum test cases",
 };
 
 export function settingName(key: string): string {
@@ -77,6 +78,8 @@ export function summariseSetting(key: string, value: Json | unknown): string {
       return `${value}%`;
     case "marking.target_working_days":
       return `${value} working days (Malaysia)`;
+    case "skills.min_test_cases":
+      return `${value} test cases before review`;
   }
   const text = JSON.stringify(value);
   return text.length > 120 ? `${text.slice(0, 117)}...` : text;

@@ -34,7 +34,11 @@ export default async function Page({ params }: { params: Promise<{ page: string 
       ? await loadUserAcknowledgement(user.id, page.id, page.version)
       : null;
 
-  const ownerName = (page as { profiles?: { full_name: string | null } }).profiles?.full_name ?? "—";
+  const ownerRaw = (page as { profiles?: { full_name: string | null } }).profiles?.full_name?.trim();
+  const ownerName = ownerRaw || "not yet assigned";
+  const acknowledgementLabel =
+    (page as { acknowledgement_label?: string }).acknowledgement_label ??
+    "I have read and will follow these rules";
 
   return (
     <div className="space-y-6">
@@ -47,7 +51,9 @@ export default async function Page({ params }: { params: Promise<{ page: string 
       {page.requires_acknowledgement ? (
         <AcknowledgeBox
           pageId={page.id}
+          pageTitle={page.title}
           version={page.version}
+          label={acknowledgementLabel}
           acknowledgedAt={ack?.acknowledged_at ?? null}
         />
       ) : null}

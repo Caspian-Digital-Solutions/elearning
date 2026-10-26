@@ -38,9 +38,11 @@ const columns: DataColumn<Row>[] = [
 export function PeopleAdminScreen({
   people,
   currentUserId,
+  activeAdminCount,
 }: {
   people: PersonRecord[];
   currentUserId: string;
+  activeAdminCount: number;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -70,27 +72,35 @@ export function PeopleAdminScreen({
         rowKey="id"
         caption="All people"
         exportFileName="admin-people.csv"
-        rowActions={(row) => (
-          <div className="flex flex-wrap gap-2">
+        rowActions={(row) => {
+          const person = people.find((item) => item.id === row.id);
+          const isLastActiveAdmin =
+            Boolean(person?.isActive && person.role === "admin" && activeAdminCount <= 1);
+          return (
+          <div className="flex flex-wrap items-center gap-2">
             <Button type="button" size="sm" variant="outline" render={<a href={`/admin/people/export/${row.id}`} />}>
               Export data
             </Button>
+            {isLastActiveAdmin ? (
+              <span className="text-xs text-muted-foreground">Cannot mark the last active admin as a leaver.</span>
+            ) : (
             <Button
               type="button"
               size="sm"
               variant="outline"
               disabled={row.id === currentUserId || row.active === "No"}
               onClick={() => {
-                const person = people.find((item) => item.id === row.id) ?? null;
-                setLeaver(person);
+                setLeaver(person ?? null);
                 setReason("");
                 setError(null);
               }}
             >
               Mark as leaver
             </Button>
+            )}
           </div>
-        )}
+          );
+        }}
       />
       <Dialog open={Boolean(leaver)} onOpenChange={(open) => !open && setLeaver(null)}>
         <DialogContent>

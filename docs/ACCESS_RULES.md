@@ -177,4 +177,11 @@ Private bucket `content-images`. Row-level security on `storage.objects`: any au
 
 - **Rate limits:** `check_rate_limit` RPC; see `tests/rls/rate-limit.test.ts`.
 - **Leavers:** `admin_mark_leaver`, `profiles.left_at`; see `tests/rls/leavers.test.ts`.
+
+### Prompt library (Prompt 12)
+
+- **`prompts`:** learners read **tested** rows only; champions insert/update **draft** prompts for their own department; trainers and admins read/write all workflow states.
+- **`prompt_feedback` / `prompt_copies`:** people insert their own rows; trainers and admins read feedback; managers read **counts only** via `prompt_feedback_manager_counts` and `prompt_copy_manager_counts` (no names or comments).
+- **Workflow RPCs:** `submit_prompt_for_review`, `mark_prompt_tested`, `retire_prompt`, `return_prompt_with_comments`, `log_prompt_copy`, `give_prompt_feedback` (payload is ids/version/outcome only — never filled prompt text).
+- **Samples:** `APP_ENV=production` blocks SAMPLE titles and `is_sample` prompts; see `tests/security/production-content.test.ts` and `tests/rls/prompt-library.test.ts`.
 - **Admin events:** `admin_log_event` for personal data export audit rows.

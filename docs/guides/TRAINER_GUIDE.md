@@ -28,9 +28,16 @@ Plain-English guide for running the academy on the platform. Screenshots: store 
 - Confirm placement builds the learner plan. **Overrides** need a reason and stay when the plan is regenerated.
 - Test-out quizzes and assignments update plan gates when passed (see programme architecture / DL-027).
 
+## Prompt library (Content › Prompts)
+
+- Import JSON drafts per `docs/content/PROMPT_FORMAT.md`; mark submitted prompts **tested** (test notes + at least three sample tasks) or return with comments.
+- Learners only see **tested** prompts on `/prompt-library`; copy and feedback log ids only — filled placeholder text stays in the browser.
+
+- Managers see usage **counts** only, not individual log lines.
+
 ## Progress
 
-- **People / Departments / Modules / Weekly** tabs; optional **Include test accounts** on dev only.
+- **My progress** is the first tab for trainers and admins, then People / Departments / Modules / Weekly; optional **Include test accounts** on dev only.
 - Managers see counts, not mark columns.
 
 ## When someone is locked out

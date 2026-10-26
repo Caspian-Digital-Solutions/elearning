@@ -1,0 +1,31 @@
+export type PromptStatus = "draft" | "in_review" | "tested" | "retired";
+export type AiTool = "claude" | "perplexity" | "chatgpt";
+export type RiskTier = "low" | "medium" | "high";
+export type PromptFeedbackOutcome = "worked" | "needed_edits" | "did_not_work";
+
+export type PromptRow = {
+  id: string;
+  slug: string;
+  title: string;
+  department_id: string | null;
+  task_type: string;
+  tool: AiTool;
+  module_id: string | null;
+  risk_tier: RiskTier;
+  body: string;
+  usage_notes_md: string;
+  example_md: string;
+  version: number;
+  owner_id: string | null;
+  status: PromptStatus;
+  submitted_by: string | null;
+  submit_notes_md: string | null;
+  tested_by: string | null;
+  tested_at: string | null;
+  test_notes_md: string | null;
+  tasks_tried_count: number | null;
+  retired_reason: string | null;
+  is_sample: boolean;
+  created_at: string;
+  updated_at: string;
+};

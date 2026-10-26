@@ -167,7 +167,7 @@ export async function loadHelpPageBySlug(slug: string) {
   const { data: page } = await supabase
     .from("pages")
     .select(
-      "id, slug, title, body_md, version, review_by, published_at, requires_acknowledgement, owner_id, profiles!pages_owner_id_fkey ( full_name )",
+      "id, slug, title, body_md, version, review_by, published_at, requires_acknowledgement, acknowledgement_label, owner_id, profiles!pages_owner_id_fkey ( full_name )",
     )
     .eq("slug", slug)
     .eq("status", "published")
@@ -205,16 +205,17 @@ export async function loadUpdateBySlug(slug: string) {
   return data;
 }
 
-export async function needsAcknowledgementBanner(userId: string): Promise<boolean> {
+export async function loadPendingAcknowledgementPages(userId: string): Promise<{ id: string; title: string }[]> {
   const supabase = await createClient();
   const { data: pages } = await supabase
     .from("pages")
-    .select("id, version")
+    .select("id, title, version")
     .eq("status", "published")
     .eq("requires_acknowledgement", true);
   if (!pages?.length) {
-    return false;
+    return [];
   }
+  const pending: { id: string; title: string }[] = [];
   for (const page of pages) {
     const { data: ack } = await supabase
       .from("page_acknowledgements")
@@ -224,10 +225,15 @@ export async function needsAcknowledgementBanner(userId: string): Promise<boolea
       .eq("version", page.version)
       .maybeSingle();
     if (!ack) {
-      return true;
+      pending.push({ id: page.id, title: page.title });
     }
   }
-  return false;
+  return pending;
+}
+
+export async function needsAcknowledgementBanner(userId: string): Promise<boolean> {
+  const pending = await loadPendingAcknowledgementPages(userId);
+  return pending.length > 0;
 }
 
 export async function loadUserAcknowledgement(userId: string, pageId: string, version: number) {

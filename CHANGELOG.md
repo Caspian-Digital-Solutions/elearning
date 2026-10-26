@@ -2,6 +2,7 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-26 | 12 | Review fixes (privacy acknowledgement label, banner page names, last-admin leaver UI + DB guard, My progress for trainers) and prompt library: migration `20261029120000_prompt_library.sql`, learner `/prompt-library`, trainer Content › Prompts, `docs/content/PROMPT_FORMAT.md`, `scripts/seed-sample-prompts.ts`, Vitest and RLS tests. |
 | 2026-10-22 | 11a | Launch readiness: security headers, rate limits (`check_rate_limit`), `APP_ENV=production` guards, privacy help page, leavers and retention admin UI, personal data ZIP export (CSVs; submission files listed only), access matrix sweep tests, guides, `docs/security/*`, `docs/PRODUCTION_CUTOVER.md`. Migration `20261028100000_launch_readiness.sql`. |
 | 2026-10-22 | 10b | Progress page per-tab errors; `connection()` for signed-in prerender; Supabase `getClaims()` on server client. |
 | 2026-10-22 | 10 | Progress views and demo data: `progress_*` SQL views, `/progress` role-based tabs and person detail, `src/lib/progress/*`, `scripts/demo-data.ts` with `DEV_PROJECT_REF` guard, review fixes (assessment card labels, settings audit metadata, audit fold at 8 fields). Migration `20261027100000_progress_views.sql`. |
