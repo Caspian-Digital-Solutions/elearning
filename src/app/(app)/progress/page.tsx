@@ -13,6 +13,11 @@ import {
   loadProgressPeopleRows,
   loadProgressWeeklyActivity,
 } from "@/lib/progress/queries";
+import {
+  loadDepartmentTaskStats,
+  loadMyTimelogBundle,
+  timelogMinGroupSize,
+} from "@/lib/timelog/queries";
 import { ProgressPageClient } from "./progress-page-client";
 
 export const metadata: Metadata = {
@@ -83,7 +88,9 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
   const weekly = weeklyResult.ok ? weeklyResult.data : [];
   const myPlan = myPlanResult.ok ? myPlanResult.data : null;
 
-  const tabErrors: Partial<Record<"people" | "departments" | "modules" | "weekly" | "myPlan", string>> = {};
+  const tabErrors: Partial<
+    Record<"people" | "departments" | "modules" | "weekly" | "myPlan" | "timeTotals", string>
+  > = {};
   if (!peopleResult.ok) {
     tabErrors.people = peopleResult.message;
   }
@@ -124,6 +131,20 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
       ? departments.filter((row) => row.department_id === departmentScope)
       : departments;
 
+  const myTimelog = await loadMyTimelogBundle(user.id, user.departmentId);
+  const showStaffTimeTab =
+    user.actualRole === "trainer" ||
+    user.actualRole === "admin" ||
+    (user.actualRole === "manager" && user.progressScope !== "self");
+  const timeStatsResult = showStaffTimeTab
+    ? await loadProgressSection("timeTotals", () => loadDepartmentTaskStats())
+    : { ok: true as const, data: [] };
+  const timeStats = timeStatsResult.ok ? timeStatsResult.data : [];
+  const minGroupSize = await timelogMinGroupSize();
+  if (!timeStatsResult.ok) {
+    tabErrors.timeTotals = timeStatsResult.message;
+  }
+
   return (
     <ProgressPageClient
       mode={mode}
@@ -137,6 +158,11 @@ async function ProgressData({ searchParams }: { searchParams: SearchParams }) {
       canOpenPerson={canOpenPerson}
       showTrainerMarks={showTrainerMarks}
       tabErrors={tabErrors}
+      myTimelog={myTimelog}
+      timeStats={timeStats}
+      minGroupSize={minGroupSize}
+      showStaffTimeTab={showStaffTimeTab}
+      viewerIsTrainerOrAdmin={user.actualRole === "trainer" || user.actualRole === "admin"}
     />
   );
 }

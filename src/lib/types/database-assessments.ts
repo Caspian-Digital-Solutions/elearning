@@ -554,7 +554,6 @@ type AssessmentEnums = {
 };
 
 export type AppDatabase = {
-  graphql_public: Database["graphql_public"];
   public: {
     Tables: Database["public"]["Tables"] & AssessmentTables;
     Views: Database["public"]["Views"];

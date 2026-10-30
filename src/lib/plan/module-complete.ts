@@ -74,12 +74,23 @@ export function isModuleComplete(
   progress: readonly LessonProgressRow[],
   quiz: ModuleQuizState | null,
   assignments: readonly ModuleAssignmentRequirement[] = [],
+  options?: { moduleCode?: string; f7LoggedDistinctTasks?: number; f7RequiredLogs?: number },
 ): boolean {
-  return (
+  const lessonsOk =
     allPublishedLessonsComplete(lessons, progress) &&
     moduleQuizSatisfied(quiz) &&
-    assignmentsSatisfied(assignments)
-  );
+    assignmentsSatisfied(assignments);
+  if (!lessonsOk) {
+    return false;
+  }
+  if (options?.moduleCode === "F7") {
+    const required = options.f7RequiredLogs ?? 2;
+    const logged = options.f7LoggedDistinctTasks ?? 0;
+    if (logged < required) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export function moduleQuizOutcomeLabel(quiz: ModuleQuizState): string | null {

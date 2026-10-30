@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { ProgressDepartmentRow, ProgressModuleRow, ProgressWeeklyRow } from "@/lib/progress/types";
 import type { ProgressPeopleTableRow } from "@/lib/progress/queries";
 import type { PlanModuleRow } from "@/lib/plan/queries";
+import type { DepartmentTaskStatRow } from "@/lib/timelog/queries";
 import { ProgressScreen } from "./progress-screen";
 
 export function ProgressPageClient(props: {
@@ -17,7 +18,14 @@ export function ProgressPageClient(props: {
   includeTestAccounts: boolean;
   canOpenPerson: boolean;
   showTrainerMarks: boolean;
-  tabErrors?: Partial<Record<"people" | "departments" | "modules" | "weekly" | "myPlan", string>>;
+  tabErrors?: Partial<
+    Record<"people" | "departments" | "modules" | "weekly" | "myPlan" | "timeTotals", string>
+  >;
+  myTimelog: Awaited<ReturnType<typeof import("@/lib/timelog/queries").loadMyTimelogBundle>>;
+  timeStats: DepartmentTaskStatRow[];
+  minGroupSize: number;
+  showStaffTimeTab: boolean;
+  viewerIsTrainerOrAdmin: boolean;
 }) {
   const router = useRouter();
   return (

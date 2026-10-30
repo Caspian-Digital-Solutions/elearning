@@ -13,6 +13,8 @@ export const settingNames: Record<string, string> = {
   "marking.difference_threshold_pct": "Marking difference threshold %",
   "marking.target_working_days": "Marking target working days",
   "skills.min_test_cases": "Skills minimum test cases",
+  "timelog.f7_required_logs": "F7 distinct time logs required",
+  "timelog.min_group_size": "Time log minimum group size",
 };
 
 export function settingName(key: string): string {
@@ -80,6 +82,10 @@ export function summariseSetting(key: string, value: Json | unknown): string {
       return `${value} working days (Malaysia)`;
     case "skills.min_test_cases":
       return `${value} test cases before review`;
+    case "timelog.f7_required_logs":
+      return `${value} distinct tasks for F7`;
+    case "timelog.min_group_size":
+      return `${value} people minimum for manager totals`;
   }
   const text = JSON.stringify(value);
   return text.length > 120 ? `${text.slice(0, 117)}...` : text;

@@ -2,6 +2,7 @@
 
 | Date | Prompt | Change |
 |---|---|---|
+| 2026-10-30 | 14 | Baseline tasks and time logs: migration `20261031000000_baseline_tasks_and_time_logs.sql`, Progress › My time log and Time tabs, F7 distinct-task rule, `timelog.*` settings, Vitest and RLS tests, demo seed extension. |
 | 2026-10-26 | 13b | Reconcile `develop` with Prompts 12–13; pre-launch ribbon and `/admin/system` wording for production on the development database; Progress › Modules `42501` fix; help prerender and footer dates; `AGENTS.md` branch guard. |
 | 2026-10-26 | 11b | Production cut-over **tooling** (no prod project yet): `develop` workflow, DEVELOPMENT ribbon, `/admin/system`, `db:push:dev`/`db:push:prod`, `db:check:dev`/`db:check:prod`, `promote-content.ts`, `compare-rls-policies.ts`, `docs/RUNBOOK.md`, DL-029. Migration `20261029110000_platform_migration_head.sql`. |
 | 2026-10-26 | 13 | Skills catalogue: migration `20261030120000_skills_catalogue.sql` (seven certification Skills as drafts, approvals, usage logs, manager count views), learner `/skills`, trainer Content › Skills tab, `skills.min_test_cases` admin form, Vitest `tests/skills/*`, RLS `tests/rls/skills-catalogue.test.ts`, Playwright `/skills` sign-in. |

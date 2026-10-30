@@ -3,25 +3,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type Database = {
   
-  "graphql_public": {
-          Tables: {
-            [_ in never]: never
-          }
-          Views: {
-            [_ in never]: never
-          }
-          Functions: {
-            "graphql":
-{ Args: { "extensions"?: Json,"operationName"?: string,"query"?: string,"variables"?: Json }; Returns: Json
-                           }
-          }
-          Enums: {
-            [_ in never]: never
-          }
-          CompositeTypes: {
-            [_ in never]: never
-          }
-        },"public": {
+  "public": {
           Tables: {
             "app_settings": {
                   Row: {
@@ -344,6 +326,88 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"baseline_tasks": {
+                  Row: {
+                    "code": string,"created_at": string,"department_id": string,"description": string,"id": string,"is_active": boolean,"name": string,"note": string | null,"sort_order": number,"unit": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"created_at"?: string,"department_id": string,"description"?: string,"id"?: string,"is_active"?: boolean,"name": string,"note"?: string | null,"sort_order"?: number,"unit": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "code"?: string,"created_at"?: string,"department_id"?: string,"description"?: string,"id"?: string,"is_active"?: boolean,"name"?: string,"note"?: string | null,"sort_order"?: number,"unit"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "baseline_tasks_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "baseline_tasks_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "baseline_tasks_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "baseline_tasks_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
+    }
+                  ]
+                },"baselines": {
+                  Row: {
+                    "basis": Database["public"]['Enums']["baseline_basis_type"],"created_at": string,"id": string,"locked_at": string | null,"minutes_without_ai": number,"set_on": string,"task_id": string,"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "basis": Database["public"]['Enums']["baseline_basis_type"],"created_at"?: string,"id"?: string,"locked_at"?: string | null,"minutes_without_ai": number,"set_on"?: string,"task_id": string,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "basis"?: Database["public"]['Enums']["baseline_basis_type"],"created_at"?: string,"id"?: string,"locked_at"?: string | null,"minutes_without_ai"?: number,"set_on"?: string,"task_id"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "baselines_task_id_fkey"
+      columns: ["task_id"]
+isOneToOne: false
+      referencedRelation: "baseline_tasks"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "baselines_task_id_fkey"
+      columns: ["task_id"]
+isOneToOne: false
+      referencedRelation: "time_log_department_task_stats"
+      referencedColumns: ["task_id"]
+    },{
+      foreignKeyName: "baselines_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "baselines_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "baselines_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    }
                   ]
                 },"cohort_breaks": {
                   Row: {
@@ -781,14 +845,14 @@ isOneToOne: false
                   ]
                 },"pages": {
                   Row: {
-                    "body_md": string,"created_at": string,"id": string,"owner_id": string | null,"published_at": string | null,"published_by": string | null,"acknowledgement_label": string,"requires_acknowledgement": boolean,"review_by": string | null,"slug": string,"sort_order": number,"status": Database["public"]['Enums']["content_status"],"title": string,"updated_at": string,"version": number
+                    "acknowledgement_label": string,"body_md": string,"created_at": string,"id": string,"owner_id": string | null,"published_at": string | null,"published_by": string | null,"requires_acknowledgement": boolean,"review_by": string | null,"slug": string,"sort_order": number,"status": Database["public"]['Enums']["content_status"],"title": string,"updated_at": string,"version": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"acknowledgement_label"?: string,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug": string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title": string,"updated_at"?: string,"version"?: number
+                    "acknowledgement_label"?: string,"body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug": string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title": string,"updated_at"?: string,"version"?: number
                   }
                   Update: {
-                    "body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"acknowledgement_label"?: string,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug"?: string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title"?: string,"updated_at"?: string,"version"?: number
+                    "acknowledgement_label"?: string,"body_md"?: string,"created_at"?: string,"id"?: string,"owner_id"?: string | null,"published_at"?: string | null,"published_by"?: string | null,"requires_acknowledgement"?: boolean,"review_by"?: string | null,"slug"?: string,"sort_order"?: number,"status"?: Database["public"]['Enums']["content_status"],"title"?: string,"updated_at"?: string,"version"?: number
                   }
                   Relationships: [
                     {
@@ -934,6 +998,200 @@ isOneToOne: false
       referencedRelation: "progress_person_trainer"
       referencedColumns: ["department_id"]
     }
+                  ]
+                },"prompt_copies": {
+                  Row: {
+                    "copied_at": string,"id": string,"prompt_id": string,"prompt_version": number,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "copied_at"?: string,"id"?: string,"prompt_id": string,"prompt_version": number,"user_id": string
+                  }
+                  Update: {
+                    "copied_at"?: string,"id"?: string,"prompt_id"?: string,"prompt_version"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "prompt_copies_prompt_id_fkey"
+      columns: ["prompt_id"]
+isOneToOne: false
+      referencedRelation: "prompts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "prompt_copies_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "prompt_copies_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "prompt_copies_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    }
+                  ]
+                },"prompt_feedback": {
+                  Row: {
+                    "comment": string | null,"created_at": string,"declaration": boolean,"id": string,"outcome": Database["public"]['Enums']["prompt_feedback_outcome"],"prompt_id": string,"prompt_version": number,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "comment"?: string | null,"created_at"?: string,"declaration"?: boolean,"id"?: string,"outcome": Database["public"]['Enums']["prompt_feedback_outcome"],"prompt_id": string,"prompt_version": number,"user_id": string
+                  }
+                  Update: {
+                    "comment"?: string | null,"created_at"?: string,"declaration"?: boolean,"id"?: string,"outcome"?: Database["public"]['Enums']["prompt_feedback_outcome"],"prompt_id"?: string,"prompt_version"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "prompt_feedback_prompt_id_fkey"
+      columns: ["prompt_id"]
+isOneToOne: false
+      referencedRelation: "prompts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "prompt_feedback_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "prompt_feedback_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "prompt_feedback_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    }
+                  ]
+                },"prompts": {
+                  Row: {
+                    "body": string,"created_at": string,"department_id": string | null,"example_md": string,"id": string,"is_sample": boolean,"module_id": string | null,"owner_id": string | null,"retired_reason": string | null,"risk_tier": Database["public"]['Enums']["risk_tier"],"slug": string,"status": Database["public"]['Enums']["prompt_status"],"submit_notes_md": string | null,"submitted_by": string | null,"task_type": string,"tasks_tried_count": number | null,"test_notes_md": string | null,"tested_at": string | null,"tested_by": string | null,"title": string,"tool": Database["public"]['Enums']["ai_tool"],"updated_at": string,"usage_notes_md": string,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"department_id"?: string | null,"example_md"?: string,"id"?: string,"is_sample"?: boolean,"module_id"?: string | null,"owner_id"?: string | null,"retired_reason"?: string | null,"risk_tier"?: Database["public"]['Enums']["risk_tier"],"slug": string,"status"?: Database["public"]['Enums']["prompt_status"],"submit_notes_md"?: string | null,"submitted_by"?: string | null,"task_type": string,"tasks_tried_count"?: number | null,"test_notes_md"?: string | null,"tested_at"?: string | null,"tested_by"?: string | null,"title": string,"tool": Database["public"]['Enums']["ai_tool"],"updated_at"?: string,"usage_notes_md"?: string,"version"?: number
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"department_id"?: string | null,"example_md"?: string,"id"?: string,"is_sample"?: boolean,"module_id"?: string | null,"owner_id"?: string | null,"retired_reason"?: string | null,"risk_tier"?: Database["public"]['Enums']["risk_tier"],"slug"?: string,"status"?: Database["public"]['Enums']["prompt_status"],"submit_notes_md"?: string | null,"submitted_by"?: string | null,"task_type"?: string,"tasks_tried_count"?: number | null,"test_notes_md"?: string | null,"tested_at"?: string | null,"tested_by"?: string | null,"title"?: string,"tool"?: Database["public"]['Enums']["ai_tool"],"updated_at"?: string,"usage_notes_md"?: string,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "prompts_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "prompts_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "prompts_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "prompts_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "prompts_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "modules"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "prompts_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "progress_module_summary"
+      referencedColumns: ["module_id"]
+    },{
+      foreignKeyName: "prompts_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "prompts_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "prompts_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "prompts_submitted_by_fkey"
+      columns: ["submitted_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "prompts_submitted_by_fkey"
+      columns: ["submitted_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "prompts_submitted_by_fkey"
+      columns: ["submitted_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "prompts_tested_by_fkey"
+      columns: ["tested_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "prompts_tested_by_fkey"
+      columns: ["tested_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "prompts_tested_by_fkey"
+      columns: ["tested_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    }
+                  ]
+                },"rate_limit_events": {
+                  Row: {
+                    "action_key": string,"bucket_key": string,"created_at": string,"id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action_key": string,"bucket_key": string,"created_at"?: string,"id"?: string
+                  }
+                  Update: {
+                    "action_key"?: string,"bucket_key"?: string,"created_at"?: string,"id"?: string
+                  }
+                  Relationships: [
+                    
                   ]
                 },"response_scores": {
                   Row: {
@@ -1129,6 +1387,200 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"skill_approvals": {
+                  Row: {
+                    "approver_id": string,"approver_role": Database["public"]['Enums']["skill_approver_role"],"comment_md": string,"decided_at": string,"decision": Database["public"]['Enums']["skill_approval_decision"],"id": string,"skill_version_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "approver_id": string,"approver_role": Database["public"]['Enums']["skill_approver_role"],"comment_md"?: string,"decided_at"?: string,"decision": Database["public"]['Enums']["skill_approval_decision"],"id"?: string,"skill_version_id": string
+                  }
+                  Update: {
+                    "approver_id"?: string,"approver_role"?: Database["public"]['Enums']["skill_approver_role"],"comment_md"?: string,"decided_at"?: string,"decision"?: Database["public"]['Enums']["skill_approval_decision"],"id"?: string,"skill_version_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "skill_approvals_approver_id_fkey"
+      columns: ["approver_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skill_approvals_approver_id_fkey"
+      columns: ["approver_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "skill_approvals_approver_id_fkey"
+      columns: ["approver_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "skill_approvals_skill_version_id_fkey"
+      columns: ["skill_version_id"]
+isOneToOne: false
+      referencedRelation: "skill_versions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"skill_usage_logs": {
+                  Row: {
+                    "created_at": string,"declaration": boolean,"id": string,"minutes_saved": number | null,"outcome": Database["public"]['Enums']["skill_usage_outcome"],"skill_id": string,"skill_version": string,"task": string,"used_on": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"declaration"?: boolean,"id"?: string,"minutes_saved"?: number | null,"outcome": Database["public"]['Enums']["skill_usage_outcome"],"skill_id": string,"skill_version": string,"task": string,"used_on"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"declaration"?: boolean,"id"?: string,"minutes_saved"?: number | null,"outcome"?: Database["public"]['Enums']["skill_usage_outcome"],"skill_id"?: string,"skill_version"?: string,"task"?: string,"used_on"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "skill_usage_logs_skill_id_fkey"
+      columns: ["skill_id"]
+isOneToOne: false
+      referencedRelation: "skills"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skill_usage_logs_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skill_usage_logs_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "skill_usage_logs_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    }
+                  ]
+                },"skill_versions": {
+                  Row: {
+                    "changelog_md": string,"created_at": string,"created_by": string,"id": string,"skill_id": string,"skill_md_text": string,"test_cases_count": number,"test_cases_passed": number,"test_notes_md": string | null,"tested_at": string | null,"tested_by": string | null,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "changelog_md"?: string,"created_at"?: string,"created_by": string,"id"?: string,"skill_id": string,"skill_md_text"?: string,"test_cases_count"?: number,"test_cases_passed"?: number,"test_notes_md"?: string | null,"tested_at"?: string | null,"tested_by"?: string | null,"version": string
+                  }
+                  Update: {
+                    "changelog_md"?: string,"created_at"?: string,"created_by"?: string,"id"?: string,"skill_id"?: string,"skill_md_text"?: string,"test_cases_count"?: number,"test_cases_passed"?: number,"test_notes_md"?: string | null,"tested_at"?: string | null,"tested_by"?: string | null,"version"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "skill_versions_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skill_versions_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "skill_versions_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "skill_versions_skill_id_fkey"
+      columns: ["skill_id"]
+isOneToOne: false
+      referencedRelation: "skills"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skill_versions_tested_by_fkey"
+      columns: ["tested_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skill_versions_tested_by_fkey"
+      columns: ["tested_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "skill_versions_tested_by_fkey"
+      columns: ["tested_by"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    }
+                  ]
+                },"skills": {
+                  Row: {
+                    "boundaries_md": string,"created_at": string,"current_version": string,"department_id": string,"description": string,"display_name": string,"how_to_enable_md": string,"id": string,"is_certification_skill": boolean,"live_since": string | null,"name": string,"owner_id": string | null,"retired_reason": string | null,"review_version_id": string | null,"status": Database["public"]['Enums']["skill_status"],"updated_at": string,"can_read_skill_row": boolean | null
+                  }
+                  ComputedFields: "can_read_skill_row"
+                  Insert: {
+                    "boundaries_md"?: string,"created_at"?: string,"current_version"?: string,"department_id": string,"description"?: string,"display_name": string,"how_to_enable_md"?: string,"id"?: string,"is_certification_skill"?: boolean,"live_since"?: string | null,"name": string,"owner_id"?: string | null,"retired_reason"?: string | null,"review_version_id"?: string | null,"status"?: Database["public"]['Enums']["skill_status"],"updated_at"?: string
+                  }
+                  Update: {
+                    "boundaries_md"?: string,"created_at"?: string,"current_version"?: string,"department_id"?: string,"description"?: string,"display_name"?: string,"how_to_enable_md"?: string,"id"?: string,"is_certification_skill"?: boolean,"live_since"?: string | null,"name"?: string,"owner_id"?: string | null,"retired_reason"?: string | null,"review_version_id"?: string | null,"status"?: Database["public"]['Enums']["skill_status"],"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "skills_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skills_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "skills_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "skills_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "skills_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skills_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "skills_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "skills_review_version_fkey"
+      columns: ["review_version_id"]
+isOneToOne: false
+      referencedRelation: "skill_versions"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"stages": {
                   Row: {
                     "code": string,"created_at": string,"hours_per_week": number | null,"id": string,"name": string,"sort_order": number,"updated_at": string,"week_end": number,"week_start": number
@@ -1175,6 +1627,62 @@ isOneToOne: false
       referencedColumns: ["user_id"]
     },{
       foreignKeyName: "submissions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    }
+                  ]
+                },"time_logs": {
+                  Row: {
+                    "created_at": string,"declaration": boolean,"id": string,"logged_on": string,"minutes_with_ai": number,"note": string,"outcome": Database["public"]['Enums']["time_log_outcome_type"],"prompt_id": string | null,"skill_id": string | null,"task_id": string,"tools": (Database["public"]['Enums']["time_log_tool_type"])[],"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"declaration"?: boolean,"id"?: string,"logged_on": string,"minutes_with_ai": number,"note"?: string,"outcome": Database["public"]['Enums']["time_log_outcome_type"],"prompt_id"?: string | null,"skill_id"?: string | null,"task_id": string,"tools"?: (Database["public"]['Enums']["time_log_tool_type"])[],"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"declaration"?: boolean,"id"?: string,"logged_on"?: string,"minutes_with_ai"?: number,"note"?: string,"outcome"?: Database["public"]['Enums']["time_log_outcome_type"],"prompt_id"?: string | null,"skill_id"?: string | null,"task_id"?: string,"tools"?: (Database["public"]['Enums']["time_log_tool_type"])[],"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "time_logs_prompt_id_fkey"
+      columns: ["prompt_id"]
+isOneToOne: false
+      referencedRelation: "prompts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "time_logs_skill_id_fkey"
+      columns: ["skill_id"]
+isOneToOne: false
+      referencedRelation: "skills"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "time_logs_task_id_fkey"
+      columns: ["task_id"]
+isOneToOne: false
+      referencedRelation: "baseline_tasks"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "time_logs_task_id_fkey"
+      columns: ["task_id"]
+isOneToOne: false
+      referencedRelation: "time_log_department_task_stats"
+      referencedColumns: ["task_id"]
+    },{
+      foreignKeyName: "time_logs_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "time_logs_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "time_logs_user_id_fkey"
       columns: ["user_id"]
 isOneToOne: false
       referencedRelation: "progress_person_trainer"
@@ -1279,6 +1787,166 @@ isOneToOne: false
                   ComputedFields: never
                   Relationships: [
                     
+                  ]
+                },"prompt_copy_manager_counts": {
+                  Row: {
+                    "copy_count": number | null,"prompt_id": string | null,"prompt_version": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "prompt_copies_prompt_id_fkey"
+      columns: ["prompt_id"]
+isOneToOne: false
+      referencedRelation: "prompts"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"prompt_feedback_manager_counts": {
+                  Row: {
+                    "feedback_count": number | null,"outcome": Database["public"]['Enums']["prompt_feedback_outcome"] | null,"prompt_id": string | null,"prompt_version": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "prompt_feedback_prompt_id_fkey"
+      columns: ["prompt_id"]
+isOneToOne: false
+      referencedRelation: "prompts"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"skill_usage_manager_counts": {
+                  Row: {
+                    "department_id": string | null,"distinct_days": number | null,"distinct_users": number | null,"skill_id": string | null,"usage_count": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "skill_usage_logs_skill_id_fkey"
+      columns: ["skill_id"]
+isOneToOne: false
+      referencedRelation: "skills"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skills_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "skills_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "skills_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "skills_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
+    }
+                  ]
+                },"time_log_department_task_stats": {
+                  Row: {
+                    "department_code": string | null,"department_id": string | null,"department_name": string | null,"log_count": number | null,"median_baseline_minutes": number | null,"median_minutes_with_ai": number | null,"outcome_discarded": number | null,"outcome_edited": number | null,"outcome_kept": number | null,"people_logging": number | null,"people_with_baseline": number | null,"task_code": string | null,"task_id": string | null,"task_name": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "baseline_tasks_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "baseline_tasks_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "baseline_tasks_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "baseline_tasks_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
+    }
+                  ]
+                },"time_log_trainer_rows": {
+                  Row: {
+                    "created_at": string | null,"department_id": string | null,"department_name": string | null,"id": string | null,"is_test_account": boolean | null,"logged_on": string | null,"minutes_with_ai": number | null,"note": string | null,"outcome": Database["public"]['Enums']["time_log_outcome_type"] | null,"person_name": string | null,"task_code": string | null,"task_id": string | null,"task_name": string | null,"tools": (Database["public"]['Enums']["time_log_tool_type"])[] | null,"user_id": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "profiles_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "profiles_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_department_summary"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "profiles_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "profiles_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["department_id"]
+    },{
+      foreignKeyName: "time_logs_task_id_fkey"
+      columns: ["task_id"]
+isOneToOne: false
+      referencedRelation: "baseline_tasks"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "time_logs_task_id_fkey"
+      columns: ["task_id"]
+isOneToOne: false
+      referencedRelation: "time_log_department_task_stats"
+      referencedColumns: ["task_id"]
+    },{
+      foreignKeyName: "time_logs_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "time_logs_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_public"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "time_logs_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "progress_person_trainer"
+      referencedColumns: ["user_id"]
+    }
                   ]
                 }
           }
@@ -1438,9 +2106,6 @@ isOneToOne: false
 "attempt_item_applies":
 { Args: { "p_department_match_id": string,"p_item": Omit<Database["public"]['Tables']["assessment_items"]['Row'], Database["public"]['Tables']["assessment_items"]['ComputedFields']>,"p_section_code": string,"p_user_department_id": string }; Returns: boolean
                            },
-"check_rate_limit":
-{ Args: { "p_action_key": string,"p_bucket_key": string,"p_max_events": number,"p_window_seconds": number }; Returns: boolean
-                           },
 "calculate_placement":
 { Args: { "p_attempt_id": string }; Returns: {
               "attempt_id": string,
@@ -1469,11 +2134,17 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"can_read_skill_row":
+{ Args: { "s": Omit<Database["public"]['Tables']["skills"]['Row'], Database["public"]['Tables']["skills"]['ComputedFields']> }; Returns: boolean
+                           },
 "can_view_department":
 { Args: { "p_department_id": string }; Returns: boolean
                            },
 "can_view_user":
 { Args: { "target": string }; Returns: boolean
+                           },
+"check_rate_limit":
+{ Args: { "p_action_key": string,"p_bucket_key": string,"p_max_events": number,"p_window_seconds": number }; Returns: boolean
                            },
 "confirm_placement":
 { Args: { "p_attempt_id": string,"p_portfolio_reviewed"?: boolean,"p_reason"?: string,"p_stream": Database["public"]['Enums']["stream_type"] }; Returns: {
@@ -1506,6 +2177,9 @@ isOneToOne: false
 "current_app_role":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Enums']["app_role"]
                            },
+"decide_skill_approval":
+{ Args: { "p_comment_md": string,"p_decision": Database["public"]['Enums']["skill_approval_decision"],"p_skill_version_id": string }; Returns: undefined
+                           },
 "discard_sample_in_progress_attempt":
 { Args: { "p_attempt_id": string,"p_reason": string }; Returns: undefined
                            },
@@ -1527,6 +2201,9 @@ isOneToOne: false
               "assessment_code": string,"assessment_id": string,"assessment_title": string,"assessment_type": Database["public"]['Enums']["assessment_type"],"attempts_used": number,"best_percentage": number,"department_code": string,"email": string,"first_pass_at": string,"full_name": string,"last_attempt_at": string,"max_attempts": number,"pass_mark_pct": number,"passed": boolean,"user_id": string
             }[]
                            },
+"give_prompt_feedback":
+{ Args: { "p_comment": string,"p_declaration": boolean,"p_outcome": Database["public"]['Enums']["prompt_feedback_outcome"],"p_prompt_id": string,"p_prompt_version": number }; Returns: undefined
+                           },
 "has_role":
 { Args: { "roles": (Database["public"]['Enums']["app_role"])[] }; Returns: boolean
                            },
@@ -1536,8 +2213,23 @@ isOneToOne: false
 "is_allowed_sign_in_email":
 { Args: { "email": string }; Returns: boolean
                            },
+"is_skill_department_champion":
+{ Args: { "p_department_id": string }; Returns: boolean
+                           },
+"is_skill_department_head":
+{ Args: { "p_department_id": string }; Returns: boolean
+                           },
 "is_valid_content_slug":
 { Args: { "candidate": string }; Returns: boolean
+                           },
+"log_prompt_copy":
+{ Args: { "p_prompt_id": string,"p_prompt_version": number }; Returns: undefined
+                           },
+"log_skill_usage":
+{ Args: { "p_declaration": boolean,"p_minutes_saved": number,"p_outcome": Database["public"]['Enums']["skill_usage_outcome"],"p_skill_id": string,"p_skill_version": string,"p_task": string,"p_used_on": string }; Returns: string
+                           },
+"mark_prompt_tested":
+{ Args: { "p_prompt_id": string,"p_tasks_tried": number,"p_test_notes": string }; Returns: undefined
                            },
 "mark_updates_seen":
 { Args: Record<PropertyKey, never>; Returns: undefined
@@ -1568,6 +2260,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"platform_migration_head":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
 "publish_content":
 { Args: { "p_change_note": string,"p_id": string,"p_type": Database["public"]['Enums']["content_type"] }; Returns: number
                            },
@@ -1631,6 +2326,18 @@ isOneToOne: false
 "restore_revision":
 { Args: { "p_id": string,"p_revision_no": number,"p_type": Database["public"]['Enums']["content_type"] }; Returns: undefined
                            },
+"retire_prompt":
+{ Args: { "p_prompt_id": string,"p_reason": string }; Returns: undefined
+                           },
+"retire_skill":
+{ Args: { "p_reason": string,"p_skill_id": string }; Returns: undefined
+                           },
+"return_prompt_with_comments":
+{ Args: { "p_comments": string,"p_prompt_id": string }; Returns: undefined
+                           },
+"save_baseline":
+{ Args: { "p_basis": Database["public"]['Enums']["baseline_basis_type"],"p_minutes": number,"p_task_id": string }; Returns: string
+                           },
 "save_mark":
 { Args: { "p_comment_md"?: string,"p_criterion_scores": Json,"p_response_id": string }; Returns: {
               "auto_score": number | null,
@@ -1670,12 +2377,16 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
-"platform_migration_head":
-{ Args: Record<PropertyKey, never>; Returns: string
+"save_skill_version":
+{ Args: { "p_changelog_md": string,"p_skill_id": string,"p_skill_md_text": string,"p_test_cases_count": number,"p_test_cases_passed": number,"p_test_notes_md": string,"p_version": string }; Returns: string
+                           },
+"save_time_log":
+{ Args: { "p_declaration": boolean,"p_log_id": string,"p_logged_on": string,"p_minutes": number,"p_note": string,"p_outcome": Database["public"]['Enums']["time_log_outcome_type"],"p_prompt_id": string,"p_skill_id": string,"p_task_id": string,"p_tools": (Database["public"]['Enums']["time_log_tool_type"])[] }; Returns: string
                            },
 "search_help_pages":
 { Args: { "p_query": string }; Returns: {
-              "body_md": string,
+              "acknowledgement_label": string,
+"body_md": string,
 "created_at": string,
 "id": string,
 "owner_id": string | null,
@@ -1696,6 +2407,12 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"set_skill_live":
+{ Args: { "p_live_since": string,"p_skill_id": string }; Returns: undefined
+                           },
+"skill_min_test_cases":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "start_attempt":
 { Args: { "p_assessment_id": string }; Returns: {
               "allowed_by": string | null,
@@ -1765,6 +2482,45 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"submit_prompt_for_review":
+{ Args: { "p_notes": string,"p_prompt_id": string }; Returns: undefined
+                           },
+"submit_skill_for_review":
+{ Args: { "p_skill_version_id": string }; Returns: undefined
+                           },
+"timelog_baseline_is_locked":
+{ Args: { "p_task_id": string,"p_user_id": string }; Returns: boolean
+                           },
+"timelog_f7_distinct_tasks":
+{ Args: { "p_user_id": string }; Returns: number
+                           },
+"timelog_f7_required_logs":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"timelog_f7_satisfied":
+{ Args: { "p_user_id": string }; Returns: boolean
+                           },
+"timelog_log_editable_until":
+{ Args: { "p_created_at": string }; Returns: string
+                           },
+"timelog_min_group_size":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"timelog_setting_int":
+{ Args: { "p_default": number,"p_key": string }; Returns: number
+                           },
+"timelog_user_cohort_id":
+{ Args: { "p_user_id": string }; Returns: string
+                           },
+"timelog_week2_lock_instant":
+{ Args: { "p_user_id": string }; Returns: string
+                           },
+"trainer_set_baseline_lock":
+{ Args: { "p_lock": boolean,"p_reason"?: string,"p_task_id": string,"p_user_id": string }; Returns: undefined
+                           },
+"trainer_update_locked_baseline":
+{ Args: { "p_basis": Database["public"]['Enums']["baseline_basis_type"],"p_minutes": number,"p_reason": string,"p_task_id": string,"p_user_id": string }; Returns: string
+                           },
 "trainer_update_profiles":
 { Args: { "clear_fields"?: (string)[],"cohort_id"?: string,"department_id"?: string,"is_active"?: boolean,"reason"?: string,"specialist_pathway"?: Database["public"]['Enums']["specialist_pathway_type"],"stream"?: Database["public"]['Enums']["stream_type"],"user_ids": (string)[] }; Returns: number
                            },
@@ -1774,8 +2530,14 @@ isOneToOne: false
 "update_module_overview":
 { Args: { "p_body_md": string,"p_change_note": string,"p_module_id": string }; Returns: number
                            },
+"update_skill_usage_log":
+{ Args: { "p_declaration": boolean,"p_log_id": string,"p_minutes_saved": number,"p_outcome": Database["public"]['Enums']["skill_usage_outcome"],"p_task": string,"p_used_on": string }; Returns: undefined
+                           },
 "upload_submission_file":
 { Args: { "p_assignment_id": string,"p_byte_size": number,"p_filename": string,"p_mime_type": string }; Returns: string
+                           },
+"validate_skill_version_md":
+{ Args: { "p_skill_id": string,"p_skill_md_text": string }; Returns: undefined
                            },
 "withdraw_submission":
 { Args: { "p_submission_id": string }; Returns: {
@@ -1800,7 +2562,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "app_role": "learner"|"champion"|"manager"|"trainer"|"admin","assessment_type": "placement"|"quiz"|"safety_quiz"|"capstone","attempt_status": "in_progress"|"submitted"|"marking"|"marked"|"confirmed","content_status": "draft"|"published"|"archived","content_type": "page"|"update"|"lesson"|"module"|"assignment","item_type": "profile"|"choice"|"short_text"|"practical","lesson_kind": "lesson"|"recording"|"worked_example","plan_status": "required"|"optional"|"tested_out"|"bridge"|"not_applicable"|"test_out_pending","progress_scope_type": "self"|"department"|"all","response_format": "text"|"prompt_and_output"|"link","review_kind": "primary"|"double_mark"|"final","specialist_pathway_type": "business"|"builder"|"technical","stream_type": "foundation"|"practitioner"|"practitioner_fast_track"|"champion","submission_status": "submitted"|"in_review"|"returned"|"resubmit_requested"|"withdrawn"
+            "ai_tool": "claude"|"perplexity"|"chatgpt","app_role": "learner"|"champion"|"manager"|"trainer"|"admin","assessment_type": "placement"|"quiz"|"safety_quiz"|"capstone","attempt_status": "in_progress"|"submitted"|"marking"|"marked"|"confirmed","baseline_basis_type": "measured"|"estimate","content_status": "draft"|"published"|"archived","content_type": "page"|"update"|"lesson"|"module"|"assignment"|"prompt","item_type": "profile"|"choice"|"short_text"|"practical","lesson_kind": "lesson"|"recording"|"worked_example","plan_status": "required"|"optional"|"tested_out"|"bridge"|"not_applicable"|"test_out_pending","progress_scope_type": "self"|"department"|"all","prompt_feedback_outcome": "worked"|"needed_edits"|"did_not_work","prompt_status": "draft"|"in_review"|"tested"|"retired","response_format": "text"|"prompt_and_output"|"link","review_kind": "primary"|"double_mark"|"final","risk_tier": "low"|"medium"|"high","skill_approval_decision": "approved"|"changes_requested","skill_approver_role": "department_head"|"trainer"|"governance","skill_status": "draft"|"in_review"|"approved"|"live"|"retired","skill_usage_outcome": "kept"|"edited"|"discarded","specialist_pathway_type": "business"|"builder"|"technical","stream_type": "foundation"|"practitioner"|"practitioner_fast_track"|"champion","submission_status": "submitted"|"in_review"|"returned"|"resubmit_requested"|"withdrawn","time_log_outcome_type": "kept"|"edited_heavily"|"discarded","time_log_tool_type": "claude"|"perplexity"|"chatgpt"|"other"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1914,13 +2676,9 @@ export type CompositeTypes<
   : never
 
 export const Constants = {
-  "graphql_public": {
+  "public": {
           Enums: {
-            
-          }
-        },"public": {
-          Enums: {
-            "app_role": ["learner", "champion", "manager", "trainer", "admin"],"assessment_type": ["placement", "quiz", "safety_quiz", "capstone"],"attempt_status": ["in_progress", "submitted", "marking", "marked", "confirmed"],"content_status": ["draft", "published", "archived"],"content_type": ["page", "update", "lesson", "module", "assignment"],"item_type": ["profile", "choice", "short_text", "practical"],"lesson_kind": ["lesson", "recording", "worked_example"],"plan_status": ["required", "optional", "tested_out", "bridge", "not_applicable", "test_out_pending"],"progress_scope_type": ["self", "department", "all"],"response_format": ["text", "prompt_and_output", "link"],"review_kind": ["primary", "double_mark", "final"],"specialist_pathway_type": ["business", "builder", "technical"],"stream_type": ["foundation", "practitioner", "practitioner_fast_track", "champion"],"submission_status": ["submitted", "in_review", "returned", "resubmit_requested", "withdrawn"]
+            "ai_tool": ["claude", "perplexity", "chatgpt"],"app_role": ["learner", "champion", "manager", "trainer", "admin"],"assessment_type": ["placement", "quiz", "safety_quiz", "capstone"],"attempt_status": ["in_progress", "submitted", "marking", "marked", "confirmed"],"baseline_basis_type": ["measured", "estimate"],"content_status": ["draft", "published", "archived"],"content_type": ["page", "update", "lesson", "module", "assignment", "prompt"],"item_type": ["profile", "choice", "short_text", "practical"],"lesson_kind": ["lesson", "recording", "worked_example"],"plan_status": ["required", "optional", "tested_out", "bridge", "not_applicable", "test_out_pending"],"progress_scope_type": ["self", "department", "all"],"prompt_feedback_outcome": ["worked", "needed_edits", "did_not_work"],"prompt_status": ["draft", "in_review", "tested", "retired"],"response_format": ["text", "prompt_and_output", "link"],"review_kind": ["primary", "double_mark", "final"],"risk_tier": ["low", "medium", "high"],"skill_approval_decision": ["approved", "changes_requested"],"skill_approver_role": ["department_head", "trainer", "governance"],"skill_status": ["draft", "in_review", "approved", "live", "retired"],"skill_usage_outcome": ["kept", "edited", "discarded"],"specialist_pathway_type": ["business", "builder", "technical"],"stream_type": ["foundation", "practitioner", "practitioner_fast_track", "champion"],"submission_status": ["submitted", "in_review", "returned", "resubmit_requested", "withdrawn"],"time_log_outcome_type": ["kept", "edited_heavily", "discarded"],"time_log_tool_type": ["claude", "perplexity", "chatgpt", "other"]
           }
         }
 } as const

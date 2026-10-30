@@ -32,7 +32,7 @@ Cursor updates the Status, Date and Notes columns at the end of every prompt. Fu
 |---|---|---|
 | 12 | Prompt library | Prompt entries by department, task and tool; tested/retired status; copy button; owner and version | In progress, 2026-10-26. Migration `20261029120000_prompt_library.sql` (apply on dev). Review fixes: privacy footer/ack labels, last-admin leaver guard, My progress tab for trainers, CSP note in THREAT_NOTES. Learner `/prompt-library`, trainer Content › Prompts, import format, Vitest + RLS tests. |
 | 13 | Skills catalogue | Catalogue entries for the seven certification Skills and others; lowercase-hyphen name check; status flow draft → in review → approved → live → retired; how to switch it on in Claude; usage logs for department certification | Done, 2026-10-26. Migration `20261030120000_skills_catalogue.sql`. Learner `/skills`, trainer Content › Skills (list, edit, approvals queue, certification evidence tab), `skills.min_test_cases` setting, Vitest + `tests/rls/skills-catalogue.test.ts`, Playwright `/skills` sign-in check. |
-| 14 | Practitioner content and time logs | Practitioner lessons; baseline tasks and time logs (raw minutes) |
+| 14 | Practitioner content and time logs | Baseline tasks and time logs on Progress (My time log, Time tab), F7 distinct-task rule, `timelog.*` settings | 13b | Done, 2026-10-30 | Migration `20261031000000_baseline_tasks_and_time_logs.sql`. Phase 2 complete for time logs; practitioner lessons still future. |
 
 ## Phase 3 — by Week 13
 | # | Prompt | Delivers |

@@ -29,6 +29,8 @@ export const knownSettingKeys = [
   "marking.difference_threshold_pct",
   "marking.target_working_days",
   "skills.min_test_cases",
+  "timelog.f7_required_logs",
+  "timelog.min_group_size",
 ] as const;
 
 export type KnownSettingKey = (typeof knownSettingKeys)[number];
@@ -47,6 +49,14 @@ const percentage = (label: string) =>
 
 function zodErrors(error: z.ZodError): string[] {
   return [...new Set(error.issues.map((issue) => issue.message))];
+}
+
+function checkTimelogWholeNumber(label: string, value: Json, min: number, max: number): CheckResult<number> {
+  const parsed = wholeNumber(label).min(min).max(max).safeParse(value);
+  if (!parsed.success) {
+    return { ok: false, errors: zodErrors(parsed.error) };
+  }
+  return { ok: true, value: parsed.data };
 }
 
 // Week-0 sections ----------------------------------------------------------
@@ -442,6 +452,10 @@ export function checkSetting(
       return asJson(checkMarkingTargetWorkingDays(value));
     case "skills.min_test_cases":
       return asJson(checkSkillsMinTestCases(value));
+    case "timelog.f7_required_logs":
+      return asJson(checkTimelogWholeNumber("F7 required logs", value as Json, 1, 20));
+    case "timelog.min_group_size":
+      return asJson(checkTimelogWholeNumber("Minimum group size", value as Json, 2, 20));
     default:
       return value === undefined ? { ok: false, errors: ["The new value is empty."] } : { ok: true, value: value as Json };
   }

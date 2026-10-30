@@ -8,10 +8,12 @@ function ModuleList({
   rows,
   empty,
   showDue = true,
+  f7TimeLog,
 }: {
   rows: PlanModuleRow[];
   empty: string;
   showDue?: boolean;
+  f7TimeLog?: { logged: number; required: number } | null;
 }) {
   if (rows.length === 0) {
     return <p className="text-sm text-muted-foreground">{empty}</p>;
@@ -29,6 +31,15 @@ function ModuleList({
           <p className="mt-1 text-muted-foreground">
             Lessons {row.lessonsDone} of {row.lessonsTotal} done
             {row.quizLabel ? ` · ${row.quizLabel}` : ""}
+            {row.code === "F7" && f7TimeLog ? (
+              <>
+                {" "}
+                ·{" "}
+                <Link href="/progress" className="text-accent-strong underline underline-offset-2">
+                  Time logs: {f7TimeLog.logged} of {f7TimeLog.required} tasks
+                </Link>
+              </>
+            ) : null}
           </p>
         </li>
       ))}
@@ -103,7 +114,7 @@ export function MyPathScreen({ state }: { state: MyPathState }) {
 
       <section className="space-y-2">
         <h2 className="font-heading text-lg text-heading">This week</h2>
-        <ModuleList rows={plan.thisWeek} empty="Nothing due this programme week." />
+        <ModuleList rows={plan.thisWeek} empty="Nothing due this programme week." f7TimeLog={plan.f7TimeLog} />
       </section>
 
       {plan.bridges.length > 0 ? (

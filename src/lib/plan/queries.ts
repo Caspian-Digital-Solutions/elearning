@@ -21,6 +21,7 @@ import { blockForStream } from "@/lib/plan/stream-rules";
 import { planStreamRulesFromSetting } from "@/lib/plan/stream-rules-setting";
 import type { PlanStatus, TestOutRule } from "@/lib/plan/types";
 import { findPublishedAssignmentByCode } from "@/lib/assignments/queries";
+import { loadF7DistinctLogCount, timelogF7Required } from "@/lib/timelog/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export type PlanModuleRow = {
@@ -67,6 +68,7 @@ export type MyPathPlanView = {
   bridges: PlanModuleRow[];
   testOuts: MyPathTestOutCard[];
   week5TestOutNote: string | null;
+  f7TimeLog: { logged: number; required: number } | null;
   comingUp: PlanModuleRow[];
   overdue: PlanModuleRow[];
   maySkip: PlanModuleRow[];
@@ -466,12 +468,17 @@ function buildPlanModuleRow(
   quiz: ModuleQuizState | null,
   week0: string | null,
   breaks: readonly CohortBreak[],
+  f7Counts?: { logged: number; required: number },
 ): PlanModuleRow {
   const progressRows = lessons
     .filter((lesson) => lesson.status === "published" && progressByLesson.has(lesson.id))
     .map((lesson) => ({ lessonId: lesson.id }));
   const publishedCount = lessons.filter((lesson) => lesson.status === "published").length;
-  const done = isModuleComplete(lessons, progressRows, quiz);
+  const done = isModuleComplete(lessons, progressRows, quiz, [], {
+    moduleCode: meta.code,
+    f7LoggedDistinctTasks: f7Counts?.logged,
+    f7RequiredLogs: f7Counts?.required,
+  });
   let completedAt: string | null = null;
   if (done && publishedCount > 0) {
     const times = lessons
@@ -645,6 +652,9 @@ export async function loadMyPathState(userId: string): Promise<MyPathState> {
   const joined = await loadPlanRowsForUser(userId, supabase);
   const { lessonsByModule, progressByLesson } = await loadProgressMaps(userId, supabase);
   const quizByModule = await loadQuizStateByModule(userId, supabase);
+  const f7Required = await timelogF7Required();
+  const f7Logged = await loadF7DistinctLogCount(userId);
+  const f7Counts = { logged: f7Logged, required: f7Required };
 
   const rows: PlanModuleRow[] = joined.map(({ meta, plan }) =>
     buildPlanModuleRow(
@@ -655,6 +665,7 @@ export async function loadMyPathState(userId: string): Promise<MyPathState> {
       quizByModule.get(meta.id) ?? null,
       week0,
       breakRows,
+      f7Counts,
     ),
   );
 
@@ -740,6 +751,7 @@ export async function loadMyPathState(userId: string): Promise<MyPathState> {
       bridges,
       testOuts,
       week5TestOutNote,
+      f7TimeLog: { logged: f7Logged, required: f7Required },
       comingUp,
       overdue,
       maySkip,

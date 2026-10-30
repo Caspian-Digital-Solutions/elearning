@@ -1,4 +1,4 @@
-export type ProgressTab = "people" | "departments" | "modules" | "weekly" | "myPlan";
+export type ProgressTab = "people" | "departments" | "modules" | "weekly" | "myPlan" | "timeTotals";
 
 const tabLabels: Record<ProgressTab, string> = {
   people: "the people list",
@@ -6,6 +6,7 @@ const tabLabels: Record<ProgressTab, string> = {
   modules: "module summary",
   weekly: "weekly activity",
   myPlan: "your plan",
+  timeTotals: "time log totals",
 };
 
 export type ProgressSectionResult<T> =

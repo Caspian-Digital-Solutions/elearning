@@ -10,6 +10,9 @@ import { formatCount } from "@/lib/progress/format-count";
 import type { ProgressDepartmentRow, ProgressModuleRow, ProgressWeeklyRow } from "@/lib/progress/types";
 import type { ProgressPeopleTableRow } from "@/lib/progress/queries";
 import type { PlanModuleRow } from "@/lib/plan/queries";
+import type { DepartmentTaskStatRow } from "@/lib/timelog/queries";
+import { ProgressMyTimeLogPanel } from "./progress-my-timelog-panel";
+import { ProgressTimeTotalsPanel } from "./progress-time-totals-panel";
 
 const peopleBaseColumns: DataColumn<ProgressPeopleTableRow>[] = [
   { key: "person", header: "Person" },
@@ -104,6 +107,11 @@ export function ProgressScreen({
   canOpenPerson,
   showTrainerMarks,
   tabErrors,
+  myTimelog,
+  timeStats,
+  minGroupSize,
+  showStaffTimeTab,
+  viewerIsTrainerOrAdmin,
 }: {
   mode: "self" | "manager" | "trainer";
   people: ProgressPeopleTableRow[];
@@ -116,9 +124,21 @@ export function ProgressScreen({
   onIncludeTestAccountsChange?: (value: boolean) => void;
   canOpenPerson: boolean;
   showTrainerMarks: boolean;
-  tabErrors?: Partial<Record<"people" | "departments" | "modules" | "weekly" | "myPlan", string>>;
+  tabErrors?: Partial<
+    Record<"people" | "departments" | "modules" | "weekly" | "myPlan" | "timeTotals", string>
+  >;
+  myTimelog: Awaited<ReturnType<typeof import("@/lib/timelog/queries").loadMyTimelogBundle>>;
+  timeStats: DepartmentTaskStatRow[];
+  minGroupSize: number;
+  showStaffTimeTab: boolean;
+  viewerIsTrainerOrAdmin: boolean;
 }) {
-  function tabNotice(tab: keyof NonNullable<typeof tabErrors>) {
+  function tabNotice(
+    tab: keyof NonNullable<typeof tabErrors> | "myTimelog",
+  ) {
+    if (tab === "myTimelog") {
+      return null;
+    }
     const message = tabErrors?.[tab];
     if (!message) {
       return null;
@@ -250,6 +270,8 @@ export function ProgressScreen({
           {mode === "trainer" || mode === "manager" ? (
             <TabsTrigger value="weekly">Weekly activity</TabsTrigger>
           ) : null}
+          <TabsTrigger value="mytimelog">My time log</TabsTrigger>
+          {showStaffTimeTab ? <TabsTrigger value="time">Time</TabsTrigger> : null}
         </TabsList>
         {mode === "trainer" && onIncludeTestAccountsChange ? (
           <label className="flex items-center gap-2 text-sm">
@@ -402,6 +424,28 @@ export function ProgressScreen({
             rows={weeklyRows}
             caption="Weekly activity by cohort"
             exportFileName="progress-weekly.csv"
+          />
+        </TabsContent>
+      ) : null}
+
+      <TabsContent value="mytimelog">
+        <ProgressMyTimeLogPanel
+          baselines={myTimelog.baselines}
+          logs={myTimelog.logs}
+          numbers={myTimelog.numbers}
+          tasks={myTimelog.tasks.map((task) => ({ id: task.id, name: task.name, code: task.code }))}
+          f7Logged={myTimelog.f7Logged}
+          f7Required={myTimelog.f7Required}
+        />
+      </TabsContent>
+
+      {showStaffTimeTab ? (
+        <TabsContent value="time">
+          {tabNotice("timeTotals")}
+          <ProgressTimeTotalsPanel
+            rows={timeStats}
+            minGroupSize={minGroupSize}
+            viewerIsTrainerOrAdmin={viewerIsTrainerOrAdmin}
           />
         </TabsContent>
       ) : null}
